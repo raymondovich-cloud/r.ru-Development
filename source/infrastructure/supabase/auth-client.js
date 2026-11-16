@@ -1,4 +1,4 @@
-/* Version: 1.3.0 */
+/* Version: 1.4.0 */
 /* Updated: 2026-11-16 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -228,6 +228,16 @@ export const authClient = {
         p_project_type: projectType,
         p_component_codes: projectType === "online" ? componentCodes : [],
       },
+    });
+  },
+
+  async getProjects() {
+    const session = await this.getSession();
+    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
+    return request("/rest/v1/rpc/project_list", {
+      method: "POST",
+      accessToken: session.access_token,
+      body: {},
     });
   },
 
