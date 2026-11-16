@@ -1,4 +1,4 @@
-/* Version: 1.1.1 */
+/* Version: 1.1.2 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -147,8 +147,23 @@ export function renderPublicProfileView(container, payload, error = "") {
   const profile = payload.profile || payload.user || payload;
   const fullName = profile.full_name || profile.name || profile.username || "Пользователь Raymondovich";
   heading.textContent = fullName;
+
+  const identityRow = document.createElement("div");
+  identityRow.className = "public-profile-identity-row";
+  identityRow.append(heading);
+
+  if (String(profile.username || "").toLowerCase() === "raymondovich") {
+    const ownerBadge = document.createElement("span");
+    ownerBadge.className = "public-profile-owner-badge";
+    ownerBadge.setAttribute("role", "img");
+    ownerBadge.setAttribute("aria-label", "Владелец экосистемы");
+    ownerBadge.title = "Владелец экосистемы";
+    ownerBadge.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4.5 10.2 3.4 3.4 7.6-7.3"/></svg>';
+    identityRow.append(ownerBadge);
+  }
+
   description.textContent = profile.username ? `@${profile.username}` : "Публичный профиль Raymondovich";
-  panel.append(heading, description);
+  panel.append(identityRow, description);
 
   if (typeof profile.about === "string" && profile.about.trim()) {
     const aboutSection = document.createElement("section");
