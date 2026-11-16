@@ -1,4 +1,4 @@
-/* Version: 1.3.0 */
+/* Version: 1.3.1 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -51,10 +51,12 @@ if (root && pageMain) {
   }
 
   backButton?.addEventListener("click", () => {
+    const route = window.location.hash.replace(/^#/, "").split("?")[0];
+    const fallbackRoute = route.startsWith("profile/") ? "profile" : "home";
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      window.location.hash = "home";
+      window.location.hash = fallbackRoute;
     }
   });
 
