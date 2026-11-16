@@ -1,4 +1,4 @@
-/* Version: 1.2.1 */
+/* Version: 1.3.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -17,7 +17,7 @@ const backButton = document.querySelector("[data-page-back]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
-  const workspaceRoutes = new Set(["projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools"]);
+  const workspaceRoutes = new Set(["projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings"]);
   let currentMode = "login";
   let busy = false;
 
@@ -116,6 +116,33 @@ if (root && pageMain) {
   }
 
   root.addEventListener("submit", async (event) => {
+    const settingsForm = event.target.closest("[data-profile-settings-form]");
+    if (!settingsForm || busy) return;
+    event.preventDefault();
+    if (!settingsForm.reportValidity()) return;
+    const feedback = settingsForm.querySelector("[data-settings-feedback]");
+    const values = Object.fromEntries(new FormData(settingsForm).entries());
+    busy = true;
+    const submit = settingsForm.querySelector('button[type="submit"]');
+    if (submit) { submit.disabled = true; submit.textContent = "Сохранение…"; }
+    if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+    try {
+      await authClient.updateProfile({ full_name: String(values.full_name || "").trim(), ...(values.birth_date ? { birth_date: values.birth_date } : {}) });
+      const user = await authClient.getUser();
+      const profileData = await authClient.getProfile();
+      mountWorkspace(root, user, "profile/settings", profileData);
+      const refreshedFeedback = root.querySelector("[data-settings-feedback]");
+      if (refreshedFeedback) { refreshedFeedback.textContent = "Изменения сохранены."; refreshedFeedback.dataset.state = "success"; }
+    } catch (error) {
+      if (feedback) { feedback.textContent = error.message || "Не удалось сохранить изменения."; feedback.dataset.state = "error"; }
+    } finally {
+      busy = false;
+      const currentSubmit = root.querySelector('[data-profile-settings-form] button[type="submit"]');
+      if (currentSubmit) { currentSubmit.disabled = false; currentSubmit.textContent = "Сохранить изменения"; }
+    }
+  });
+
+  root.addEventListener("submit", async (event) => {
     const form = event.target.closest("[data-auth-form]");
     if (!form || busy) return;
     event.preventDefault();
@@ -177,6 +204,14 @@ if (root && pageMain) {
   });
 
   root.addEventListener("click", async (event) => {
+    const themeOption = event.target.closest("[data-theme-option]");
+    if (themeOption) {
+      const preference = themeOption.dataset.themeOption;
+      if (preference === "system") window.localStorage.removeItem("raymondovich-theme");
+      else window.localStorage.setItem("raymondovich-theme", preference);
+      window.dispatchEvent(new CustomEvent("raymondovich:theme-change", { detail: { preference } }));
+      return;
+    }
     if (!event.target.closest("[data-auth-signout]") || busy) return;
     busy = true;
     try {
