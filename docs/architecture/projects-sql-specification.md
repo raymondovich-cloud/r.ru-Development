@@ -1,6 +1,6 @@
 # Projects — SQL Specification
 
-**Version:** 2.3.0  
+**Version:** 2.4.0  
 **Status:** Architecture specification — review required before migration  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
