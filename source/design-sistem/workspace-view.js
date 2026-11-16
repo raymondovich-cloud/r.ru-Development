@@ -1,4 +1,4 @@
-/* Version: 1.7.0 */
+/* Version: 1.8.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -45,7 +45,6 @@ function settingsMarkup(user, profileData) {
  const fullName = profile.full_name || metadata.full_name || metadata.name || "";
  const birthDate = profile.birth_date || metadata.birth_date || "";
  const email = profileData?.email || user?.email || "";
- const username = profile.username || metadata.username || "";
  let preference = "system";
  try { preference = window.localStorage.getItem("raymondovich-theme") || "system"; } catch {}
  const labels = { system: "Как на устройстве", light: "Светлая", dark: "Тёмная" };
@@ -54,7 +53,6 @@ function settingsMarkup(user, profileData) {
   '<form class="settings-form" data-profile-settings-form>' +
   '<label class="settings-field"><span>ФИО</span><input name="full_name" type="text" autocomplete="name" minlength="3" maxlength="160" required value="' + escapeHtml(fullName) + '"></label>' +
   '<label class="settings-field"><span>Дата рождения</span><input name="birth_date" type="date" autocomplete="bday" required value="' + escapeHtml(birthDate) + '"></label>' +
-  '<label class="settings-field"><span>Логин</span><input type="text" value="' + escapeHtml(username ? "@" + username : "Не указан") + '" disabled><small>Логин нельзя изменить.</small></label>' +
   '<label class="settings-field"><span>Электронная почта</span><input type="email" value="' + escapeHtml(email) + '" disabled><small>Адрес используется для входа и восстановления доступа.</small></label>' +
   '<div class="settings-form-feedback" data-settings-feedback role="status" aria-live="polite"></div><button class="settings-primary-button" type="submit">Сохранить изменения</button></form></section>' +
   '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Выберите тему интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
