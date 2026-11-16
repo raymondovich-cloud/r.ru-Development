@@ -1,4 +1,4 @@
-/* Version: 2.7.0 */
+/* Version: 2.8.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -512,4 +512,35 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 @media (max-width: 520px) {
  .project-info-popover { width: min(360px, calc(100vw - 32px)); }
  .project-info-card { padding: 15px; }
+}
+
+
+/* Project member invite dialog and aligned project avatar */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.project-detail-heading { align-items: center; justify-content: space-between; }
+.project-detail-heading h2 { min-width: 0; flex: 1 1 auto; }
+.project-info-avatar { margin-left: auto; }
+.project-members-heading { align-items: center; }
+.project-members-add-button { flex: 0 0 auto; }
+.project-member-add-button { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border: 1px solid var(--color-accent-border); border-radius: 13px; color: var(--color-accent); background: var(--color-accent-wash); font: inherit; font-size: 24px; font-weight: 450; line-height: 1; cursor: pointer; transition: transform var(--motion-standard), border-color var(--motion-standard), background-color var(--motion-standard); }
+.project-member-add-button:hover { transform: translateY(-1px); border-color: var(--color-accent); }
+.project-member-add-button:focus-visible, .project-member-dialog-close:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.project-member-dialog { width: min(100% - 32px, 480px); max-width: 480px; max-height: min(80svh, 680px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--color-surface-border); border-radius: 24px; color: var(--color-text); background: var(--color-surface); box-shadow: 0 24px 80px rgb(0 0 0 / .28); }
+.project-member-dialog::backdrop { background: rgb(8 10 16 / .52); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+.project-member-dialog-panel { padding: clamp(20px, 5vw, 28px); }
+.project-member-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--color-surface-border); }
+.project-member-dialog-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.04em; }
+.project-member-dialog-heading p { margin: 7px 0 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.55; }
+.project-member-dialog-close { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 1px solid var(--color-surface-border); border-radius: 11px; color: var(--color-text-muted); background: var(--color-page); font: inherit; font-size: 22px; line-height: 1; cursor: pointer; }
+.project-member-dialog .project-member-invite-form { grid-template-columns: 1fr; gap: 16px; padding-top: 20px; border-top: 0; }
+.project-member-dialog .project-member-invite-form .project-form-feedback { grid-column: auto; }
+.project-member-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; padding-top: 2px; }
+.project-member-dialog-actions > button { min-width: 120px; }
+@media (max-width: 520px) {
+ .project-detail-heading { align-items: center; flex-direction: row; }
+ .project-detail-heading h2 { font-size: clamp(22px, 6vw, 30px); }
+ .project-member-dialog { width: calc(100% - 24px); border-radius: 20px; }
+ .project-member-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
+ .project-member-dialog-actions > button { width: 100%; min-width: 0; }
 }
