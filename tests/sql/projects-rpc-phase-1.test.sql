@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.2.0
+-- Version: 1.3.0
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
