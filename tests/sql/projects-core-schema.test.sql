@@ -1,5 +1,5 @@
 -- Raymondovich Projects core schema validation tests
--- Version: 1.0.0
+-- Version: 1.1.0
 -- Updated: 2026-11-16
 -- Target: disposable PostgreSQL 17.11 with minimal Supabase Auth fixture
 -- This test file inserts only synthetic users and project records.
@@ -60,7 +60,8 @@ begin
 
   insert into auth.users(id) values
     ('20000000-0000-4000-8000-000000000001'),
-    ('20000000-0000-4000-8000-000000000002');
+    ('20000000-0000-4000-8000-000000000002'),
+    ('20000000-0000-4000-8000-000000000003');
 
   insert into projects.projects(
     id, parent_project_id, owner_user_id, created_by, name, project_type
@@ -89,12 +90,45 @@ begin
     'Grandchild test project', 'offline'
   );
 
-  select count(*) into v_count
-  from projects.project_visibility
-  where project_id in (v_parent, v_child, v_grandchild);
-  if v_count <> 0 then
-    raise exception 'Visibility rows must be explicitly created by the project-create RPC';
+  insert into projects.project_visibility(project_id) values (v_parent);
+  if not exists (
+    select 1 from projects.project_visibility
+    where project_id = v_parent
+      and confidentiality = 'private'
+      and showcase_visibility = false
+      and profile_visibility = false
+  ) then
+    raise exception 'New visibility row must default to private and hidden';
   end if;
+
+  begin
+    insert into projects.projects(
+      id, parent_project_id, owner_user_id, created_by, name, project_type
+    ) values (
+      '10000000-0000-4000-8000-000000000004', v_parent,
+      '20000000-0000-4000-8000-000000000001',
+      '20000000-0000-4000-8000-000000000001',
+      'Invalid project type', 'hybrid'
+    );
+    raise exception 'Invalid project_type was accepted';
+  exception when check_violation then
+    null;
+  end;
+
+  begin
+    insert into projects.projects(
+      id, parent_project_id, owner_user_id, created_by, name, project_type,
+      status, archived_at
+    ) values (
+      '10000000-0000-4000-8000-000000000005', v_parent,
+      '20000000-0000-4000-8000-000000000001',
+      '20000000-0000-4000-8000-000000000001',
+      'Invalid archive state', 'online', 'archived', null
+    );
+    raise exception 'Inconsistent archive state was accepted';
+  exception when check_violation then
+    null;
+  end;
 
   begin
     insert into projects.projects(
@@ -167,6 +201,35 @@ begin
     null;
   end;
 
+  update projects.projects
+  set owner_user_id = '20000000-0000-4000-8000-000000000003'
+  where id = v_parent;
+  if exists (
+    select 1 from projects.projects
+    where id in (v_parent, v_child, v_grandchild)
+      and owner_user_id <> '20000000-0000-4000-8000-000000000003'
+  ) then
+    raise exception 'Owner update did not cascade consistently through hierarchy';
+  end if;
+
+  update projects.projects
+  set owner_user_id = '20000000-0000-4000-8000-000000000001'
+  where id = v_parent;
+
+  begin
+    delete from auth.users where id = '20000000-0000-4000-8000-000000000001';
+    raise exception 'Referenced project owner account deletion was not restricted';
+  exception when foreign_key_violation then
+    null;
+  end;
+
+  begin
+    delete from auth.users where id = '20000000-0000-4000-8000-000000000002';
+    raise exception 'Referenced member account deletion was not restricted';
+  exception when foreign_key_violation then
+    null;
+  end;
+
   begin
     delete from projects.projects where id = v_parent;
     raise exception 'Parent project deletion was not restricted while children exist';
@@ -174,7 +237,7 @@ begin
     null;
   end;
 
-  raise notice 'PASS: schema, RLS, privileges, seeds, hierarchy, owner equality, role scope, custom-role scope and delete restriction';
+  raise notice 'PASS: schema, RLS, grants, seeds, private defaults, type/archive constraints, hierarchy, owner cascade, membership and custom-role scope, Auth deletion blockers and parent delete restriction';
 end;
 $test$;
 
