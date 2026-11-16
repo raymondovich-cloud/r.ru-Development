@@ -200,6 +200,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installProfileScrollBehavior();
  installProjectRetry(container);
  installProjectMemberActions(container);
+ installProjectDeleteActions(container);
  syncProfileIdentityCard();
 
  if (section !== "projects" && !section.startsWith("projects/")) return;
