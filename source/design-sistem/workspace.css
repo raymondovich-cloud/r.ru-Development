@@ -1,4 +1,4 @@
-/* Version: 2.1.0 */
+/* Version: 2.2.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -259,9 +259,6 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 /* Version: 1.0.0 */
 /* Updated: 2026-11-16 */
 .profile-identity-card {
- position: sticky;
- top: max(12px, env(safe-area-inset-top));
- z-index: 4;
  transition: gap 260ms ease, padding 260ms ease, border-radius 260ms ease, box-shadow 260ms ease, background-color 260ms ease;
 }
 .profile-avatar {
