@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -10,7 +10,7 @@ const templates = {
       { name: "password", label: "Пароль", type: "password", autocomplete: "current-password", required: true },
     ],
     submit: "Войти",
-    links: '<a href="#forgot-password">Забыли пароль?</a><span>Нет аккаунта? <a href="#register">Зарегистрироваться</a></span>',
+    links: '<a href="#forgot-password">Проблемы с доступом? Восстановить аккаунт</a><span>Нет аккаунта в экосистеме? <a href="#register">Создать аккаунт</a></span>',
   },
   register: {
     title: "Создать аккаунт",
@@ -27,7 +27,7 @@ const templates = {
     links: '<span>Уже есть аккаунт? <a href="#login">Войти</a></span>',
   },
   "forgot-password": {
-    title: "Восстановление пароля",
+    title: "Восстановление аккаунта",
     description: "Укажите электронную почту аккаунта. Мы отправим ссылку для создания нового пароля.",
     fields: [
       { name: "email", label: "Электронная почта", type: "email", autocomplete: "email", required: true },
@@ -72,7 +72,6 @@ export function renderAuthenticationView(container, mode, message = "", kind = "
   const fields = config.fields.map(fieldMarkup).join("");
   container.innerHTML = `
     <section class="auth-panel" aria-labelledby="auth-title">
-      <a class="auth-back" href="/">← Raymondovich</a>
       <h1 class="auth-heading" id="auth-title">${config.title}</h1>
       <p class="auth-description">${config.description}</p>
       <p class="auth-message" data-auth-message data-kind="${kind}" data-visible="${message ? "true" : "false"}" role="status" aria-live="polite"></p>
