@@ -153,3 +153,21 @@ The implementation must also ensure the previous owner is not accidentally reins
 ## 12. Validation status
 
 The draft was reviewed structurally and stored in GitHub. A PostgreSQL parser/CLI is not available in the current execution environment, so SQL syntax has **not** been executed or certified. The next validation must run this draft against a disposable local Supabase/PostgreSQL 17.11 instance. This is an explicit remaining gate, not a claim of successful SQL execution.
+
+
+## 13. Static review pass (2026-11-16)
+
+A repository-level structural check of `projects-001-core-schema.sql` passed these ten checks:
+
+1. Transaction wrapper contains both `BEGIN` and `COMMIT`.
+2. Exactly eight core tables are declared.
+3. RLS is enabled on all eight declared tables.
+4. Six system roles are seeded.
+5. The approved `audit.view` permission is present.
+6. Direct table privileges are revoked from `PUBLIC`, `anon` and `authenticated`.
+7. Parent/child owner equality is represented by the composite self-referencing foreign key.
+8. Membership role-scope integrity trigger is present.
+9. The SQL file is explicitly marked `REVIEW DRAFT — NOT APPLIED`.
+10. The transfer membership precondition is documented for the later ownership-transfer phase.
+
+This is a structural text-level review only. It does not parse or execute PostgreSQL SQL and does not prove runtime behavior. PostgreSQL/Supabase CLI, Docker and a PostgreSQL server are not installed in the current execution environment. The mandatory next validation remains execution against a disposable local Supabase/PostgreSQL 17.11 instance.
