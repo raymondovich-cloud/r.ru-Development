@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -12,6 +12,7 @@ import {
 const root = document.querySelector("[data-auth-root]");
 const statusPanel = document.querySelector(".status-panel");
 const pageMain = document.querySelector(".page-main");
+const backButton = document.querySelector("[data-page-back]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
@@ -23,6 +24,7 @@ if (root && pageMain) {
     const isAuthRoute = validModes.has(mode) || mode === "account";
     root.hidden = !isAuthRoute;
     if (statusPanel) statusPanel.hidden = isAuthRoute;
+    if (backButton) backButton.hidden = !isAuthRoute;
 
     if (!isAuthRoute) return;
     if (mode === "account") {
@@ -34,6 +36,14 @@ if (root && pageMain) {
     }
     renderAuthenticationView(root, mode);
   }
+
+  backButton?.addEventListener("click", () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.hash = "home";
+    }
+  });
 
   function showMessage(message, kind = "info") {
     setAuthenticationMessage(root, message, kind);
