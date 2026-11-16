@@ -231,6 +231,41 @@ if (root && pageMain) {
   });
 
   root.addEventListener("submit", async (event) => {
+    const publicProfileForm = event.target.closest("[data-public-profile-form]");
+    if (!publicProfileForm || busy) return;
+    event.preventDefault();
+    if (!publicProfileForm.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(publicProfileForm).entries());
+    const projectIds = [...publicProfileForm.querySelectorAll('[name="showcase_project_ids"]:checked')].map((input) => input.value);
+    const feedback = publicProfileForm.querySelector("[data-public-profile-feedback]");
+    const submit = publicProfileForm.querySelector('button[type="submit"]');
+    busy = true;
+    if (submit) { submit.disabled = true; submit.textContent = "Сохранение…"; }
+    if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+    try {
+      await authClient.updatePublicProfile({
+        public_profile_enabled: publicProfileForm.querySelector('[name="public_profile_enabled"]').checked,
+        instagram_url: String(values.instagram_url || "").trim() || null,
+        youtube_url: String(values.youtube_url || "").trim() || null,
+        telegram_url: String(values.telegram_url || "").trim() || null,
+        showcase_project_ids: projectIds,
+      });
+      if (feedback) {
+        feedback.textContent = "Публичная информация сохранена.";
+        feedback.dataset.state = "success";
+      }
+    } catch (error) {
+      if (feedback) {
+        feedback.textContent = error.message || "Не удалось сохранить публичную информацию.";
+        feedback.dataset.state = "error";
+      }
+    } finally {
+      busy = false;
+      if (submit) { submit.disabled = false; submit.textContent = "Сохранить публичную информацию"; }
+    }
+  });
+
+  root.addEventListener("submit", async (event) => {
     const form = event.target.closest("[data-auth-form]");
     if (!form || busy) return;
     event.preventDefault();
