@@ -1,4 +1,4 @@
-/* Version: 1.8.0 */
+/* Version: 1.9.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -49,15 +49,20 @@ function settingsMarkup(user, profileData) {
  try { preference = window.localStorage.getItem("raymondovich-theme") || "system"; } catch {}
  const labels = { system: "Как на устройстве", light: "Светлая", dark: "Тёмная" };
  return '<div class="profile-settings">' +
-  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Информация вашего аккаунта.</p></div></div>' +
+  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
   '<form class="settings-form" data-profile-settings-form>' +
   '<label class="settings-field"><span>ФИО</span><input name="full_name" type="text" autocomplete="name" minlength="3" maxlength="160" required value="' + escapeHtml(fullName) + '"></label>' +
   '<label class="settings-field"><span>Дата рождения</span><input name="birth_date" type="date" autocomplete="bday" required value="' + escapeHtml(birthDate) + '"></label>' +
-  '<label class="settings-field"><span>Электронная почта</span><input type="email" value="' + escapeHtml(email) + '" disabled><small>Адрес используется для входа и восстановления доступа.</small></label>' +
   '<div class="settings-form-feedback" data-settings-feedback role="status" aria-live="polite"></div><button class="settings-primary-button" type="submit">Сохранить изменения</button></form></section>' +
-  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Выберите тему интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
+  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Конфиденциальность</h2><p>Контактные данные и защита доступа к аккаунту.</p></div></div>' +
+  '<div class="settings-security-list"><label class="settings-field"><span>Электронная почта</span><input type="email" value="' + escapeHtml(email) + '" disabled><small>Используется для входа и восстановления доступа.</small></label>' +
+  '<div class="settings-security-action"><div><strong>Пароль</strong><p>Для смены пароля отправим ссылку на вашу электронную почту.</p></div><button class="settings-secondary-button" type="button" data-password-reset>Сменить пароль</button></div>' +
+  '<div class="settings-form-feedback" data-password-feedback role="status" aria-live="polite"></div></div></section>' +
+  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Настройте внешний вид интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
   ["system", "light", "dark"].map((theme) => '<button type="button" class="settings-theme-option" data-theme-option="' + theme + '" aria-pressed="' + (preference === theme) + '">' + labels[theme] + '</button>').join("") +
-  '</div></section><section class="settings-card"><div class="settings-card-heading"><div><h2>Аккаунт</h2><p>Управление доступом к аккаунту.</p></div></div><p class="settings-account-note">Для выхода из аккаунта используйте кнопку внизу страницы профиля.</p></section></div>';
+  '</div><p class="settings-section-note">Дополнительные варианты оформления и наборы иконок появятся позднее.</p></section>' +
+  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Криптография</h2><p>Управление криптографическими ключами.</p></div></div>' +
+  '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section></div>';
 }
 export function renderWorkspaceView(container, user, activeSection, profileData) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings"]);
