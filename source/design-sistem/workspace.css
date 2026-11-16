@@ -1,4 +1,4 @@
-/* Version: 3.1.0 */
+/* Version: 3.2.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -581,3 +581,34 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  .project-delete-form .project-member-dialog-actions { display: grid; grid-template-columns: 1fr; }
  .project-delete-form .project-member-dialog-actions > button { width: 100%; }
 }
+
+
+/* Project settings navigation row */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.project-settings-link,
+.project-settings-link:link,
+.project-settings-link:visited {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 16px;
+ color: var(--color-text);
+ text-decoration: none;
+ transition: border-color var(--motion-standard), background-color var(--motion-standard), transform var(--motion-standard);
+}
+.project-settings-link:hover,
+.project-settings-link:active {
+ color: var(--color-text);
+ border-color: var(--color-accent-border);
+ background: var(--color-surface);
+}
+.project-settings-link:focus-visible {
+ color: var(--color-text);
+ outline: 2px solid var(--color-accent);
+ outline-offset: 3px;
+}
+.project-settings-link > span:first-child { min-width: 0; }
+.project-settings-link h3 { margin: 0 0 7px; color: var(--color-text); }
+.project-settings-link p { color: var(--color-text-muted); }
+.project-settings-link .profile-chevron { flex: 0 0 auto; color: var(--color-text-muted); }
