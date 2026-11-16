@@ -1,0 +1,6 @@
+-- Raymondovich Projects RPC phase-1 draft
+-- Version: 1.0.0
+-- Updated: 2026-11-16
+-- Canonical migration: supabase/migrations/20261116070000_projects_002_rpc_phase_1.sql
+-- Apply only after disposable PostgreSQL 17.11 validation passes.
+-- This file mirrors the canonical migration.
