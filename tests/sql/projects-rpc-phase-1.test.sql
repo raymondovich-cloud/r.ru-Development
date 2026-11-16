@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.5
+-- Version: 1.1.0
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -31,10 +31,16 @@ begin
   insert into auth.users(id) values (v_owner), (v_member), (v_outsider);
 
   perform set_config('request.jwt.claim.sub', v_owner::text, true);
-  v_result := public.project_create(null, 'RPC root', 'Root description', 'online', 'website');
+  v_result := public.project_create(null, 'RPC root', 'Root description', 'online', array['website', 'telegram_bot']);
   v_parent := (v_result->>'id')::uuid;
   if v_result->>'status' <> 'active' or v_result->>'name' <> 'RPC root' then
     raise exception 'Root project DTO mismatch';
+  end if;
+  if (select count(*) from projects.project_components where project_id = v_parent) <> 2 then
+    raise exception 'project_create did not persist multiple project components';
+  end if;
+  if v_result->'component_codes' <> '["website", "telegram_bot"]'::jsonb then
+    raise exception 'project_create component DTO mismatch';
   end if;
   if not exists (
     select 1 from projects.project_visibility
@@ -50,7 +56,7 @@ begin
     raise exception 'project_create did not write audit event';
   end if;
 
-  v_result := public.project_create(v_parent, 'RPC child', null, 'offline', null);
+  v_result := public.project_create(v_parent, 'RPC child', null, 'offline', array[]::text[]);
   v_child := (v_result->>'id')::uuid;
   if not exists (
     select 1 from projects.projects
@@ -60,7 +66,7 @@ begin
   end if;
 
   -- A system child role assigned to a child project applies to descendants.
-  v_result := public.project_create(v_child, 'RPC grandchild', null, 'offline', null);
+  v_result := public.project_create(v_child, 'RPC grandchild', null, 'offline', array[]::text[]);
   select id into v_role_id from projects.project_roles
   where is_system and scope = 'child' and code = 'developer';
   insert into projects.project_memberships(project_id, user_id, role_id)
@@ -172,15 +178,23 @@ begin
     null;
   end;
 
+  -- Public wrappers are invoker-only; internal elevated implementations are isolated.
+  if (select prosecdef from pg_proc where oid = 'public.project_create(uuid,text,text,text,text[])'::regprocedure) then
+    raise exception 'Public project_create wrapper must be SECURITY INVOKER';
+  end if;
+  if not (select prosecdef from pg_proc where oid = 'projects.project_create_internal(uuid,text,text,text,text[])'::regprocedure) then
+    raise exception 'Internal project_create implementation must be SECURITY DEFINER';
+  end if;
+
   -- Anonymous execution is not granted; authenticated execution is explicit.
-  if has_function_privilege('anon', 'public.project_create(uuid,text,text,text,text)', 'EXECUTE') then
+  if has_function_privilege('anon', 'public.project_create(uuid,text,text,text,text[])', 'EXECUTE') then
     raise exception 'anon unexpectedly has project_create EXECUTE';
   end if;
   if not has_function_privilege('authenticated', 'public.project_create(uuid,text,text,text,text)', 'EXECUTE') then
     raise exception 'authenticated lacks project_create EXECUTE';
   end if;
 
-  raise notice 'PASS: five Projects RPCs, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
+  raise notice 'PASS: five invoker RPCs, isolated definer implementations, multi-component projects, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
 end;
 $test$;
 
