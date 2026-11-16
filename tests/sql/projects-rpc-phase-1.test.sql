@@ -203,6 +203,14 @@ begin
     raise exception 'A public RPC wrapper unexpectedly elevates privileges';
   end if;
 
+  -- Helper functions are implementation details and must not be directly callable.
+  if has_function_privilege('authenticated', 'projects.lock_hierarchy(uuid)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'projects.has_permission(uuid,text,boolean)', 'EXECUTE')
+     or has_function_privilege('anon', 'projects.lock_hierarchy(uuid)', 'EXECUTE')
+     or has_function_privilege('anon', 'projects.has_permission(uuid,text,boolean)', 'EXECUTE') then
+    raise exception 'Internal helper execution is unexpectedly granted';
+  end if;
+
   -- Anonymous execution is not granted; authenticated execution is explicit.
   if has_function_privilege('anon', 'public.project_create(uuid,text,text,text,text[])', 'EXECUTE') then
     raise exception 'anon unexpectedly has project_create EXECUTE';
