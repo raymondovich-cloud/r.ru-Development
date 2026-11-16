@@ -1,4 +1,4 @@
-/* Version: 1.2.2 */
+/* Version: 1.2.3 */
 /* Updated: 2026-11-16 */
 
 :root {
@@ -347,4 +347,19 @@ body[data-page-type="public-profile"] .header-identity {
 body[data-page-type="public-profile"] .brand {
   justify-content: center;
   text-align: center;
+}
+
+body[data-page-type="public-profile"] .brand::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--color-text-secondary);
+  font-size: .9em;
+  font-weight: 500;
+  transition: transform 180ms ease, color 180ms ease;
+}
+
+body[data-page-type="public-profile"] .brand:hover::after {
+  color: var(--color-accent);
+  transform: translateX(3px);
 }
