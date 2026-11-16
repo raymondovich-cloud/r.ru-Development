@@ -1,4 +1,4 @@
-/* Version: 1.9.1 */
+/* Version: 1.9.2 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -34,6 +34,7 @@ if (root && pageMain) {
     if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute || isPublicProfileRoute;
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
     document.body.dataset.pageType = isPublicProfileRoute ? "public-profile" : "";
+    updateBrandForRoute(isPublicProfileRoute);
     if (workspaceActions) workspaceActions.hidden = !isWorkspaceRoute;
 
     if (isPublicProfileRoute) {
@@ -70,6 +71,14 @@ if (root && pageMain) {
   }
 
   const brandLink = document.querySelector(".brand");
+  const brandLabel = brandLink?.querySelector("[data-brand-label]");
+
+  function updateBrandForRoute(isPublicProfileRoute) {
+    if (!brandLink || !brandLabel) return;
+    const label = isPublicProfileRoute ? "raymondovich digital ecosystem" : "raymondovich";
+    brandLabel.textContent = label;
+    brandLink.setAttribute("aria-label", isPublicProfileRoute ? label : "Raymondovich — главная");
+  }
   brandLink?.addEventListener("click", (event) => {
     if (document.body.dataset.appState !== "workspace") return;
     event.preventDefault();
