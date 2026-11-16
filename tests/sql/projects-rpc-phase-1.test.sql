@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.3
+-- Version: 1.0.4
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -58,6 +58,20 @@ begin
   ) then
     raise exception 'Child project owner/parent invariant failed';
   end if;
+
+  -- A system child role assigned to a child project applies to descendants.
+  v_result := public.project_create(v_child, 'RPC grandchild', null, 'offline', null);
+  select id into v_role_id from projects.project_roles
+  where is_system and scope = 'child' and code = 'developer';
+  insert into projects.project_memberships(project_id, user_id, role_id)
+  values (v_child, v_member, v_role_id);
+  perform set_config('request.jwt.claim.sub', v_member::text, true);
+  if not public.project_access_check((v_result->>'id')::uuid, 'project.update')
+     or public.project_access_check((v_result->>'id')::uuid, 'project.archive') then
+    raise exception 'Child developer role did not inherit correctly to descendant';
+  end if;
+  delete from projects.project_memberships
+  where project_id = v_child and user_id = v_member;
 
   -- Owner authority bypasses role mappings and individual denies.
   insert into projects.project_access_grants(
