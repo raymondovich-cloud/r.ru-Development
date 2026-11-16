@@ -1,4 +1,4 @@
-/* Version: 1.9.4 */
+/* Version: 1.9.5 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -282,6 +282,11 @@ if (root && pageMain) {
     event.preventDefault();
 
     const mode = form.dataset.mode;
+    if (mode === "register") {
+      showMessage("Регистрация в экосистеме отключена на время разработки.", "info");
+      return;
+    }
+
     const values = Object.fromEntries(new FormData(form).entries());
     const submitButton = form.querySelector(".auth-submit");
 
