@@ -1,4 +1,4 @@
-/* Version: 1.6.0 */
+/* Version: 1.7.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -19,7 +19,7 @@ const workspaceActions = document.querySelector("[data-workspace-actions]");
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
   const workspaceRoutes = new Set(["projects/create", "projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
-  const isProjectDetailRoute = (route) => /^projects\/[0-9a-f-]{36}(?:\/information)?$/i.test(route);
+  const isProjectDetailRoute = (route) => /^projects\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(route);
   let currentMode = "login";
   let busy = false;
 
