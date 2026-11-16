@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -135,3 +135,10 @@ The revised migration and test suite passed in GitHub Actions:
 The test fixture's `auth.uid()` now supports both the legacy individual claim setting and the modern `request.jwt.claims` JSON setting used by PostgREST v14.
 
 This is not a live hosted Supabase Auth/PostgREST test. Primary Supabase has not been modified and the RPC migration remains unapplied there.
+
+
+## Hosted Supabase read-only preflight — 2026-11-16
+
+Primary project read-only verification confirms the live `auth.uid()` implementation supports both legacy and aggregate JWT claim settings. RPC Phase 1 and the normalized component table remain absent from primary. The `projects` schema has no USAGE granted to `anon` or `authenticated` at this stage.
+
+No hosted changes were applied. A live REST call using a token issued by hosted Supabase Auth remains untested; the available connector does not provide a user session token or arbitrary authenticated REST request facility. The local PostgREST integration test uses synthetic JWTs and is not represented as a hosted end-to-end test.
