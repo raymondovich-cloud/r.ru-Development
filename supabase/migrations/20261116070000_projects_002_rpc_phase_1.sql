@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC layer, phase 1
--- Version: 1.0.2
+-- Version: 1.0.3
 -- Created: 2026-11-16
 -- Target: Supabase PostgreSQL 17.11
 -- Scope: project_create, project_update, project_archive, project_restore, project_access_check
@@ -15,7 +15,7 @@ create table projects.project_audit_logs (
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   constraint project_audit_logs_event_code_format
-    check (event_code ~ '^[a-z][a-z0-9_]*[.][a-z][a-z0-9_]*([.][a-z][a-z0-9_]*)*
+    check (event_code ~ '^[a-z][a-z0-9_]*[.][a-z][a-z0-9_]*([.][a-z][a-z0-9_]*)*$'),
   constraint project_audit_logs_metadata_object
     check (jsonb_typeof(metadata) = 'object')
 );
