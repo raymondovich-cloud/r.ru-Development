@@ -23,6 +23,7 @@ declare
   v_allowed boolean;
   v_role_id uuid;
   v_permission_id uuid;
+  v_child_status text;
 begin
   insert into auth.users(id) values (v_owner), (v_member), (v_outsider);
 
@@ -112,7 +113,8 @@ begin
   if v_result->>'status' <> 'archived' then
     raise exception 'project_archive failed';
   end if;
-  if (select status from projects.projects where id = v_child) <> 'active' then
+  select status into v_child_status from projects.projects where id = v_child;
+  if v_child_status <> 'active' then
     raise exception 'Parent archive cascaded to child';
   end if;
   v_result := public.project_restore(v_parent);
