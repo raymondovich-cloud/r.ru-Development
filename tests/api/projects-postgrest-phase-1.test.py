@@ -1,5 +1,5 @@
 # Raymondovich Projects Phase 1 — PostgREST API integration test
-# Version: 1.0.2
+# Version: 1.0.3
 # Updated: 2026-11-16
 #
 # Runs against an ephemeral local PostgREST instance backed by PostgreSQL 17.11.
