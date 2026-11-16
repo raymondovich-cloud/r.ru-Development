@@ -1,8 +1,8 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Created:** 2026-11-16  
-**Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
+**Status:** PostgreSQL 17.11 and isolated PostgREST 14.17 tests passed; hosted Supabase integration pending
 
 ## Scope
 
@@ -142,3 +142,19 @@ This is not a live hosted Supabase Auth/PostgREST test. Primary Supabase has not
 Primary project read-only verification confirms the live `auth.uid()` implementation supports both legacy and aggregate JWT claim settings. RPC Phase 1 and the normalized component table remain absent from primary. The `projects` schema has no USAGE granted to `anon` or `authenticated` at this stage.
 
 No hosted changes were applied. A live REST call using a token issued by hosted Supabase Auth remains untested; the available connector does not provide a user session token or arbitrary authenticated REST request facility. The local PostgREST integration test uses synthetic JWTs and is not represented as a hosted end-to-end test.
+
+
+## Final hosted preflight and API CI boundary — 2026-11-16
+
+The latest CI run [43818747946](https://github.com/raymondovich-cloud/r.ru-Development/actions/runs/43818747946) passed in full. The run applied the Projects core and RPC migrations to an ephemeral PostgreSQL 17.11 database, then exercised the five public RPCs through PostgREST v14.17 using synthetic JWTs. The HTTP assertions passed for authenticated project creation, owner access, outsider denial, anonymous denial, private-schema isolation and multi-component persistence.
+
+A fresh read-only query against the primary Supabase project confirmed:
+- RPC Phase 1 functions are not installed.
+- `projects.project_components` and `projects.project_audit_logs` are not installed.
+- `anon` and `authenticated` have no USAGE on the `projects` schema.
+- Migration history contains Projects Core Schema only (`20261116060455`).
+- No changes were made to the hosted database.
+
+A live hosted PostgREST test cannot run until the RPC migration exists in that environment. A Supabase development branch is a viable isolated option, but branch compute may incur hourly and other usage charges; do not create one without first disclosing the cost and obtaining the user's agreement.
+
+**Deployment boundary:** the new RPC migration remains unapplied to primary Supabase. Local/CI PostgREST success is not equivalent to hosted Supabase Auth + PostgREST verification.
