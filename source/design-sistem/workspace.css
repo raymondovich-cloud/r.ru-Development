@@ -1,4 +1,4 @@
-/* Version: 2.3.0 */
+/* Version: 2.4.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -448,7 +448,6 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 @media (max-width: 760px) { .project-card-grid { grid-template-columns: 1fr; } .project-card { padding: 19px; } }
 @media (prefers-reduced-motion: reduce) { .projects-loading-indicator { animation: none; } }
 
-/* Version: 1.17.0 */
 .project-card-link { color: inherit; text-decoration: none; cursor: pointer; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .project-card-link:hover { border-color: var(--color-accent); transform: translateY(-2px); }
 .project-card-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
