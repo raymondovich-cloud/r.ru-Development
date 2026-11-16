@@ -1,4 +1,4 @@
-/* Version: 1.2.0 */
+/* Version: 1.2.1 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -17,7 +17,7 @@ const backButton = document.querySelector("[data-page-back]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
-  const workspaceRoutes = new Set(["projects", "ideas", "team", "tools", "profile"]);
+  const workspaceRoutes = new Set(["projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools"]);
   let currentMode = "login";
   let busy = false;
 
