@@ -1,4 +1,4 @@
-/* Version: 2.3.0 */
+/* Version: 2.4.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -113,7 +113,9 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
     ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h2>Проекты будут отображаться здесь</h2><p>Здесь соберутся проекты, в которых вы участвуете: созданные вами и те, к которым вас пригласили.</p></div></div><p class="workspace-section-notice">Подключение списка проектов и управление участием — следующий этап разработки.</p>'
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' +
-  '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1><p>' +
-  (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "Ваш аккаунт и возможности в экосистеме Raymondovich.") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
-  '</p></div></header>' + content + '</section></div>' + workspaceNavigationMarkup(active);
+  '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
+  ((active === "profile" && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
+   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
+   '</p>') +
+  '</div></header>' + content + '</section></div>' + workspaceNavigationMarkup(active);
 }
