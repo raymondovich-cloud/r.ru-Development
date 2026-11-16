@@ -1,11 +1,32 @@
 -- Raymondovich Projects RPC layer, phase 1
--- Version: 1.0.4
+-- Version: 1.1.0
 -- Created: 2026-11-16
 -- Target: Supabase PostgreSQL 17.11
 -- Scope: project_create, project_update, project_archive, project_restore, project_access_check
--- Internal tables remain private in schema projects. Only narrow public RPC wrappers are executable by authenticated.
+-- Internal SECURITY DEFINER implementations stay in unexposed schema projects; public PostgREST wrappers are SECURITY INVOKER.
 
 begin;
+
+-- Normalize project-to-component relations. Keep the legacy scalar column during
+-- transition; it is no longer written by this RPC and can be removed later.
+create table projects.project_components (
+  project_id uuid not null references projects.projects(id) on delete restrict,
+  component_type_id uuid not null references projects.project_component_types(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  primary key (project_id, component_type_id)
+);
+
+create index project_components_component_type_idx
+  on projects.project_components(component_type_id);
+
+insert into projects.project_components(project_id, component_type_id)
+select p.id, p.component_type_id
+from projects.projects p
+where p.component_type_id is not null
+on conflict do nothing;
+
+alter table projects.project_components enable row level security;
+revoke all on projects.project_components from public, anon, authenticated;
 
 create table projects.project_audit_logs (
   id uuid primary key default gen_random_uuid(),
@@ -200,12 +221,12 @@ $function$;
 
 revoke all on function projects.has_permission(uuid, text, boolean) from public, anon, authenticated;
 
-create or replace function public.project_create(
+create or replace function projects.project_create_internal(
   p_parent_project_id uuid,
   p_name text,
   p_description text,
   p_project_type text,
-  p_component_code text default null
+  p_component_codes text[] default '{}'::text[]
 )
 returns jsonb
 language plpgsql
@@ -216,8 +237,8 @@ declare
   v_actor uuid := auth.uid();
   v_owner uuid;
   v_parent_status text;
-  v_component_id uuid;
-  v_project_id uuid;
+  v_component_count integer;
+  v_component_codes text[] := coalesce(p_component_codes, '{}'::text[]);
   v_project projects.projects%rowtype;
 begin
   if v_actor is null then
@@ -233,17 +254,26 @@ begin
   if p_project_type not in ('online', 'offline') then
     raise exception using errcode = '22023', message = 'Unsupported project type';
   end if;
-  if p_component_code is not null and p_project_type <> 'online' then
-    raise exception using errcode = '22023', message = 'Offline projects cannot declare an online component';
+  if cardinality(v_component_codes) > 0 and p_project_type <> 'online' then
+    raise exception using errcode = '22023', message = 'Offline projects cannot declare online components';
   end if;
-
-  if p_component_code is not null then
-    select c.id into v_component_id
-    from projects.project_component_types c
-    where c.code = p_component_code and c.is_active;
-    if v_component_id is null then
-      raise exception using errcode = '22023', message = 'Unknown or inactive project component';
-    end if;
+  if exists (
+    select 1 from unnest(v_component_codes) as input(code)
+    where input.code is null or char_length(input.code) = 0
+  ) then
+    raise exception using errcode = '22023', message = 'Component codes must be non-empty';
+  end if;
+  if cardinality(v_component_codes) <> (
+    select count(distinct input.code)::integer
+    from unnest(v_component_codes) as input(code)
+  ) then
+    raise exception using errcode = '22023', message = 'Duplicate project component codes are not allowed';
+  end if;
+  select count(*)::integer into v_component_count
+  from projects.project_component_types c
+  where c.code = any(v_component_codes) and c.is_active;
+  if v_component_count <> cardinality(v_component_codes) then
+    raise exception using errcode = '22023', message = 'Unknown or inactive project component';
   end if;
 
   if p_parent_project_id is null then
@@ -269,13 +299,18 @@ begin
 
   insert into projects.projects(
     parent_project_id, owner_user_id, created_by, name, description,
-    project_type, component_type_id
+    project_type
   )
   values (
     p_parent_project_id, v_owner, v_actor, btrim(p_name), nullif(btrim(p_description), ''),
-    p_project_type, v_component_id
+    p_project_type
   )
   returning * into v_project;
+
+  insert into projects.project_components(project_id, component_type_id)
+  select v_project.id, c.id
+  from projects.project_component_types c
+  where c.code = any(v_component_codes);
 
   insert into projects.project_visibility(project_id)
   values (v_project.id);
@@ -286,7 +321,7 @@ begin
     jsonb_build_object(
       'parent_project_id', v_project.parent_project_id,
       'project_type', v_project.project_type,
-      'component_code', p_component_code
+      'component_codes', to_jsonb(v_component_codes)
     )
   );
 
@@ -299,12 +334,12 @@ begin
     'status', v_project.status,
     'created_at', v_project.created_at,
     'updated_at', v_project.updated_at,
-    'component_code', p_component_code
+    'component_codes', to_jsonb(v_component_codes)
   );
 end;
 $function$;
 
-create or replace function public.project_update(
+create or replace function projects.project_update_internal(
   p_project_id uuid,
   p_name text,
   p_description text
@@ -374,7 +409,7 @@ begin
 end;
 $function$;
 
-create or replace function public.project_archive(p_project_id uuid)
+create or replace function projects.project_archive_internal(p_project_id uuid)
 returns jsonb
 language plpgsql
 security definer
@@ -427,7 +462,7 @@ begin
 end;
 $function$;
 
-create or replace function public.project_restore(p_project_id uuid)
+create or replace function projects.project_restore_internal(p_project_id uuid)
 returns jsonb
 language plpgsql
 security definer
@@ -480,7 +515,7 @@ begin
 end;
 $function$;
 
-create or replace function public.project_access_check(
+create or replace function projects.project_access_check_internal(
   p_project_id uuid,
   p_permission_code text
 )
@@ -502,18 +537,100 @@ begin
 end;
 $function$;
 
--- Functions are privileged endpoints: no default PUBLIC/anon execution.
-revoke all on function public.project_create(uuid, text, text, text, text) from public, anon, authenticated;
+
+-- Narrow PostgREST endpoints. These wrappers do not elevate privileges.
+create or replace function public.project_create(
+  p_parent_project_id uuid,
+  p_name text,
+  p_description text,
+  p_project_type text,
+  p_component_codes text[] default '{}'::text[]
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $function$
+  select projects.project_create_internal(
+    p_parent_project_id, p_name, p_description, p_project_type, p_component_codes
+  );
+$function$;
+
+create or replace function public.project_update(
+  p_project_id uuid, p_name text, p_description text
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $function$
+  select projects.project_update_internal(p_project_id, p_name, p_description);
+$function$;
+
+create or replace function public.project_archive(p_project_id uuid)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $function$
+  select projects.project_archive_internal(p_project_id);
+$function$;
+
+create or replace function public.project_restore(p_project_id uuid)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $function$
+  select projects.project_restore_internal(p_project_id);
+$function$;
+
+create or replace function public.project_access_check(
+  p_project_id uuid, p_permission_code text
+)
+returns boolean
+language sql
+stable
+security invoker
+set search_path = ''
+as $function$
+  select projects.project_access_check_internal(p_project_id, p_permission_code);
+$function$;
+
+-- Authenticated callers may enter the private schema only to invoke these
+-- audited SECURITY DEFINER operations. Base tables remain inaccessible and
+-- the schema must remain absent from PostgREST's exposed-schema allowlist.
+grant usage on schema projects to authenticated;
+grant execute on function projects.project_create_internal(uuid, text, text, text, text[]) to authenticated;
+grant execute on function projects.project_update_internal(uuid, text, text) to authenticated;
+grant execute on function projects.project_archive_internal(uuid) to authenticated;
+grant execute on function projects.project_restore_internal(uuid) to authenticated;
+grant execute on function projects.project_access_check_internal(uuid, text) to authenticated;
+
+revoke all on function public.project_create(uuid, text, text, text, text[]) from public, anon, authenticated;
 revoke all on function public.project_update(uuid, text, text) from public, anon, authenticated;
 revoke all on function public.project_archive(uuid) from public, anon, authenticated;
 revoke all on function public.project_restore(uuid) from public, anon, authenticated;
 revoke all on function public.project_access_check(uuid, text) from public, anon, authenticated;
 
-grant execute on function public.project_create(uuid, text, text, text, text) to authenticated;
+grant execute on function public.project_create(uuid, text, text, text, text[]) to authenticated;
 grant execute on function public.project_update(uuid, text, text) to authenticated;
 grant execute on function public.project_archive(uuid) to authenticated;
 grant execute on function public.project_restore(uuid) to authenticated;
 grant execute on function public.project_access_check(uuid, text) to authenticated;
+
+-- Functions are narrow invoker endpoints; internal elevation is isolated.
+
+
+
+
+
+
+
+
+
+
+
 
 revoke all on projects.project_audit_logs from public, anon, authenticated;
 
