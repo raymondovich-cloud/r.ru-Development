@@ -1,4 +1,4 @@
-/* Version: 1.2.3 */
+/* Version: 1.2.4 */
 /* Updated: 2026-11-16 */
 
 :root {
@@ -350,7 +350,7 @@ body[data-page-type="public-profile"] .brand {
 }
 
 body[data-page-type="public-profile"] .brand::after {
-  content: "→";
+  content: "↗";
   display: inline-block;
   margin-left: 2px;
   color: var(--color-text-secondary);
@@ -361,5 +361,5 @@ body[data-page-type="public-profile"] .brand::after {
 
 body[data-page-type="public-profile"] .brand:hover::after {
   color: var(--color-accent);
-  transform: translateX(3px);
+  transform: translate(2px, -2px);
 }
