@@ -1,4 +1,4 @@
-/* Version: 3.3.7 */
+/* Version: 3.3.8 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -692,6 +692,13 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .settings-field textarea:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-wash); }
 
 
+
+
+/* Public profile identity and owner verification badge */
+.public-profile-panel > .public-profile-identity-row { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.public-profile-panel > .public-profile-identity-row > .auth-heading { min-width: 0; margin: 0; }
+.public-profile-owner-badge { display: inline-flex; flex: 0 0 20px; width: 20px; height: 20px; align-items: center; justify-content: center; color: #d4a72c; }
+.public-profile-owner-badge svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.8; filter: drop-shadow(0 1px 2px rgb(212 167 44 / 24%)); }
 
 /* Public profile projects heading — match the About heading */
 .public-profile-panel > .public-profile-priority-heading-row { display: flex; min-width: 0; align-items: baseline; gap: 10px; margin-top: 16px; }
