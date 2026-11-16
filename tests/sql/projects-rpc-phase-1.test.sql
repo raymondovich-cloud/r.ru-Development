@@ -190,7 +190,7 @@ begin
   if has_function_privilege('anon', 'public.project_create(uuid,text,text,text,text[])', 'EXECUTE') then
     raise exception 'anon unexpectedly has project_create EXECUTE';
   end if;
-  if not has_function_privilege('authenticated', 'public.project_create(uuid,text,text,text,text)', 'EXECUTE') then
+  if not has_function_privilege('authenticated', 'public.project_create(uuid,text,text,text,text[])', 'EXECUTE') then
     raise exception 'authenticated lacks project_create EXECUTE';
   end if;
 
