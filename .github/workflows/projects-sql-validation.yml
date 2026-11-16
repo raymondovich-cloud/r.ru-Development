@@ -1,4 +1,4 @@
-# Version: 1.2.5
+# Version: 1.2.6
 # Updated: 2026-11-16
 # Validates Projects SQL and authenticated PostgREST RPC behavior against ephemeral PostgreSQL 17.11.
 name: Projects SQL validation
@@ -67,20 +67,6 @@ jobs:
           $auth_uid$;
           grant usage on schema auth to anon, authenticated;
           grant execute on function auth.uid() to anon, authenticated;
-          create or replace function public.test_auth_uid()
-          returns jsonb language sql stable
-          as $test_auth_uid$
-            select jsonb_build_object(
-              'uid', auth.uid(),
-              'direct_sub', (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'),
-              'auth_uid_definition', pg_get_functiondef('auth.uid()'::regprocedure),
-              'claims', current_setting('request.jwt.claims', true),
-              'legacy_sub', current_setting('request.jwt.claim.sub', true),
-              'current_user', current_user,
-              'current_role', current_role
-            )
-          $test_auth_uid$;
-          grant execute on function public.test_auth_uid() to authenticated;
           SQL
 
       - name: Apply Projects core schema
