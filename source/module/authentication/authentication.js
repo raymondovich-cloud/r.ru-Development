@@ -28,7 +28,7 @@ if (root && pageMain) {
     currentMode = mode;
     const isAuthRoute = validModes.has(mode);
     const publicProfileMatch = mode.match(/^profile\/([a-z0-9][a-z0-9._-]{2,23})$/i);
-    const isPublicProfileRoute = Boolean(publicProfileMatch);
+    const isPublicProfileRoute = Boolean(publicProfileMatch && !workspaceRoutes.has(mode));
     const isWorkspaceRoute = mode === "account" || workspaceRoutes.has(mode) || isProjectDetailRoute(mode);
     root.hidden = !(isAuthRoute || isWorkspaceRoute || isPublicProfileRoute);
     if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute || isPublicProfileRoute;
