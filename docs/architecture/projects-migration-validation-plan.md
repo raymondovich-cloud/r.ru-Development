@@ -1,6 +1,6 @@
 # Projects — migration validation plan
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Status:** Review draft — no migrations applied  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -232,3 +232,16 @@ Post-apply verification against the live database passed:
 Supabase Security Advisor now reports the expected INFO finding `RLS Enabled No Policy` for the eight new tables. This is intentional default-deny: no browser grants, schema USAGE or RLS policies are added until the RPC/API authorization layer is implemented. Existing unrelated advisor findings remain unchanged.
 
 The migration does not yet implement project RPCs, invitations, publications, audit history, resource sharing or ownership transfer. Those remain subsequent migrations.
+
+
+## 16. RPC phase-1 compatibility and security corrections (2026-11-16)
+
+The read-only preflight against primary Supabase confirmed that the applied core schema is compatible with the RPC migration's base assumptions. The following corrections were made in the development repository only; no change was applied to primary Supabase:
+
+1. Added normalized `projects.project_components` (many-to-many) and migration-safe backfill from legacy `projects.projects.component_type_id`. The legacy scalar remains temporarily and is no longer written by new RPC code.
+2. Changed `project_create` to accept `p_component_codes text[]`, validate the full set (known, active, non-empty, unique; online projects only), and permit zero or more components.
+3. Replaced privileged public RPC bodies with `SECURITY INVOKER` wrappers in `public`. Privileged implementation functions are in the unexposed `projects` schema, use `SECURITY DEFINER`, fixed empty search path and qualified references.
+4. Revoked default `PUBLIC`/anon/authenticated execution from internal functions, then granted exact internal signatures to authenticated. Granted schema USAGE only to authenticated. Base-table grants remain revoked and `projects` must remain excluded from PostgREST exposed schemas.
+5. Expanded SQL tests to verify the five-wrapper privilege boundary and multiple components.
+
+The migration and tests have been committed to `raymondovich-cloud/r.ru-Development`. GitHub Actions PostgreSQL 17.11 execution is the required next gate. This section does not claim that the updated SQL has passed CI or a full Supabase stack test.
