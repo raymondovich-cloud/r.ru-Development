@@ -158,7 +158,7 @@ function projectMembersMarkup(state) {
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
  const isProjectCreate = activeSection === "projects/create";
- const isProjectInformation = /^projects\\/[0-9a-f-]{36}\\/information$/i.test(activeSection);\n const isProjectDetail = activeSection.startsWith("projects/") && !isProjectCreate;
+ const isProjectInformation = /^projects\/[0-9a-f-]{36}\/information$/i.test(activeSection);\n const isProjectDetail = activeSection.startsWith("projects/") && !isProjectCreate;
  const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate ? (isProjectCreate ? "projects" : activeSection) : "projects";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
