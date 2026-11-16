@@ -1,6 +1,6 @@
 # Layer Responsibilities
 
-**Version:** 1.0.0  
+**Version:** 1.0.1  
 **Updated:** 2026-11-16  
 **Status:** Active
 
@@ -193,7 +193,7 @@ Current directories:
 - Define neutral shared protocols.
 - Provide a small event dispatching mechanism.
 - Provide shared presentation contract primitives.
-- Support explicit dependency construction and application composition.
+- Provide small, reusable dependency-construction utilities when justified. The application composition root belongs to the actual application bootstrap boundary, not automatically to Core.
 - Provide technical abstractions where reuse and stable ownership are demonstrated.
 
 ### 6.3 Core must not
@@ -315,6 +315,7 @@ Before accepting a new file or implementation, verify:
 
 - `docs/agent.md` — mandatory development and repository rules.
 - `docs/architecture/architecture-overview.md` — high-level system architecture.
+- `docs/architecture/core-structure.md` — detailed responsibilities of Core directories.
 - `docs/agent-skill/core-architect.md` — Core architecture specialist.
 - `docs/agent-skill/domain-developer.md` — Domain implementation specialist.
 - `docs/agent-skill/module-developer.md` — Module implementation specialist.
