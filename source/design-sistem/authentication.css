@@ -1,5 +1,50 @@
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
+
+.header-identity {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 13px;
+}
+
+.page-back {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid var(--color-surface-border);
+  border-radius: 50%;
+  color: var(--color-text);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-standard),
+    border-color var(--motion-standard),
+    transform var(--motion-standard);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.page-back[hidden] {
+  display: none;
+}
+
+.page-back:hover {
+  border-color: rgb(244 119 33 / 42%);
+  transform: translateX(-2px);
+}
+
+.page-back svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
 
 .auth-panel {
   width: min(100%, 520px);
@@ -98,8 +143,7 @@
   font-size: 13px;
 }
 
-.auth-links a,
-.auth-back {
+.auth-links a {
   color: var(--color-text);
   text-decoration-color: rgb(244 119 33 / 55%);
   text-underline-offset: 4px;
@@ -155,6 +199,16 @@
 }
 
 @media (max-width: 600px) {
+  .header-identity {
+    gap: 9px;
+  }
+
+  .page-back {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
   .auth-panel {
     border-radius: 23px;
   }
