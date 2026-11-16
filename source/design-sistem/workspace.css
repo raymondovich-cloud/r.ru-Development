@@ -544,3 +544,9 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  .project-member-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
  .project-member-dialog-actions > button { width: 100%; min-width: 0; }
 }
+
+
+/* Project settings section */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.project-settings-card p { margin: 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.6; }
