@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -81,3 +81,17 @@ Live post-apply checks passed:
 The Security Advisor reports eight additional INFO notices for the new tables having RLS enabled with no policies. This is deliberate default-deny until the RPC authorization layer is implemented. Do not resolve these by adding broad policies or client grants.
 
 This is a core-schema deployment only. The remaining RPCs and application workflows are not deployed.
+
+
+## Projects RPC phase 1 — updated review state (2026-11-16)
+
+The development migration was revised after compatibility review of the primary PostgreSQL 17.11 core schema:
+
+- Added `projects.project_components` with backfill from the legacy scalar component reference.
+- Changed project creation to accept an array of component codes and validate multi-component combinations.
+- Made all five public RPC functions `SECURITY INVOKER` wrappers.
+- Moved privileged implementations into the unexposed `projects` schema as narrowly granted `SECURITY DEFINER` functions.
+- Added explicit revocation of default execution privileges on internal functions and explicit authenticated grants.
+- Expanded the test suite to assert wrapper and implementation security modes, grants, schema USAGE and multi-component persistence.
+
+**Validation status:** The revised migration and test changes are committed in the development repository. Their PostgreSQL 17.11 CI run has not yet been confirmed in this report. Do not treat the earlier successful run for migration version 1.0.4 as validation of the revised SQL. Primary Supabase remains unchanged by this work.
