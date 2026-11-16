@@ -1,5 +1,5 @@
 # Raymondovich Projects Phase 1 — PostgREST API integration test
-# Version: 1.0.0
+# Version: 1.0.1
 # Updated: 2026-11-16
 #
 # Runs against an ephemeral local PostgREST instance backed by PostgreSQL 17.11.
@@ -99,6 +99,10 @@ def main():
 
     owner_token = make_jwt(OWNER_ID)
     outsider_token = make_jwt(OUTSIDER_ID)
+
+    status, raw = http_request("GET", "/rpc/test_auth_uid", token=owner_token)
+    if status != 200 or json.loads(raw) != OWNER_ID:
+        raise AssertionError(f"JWT subject was not available to auth.uid(): HTTP {status}: {raw}")
 
     status, raw = http_request(
         "POST",
