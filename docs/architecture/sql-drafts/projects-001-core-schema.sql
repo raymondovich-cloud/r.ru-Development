@@ -1,9 +1,9 @@
 -- Raymondovich Projects: core schema draft
--- Version: 0.1.0
+-- Version: 0.2.0
 -- Created: 2026-11-16
--- Status: REVIEW DRAFT — NOT APPLIED
+-- Status: PostgreSQL 17.11 validated in disposable CI database; NOT APPLIED to Supabase
 -- Target: Supabase PostgreSQL 17.11
--- This is a documentation draft, not a Supabase CLI migration.
+-- This is a validated SQL draft, not yet a Supabase CLI migration.
 -- Do not apply to the connected project.
 
 begin;
