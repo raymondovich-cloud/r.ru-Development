@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-16 */
 
 :root {
@@ -310,3 +310,9 @@ a:focus-visible {
     transition-duration: .01ms !important;
   }
 }
+
+
+.workspace-header-actions[hidden] { display: none; }
+body[data-app-state="workspace"] .page-back,
+body[data-app-state="workspace"] .public-header-actions { display: none; }
+body[data-app-state="workspace"] .workspace-header-actions { display: flex; }
