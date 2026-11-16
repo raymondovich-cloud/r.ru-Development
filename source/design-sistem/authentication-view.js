@@ -1,4 +1,4 @@
-/* Version: 1.0.1 */
+/* Version: 1.0.2 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -10,7 +10,7 @@ const templates = {
       { name: "password", label: "Пароль", type: "password", autocomplete: "current-password", required: true },
     ],
     submit: "Войти",
-    links: '<a href="#forgot-password">Проблемы с доступом? Восстановить аккаунт</a><span>Нет аккаунта в экосистеме? <a href="#register">Создать аккаунт</a></span>',
+    links: '<span>Проблемы с доступом? <a href="#forgot-password">Восстановить аккаунт</a></span><span>Нет аккаунта в экосистеме? <a href="#register">Создать аккаунт</a></span>',
   },
   register: {
     title: "Создать аккаунт",
