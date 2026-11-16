@@ -70,7 +70,7 @@ if (root && pageMain) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
       window.location.hash = "login";
       window.setTimeout(() => {
-        renderAuthenticationView(root, "login", errorDescription.replace(/+/g, " "), "error");
+        renderAuthenticationView(root, "login", errorDescription.replaceAll("+", " "), "error");
       }, 0);
       return;
     }
