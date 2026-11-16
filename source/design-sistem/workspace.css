@@ -1,4 +1,4 @@
-/* Version: 1.7.0 */
+/* Version: 1.8.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -156,10 +156,13 @@ body[data-app-state="workspace"] .workspace-content { width: 100%; }
 }
 
 /* Settings date field sizing */
-/* Version: 1.0.0 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-16 */
-.settings-field input[type="date"] { box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; padding-inline: 10px; }
+.settings-card { box-sizing: border-box; width: min(100%, 760px); min-width: 0; }
 .settings-form, .settings-field { min-width: 0; }
+.settings-field input[type="date"] { box-sizing: border-box; display: block; width: 100%; min-width: 0; max-width: 100%; padding-inline: 8px; font-size: 16px; }
+.settings-field input[type="date"]::-webkit-date-and-time-value { min-width: 0; text-align: left; }
+.settings-field input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; padding: 0; }
 
 
 /* Settings groups */
