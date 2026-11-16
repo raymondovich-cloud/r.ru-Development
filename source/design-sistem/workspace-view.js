@@ -1,4 +1,4 @@
-/* Version: 3.1.0 */
+/* Version: 3.2.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -131,8 +131,25 @@ function projectDetailMarkup(state) {
  return '<section class="project-detail"><div class="project-detail-heading"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>' + escapeHtml(project.name) + '</h2></div><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div>' +
   '<div class="project-detail-card"><h3>Общая информация</h3><dl><div><dt>Тип проекта</dt><dd>' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</dd></div><div><dt>Статус</dt><dd>' + escapeHtml(project.status || "Активен") + '</dd></div><div><dt>Описание</dt><dd>' + (project.description ? escapeHtml(project.description) : "Описание не добавлено") + '</dd></div><div><dt>Создан</dt><dd>' + escapeHtml(formatProjectDate(project.created_at) || "—") + '</dd></div><div><dt>ID проекта</dt><dd><code>' + escapeHtml(project.id) + '</code></dd></div></dl></div>' +
   (components.length ? '<div class="project-detail-card"><h3>Компоненты проекта</h3><div class="project-card-components">' + components.map((item) => '<span>' + escapeHtml(componentLabels[item.code] || item.name || item.code) + '</span>').join("") + '</div></div>' : '') +
+  projectMembersMarkup(state) +
   (project.parent_project_id ? '<div class="project-detail-card"><h3>Структура</h3><p>Этот проект является подпроектом.</p></div>' : '') +
   '</section>';
+}
+
+function projectMembersMarkup(state) {
+ const data = state?.membersData;
+ if (!data) return '<section class="project-detail-card"><h3>Участники проекта</h3><p class="project-members-muted">Загружаем список участников…</p></section>';
+ if (data.status === "error") return '<section class="project-detail-card"><h3>Участники проекта</h3><p class="project-members-error">' + escapeHtml(data.message || "Не удалось загрузить участников.") + '</p><button class="project-secondary-button" type="button" data-project-members-retry>Повторить</button></section>';
+ const members = Array.isArray(data.members) ? data.members : [];
+ const roles = Array.isArray(data.roles) ? data.roles : [];
+ const roleOptions = roles.map((role) => '<option value="' + escapeHtml(role.id) + '">' + escapeHtml(role.name) + '</option>').join("");
+ const memberRows = members.length ? members.map((member) => {
+  const name = member.full_name || (member.username ? '@' + member.username : 'Пользователь');
+  return '<div class="project-member-row"><span class="project-member-avatar" aria-hidden="true">' + escapeHtml(initials(name, member.username)) + '</span><span class="project-member-copy"><strong>' + escapeHtml(name) + '</strong><small>' + (member.username ? '@' + escapeHtml(member.username) : 'Логин не указан') + '</small></span><span class="project-member-role">' + escapeHtml(member.role_name || 'Участник') + '</span></div>';
+ }).join("") : '<p class="project-members-muted">Пока никто не добавлен.</p>';
+ const inviteForm = data.can_invite ? '<form class="project-member-invite-form" data-project-member-form><label class="project-form-field"><span>Логин пользователя</span><input name="username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{2,29}" placeholder="Например, raymondovich" autocomplete="off" required></label><label class="project-form-field"><span>Роль в проекте</span><select name="role_id" required>' + roleOptions + '</select></label><button class="project-primary-button" type="submit"' + (roles.length ? '' : ' disabled') + '>Добавить участника</button><p class="project-form-feedback" data-project-member-feedback role="status" aria-live="polite"></p></form>' : '';
+ return '<section class="project-detail-card project-members-card"><div class="project-members-heading"><div><h3>Участники проекта</h3><p>' + members.length + ' ' + (members.length === 1 ? 'участник' : members.length > 1 && members.length < 5 ? 'участника' : 'участников') + '</p></div></div><div class="project-members-list">' + memberRows + '</div>' + inviteForm + '</section>';
+}
 }
 
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
