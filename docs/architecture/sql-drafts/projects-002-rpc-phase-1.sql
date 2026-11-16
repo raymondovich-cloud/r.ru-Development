@@ -1,6 +1,6 @@
 -- REVIEW DRAFT — NOT APPLIED
 -- Raymondovich Projects RPC layer, phase 1
--- Version: 1.1.0
+-- Version: 1.2.0
 -- Created: 2026-11-16
 -- Target: Supabase PostgreSQL 17.11
 -- Scope: project_create, project_update, project_archive, project_restore, project_access_check
