@@ -1,4 +1,4 @@
-/* Version: 2.0.0 */
+/* Version: 2.1.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -252,4 +252,60 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 }
 @media (max-width: 560px) {
   .settings-field input[type="date"] { padding: 0 12px; }
+}
+
+
+/* Collapsing profile identity card on scroll */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.profile-identity-card {
+ position: sticky;
+ top: max(12px, env(safe-area-inset-top));
+ z-index: 4;
+ transition: gap 260ms ease, padding 260ms ease, border-radius 260ms ease, box-shadow 260ms ease, background-color 260ms ease;
+}
+.profile-avatar {
+ transition: width 260ms ease, height 260ms ease, flex-basis 260ms ease, border-radius 260ms ease, font-size 260ms ease;
+}
+.profile-identity-copy h2 {
+ transition: font-size 260ms ease, letter-spacing 260ms ease;
+}
+.profile-username,
+.profile-status {
+ overflow: hidden;
+ max-height: 30px;
+ opacity: 1;
+ transition: max-height 220ms ease, opacity 180ms ease, margin 220ms ease, transform 220ms ease;
+}
+.profile-identity-card.is-collapsed {
+ gap: 12px;
+ padding: 10px 16px;
+ border-radius: 18px;
+ box-shadow: var(--shadow-floating);
+}
+.profile-identity-card.is-collapsed .profile-avatar {
+ width: 42px;
+ height: 42px;
+ flex-basis: 42px;
+ border-radius: 13px;
+ font-size: 15px;
+}
+.profile-identity-card.is-collapsed .profile-identity-copy h2 {
+ font-size: 15px;
+ letter-spacing: -.025em;
+}
+.profile-identity-card.is-collapsed .profile-username,
+.profile-identity-card.is-collapsed .profile-status {
+ max-height: 0;
+ margin-top: 0;
+ margin-bottom: 0;
+ opacity: 0;
+ transform: translateY(-4px);
+}
+@media (prefers-reduced-motion: reduce) {
+ .profile-identity-card,
+ .profile-avatar,
+ .profile-identity-copy h2,
+ .profile-username,
+ .profile-status { transition: none; }
 }
