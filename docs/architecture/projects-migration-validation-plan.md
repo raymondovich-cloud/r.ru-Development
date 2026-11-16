@@ -1,7 +1,7 @@
 # Projects — migration validation plan
 
-**Version:** 1.3.0  
-**Status:** RPC phase 1 review in development; not applied to primary Supabase  
+**Version:** 1.4.0  
+**Status:** RPC phase 1 passed PostgreSQL 17.11 CI; primary Supabase not yet migrated  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
 **Target Supabase project:** `yajybgdorhxebbigwjgi`  
@@ -245,3 +245,8 @@ The read-only preflight against primary Supabase confirmed that the applied core
 5. Expanded SQL tests to verify the five-wrapper privilege boundary and multiple components.
 
 The migration and tests have been committed to `raymondovich-cloud/r.ru-Development`. GitHub Actions PostgreSQL 17.11 execution is the required next gate. This section does not claim that the updated SQL has passed CI or a full Supabase stack test.
+
+
+## 17. Final RPC phase-1 CI result (2026-11-16)
+
+Final migration version 1.2.0 and test version 1.3.0 passed GitHub Actions run #31 on PostgreSQL 17.11. The run applied the core schema, validated it, applied the RPC phase-1 migration, and ran the complete RPC test file successfully. This is isolated PostgreSQL CI with a minimal Auth compatibility fixture, not full Supabase integration. No migration has been applied to primary Supabase.
