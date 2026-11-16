@@ -1,4 +1,4 @@
-/* Version: 1.0.9 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-16 */
 
 const templates = {
