@@ -1,4 +1,4 @@
-/* Version: 1.7.0 */
+/* Version: 1.8.0 */
 /* Updated: 2026-11-16 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -51,7 +51,7 @@ function installProjectMemberActions(container) {
   event.preventDefault();
   if (!form.reportValidity()) return;
   const route = currentRoute();
-  const projectId = decodeURIComponent(route.slice("projects/".length));
+  const projectId = decodeURIComponent(route.split("/")[1]);
   const feedback = form.querySelector("[data-project-member-feedback]");
   const button = form.querySelector('button[type="submit"]');
   form.dataset.submitting = "true";
@@ -104,7 +104,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
   const projects = Array.isArray(payload?.projects) ? payload.projects : [];
   if (section.startsWith("projects/")) {
-   const projectId = decodeURIComponent(section.slice("projects/".length));
+   const projectId = decodeURIComponent(section.split("/")[1]);
    const project = projects.find((item) => String(item.id) === projectId) || null;
    let membersData = { status: "ready", members: [], roles: [], can_invite: false };
    if (project) {
