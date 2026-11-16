@@ -1,4 +1,4 @@
-/* Version: 1.8.0 */
+/* Version: 1.9.0 */
 /* Updated: 2026-11-16 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -41,6 +41,22 @@ function installProjectMemberActions(container) {
  if (container.dataset.projectMemberActionsBound === "true") return;
  container.dataset.projectMemberActionsBound = "true";
  container.addEventListener("click", (event) => {
+  const openButton = event.target.closest("[data-project-member-open]");
+  if (openButton) {
+   const dialog = container.querySelector("[data-project-member-dialog]");
+   if (dialog && !dialog.open) dialog.showModal();
+   return;
+  }
+  if (event.target.closest("[data-project-member-close]")) {
+   const dialog = event.target.closest("[data-project-member-dialog]");
+   if (dialog?.open) dialog.close();
+   return;
+  }
+  const dialog = event.target.closest("[data-project-member-dialog]");
+  if (dialog && event.target === dialog) {
+   dialog.close();
+   return;
+  }
   if (!event.target.closest("[data-project-members-retry]") || !lastWorkspaceMount) return;
   const { user, profileData } = lastWorkspaceMount;
   mountWorkspace(container, user, currentRoute(), profileData);
