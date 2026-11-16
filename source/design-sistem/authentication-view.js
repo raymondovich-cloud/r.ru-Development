@@ -1,4 +1,4 @@
-/* Version: 1.0.5 */
+/* Version: 1.0.6 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -165,6 +165,34 @@ export function renderPublicProfileView(container, payload, error = "") {
 
     aboutSection.append(aboutHeading, aboutText);
     panel.append(aboutSection);
+  }
+
+
+  const socials = document.createElement("nav");
+  socials.className = "public-profile-social-icons";
+  socials.setAttribute("aria-label", "Социальные сети");
+  const socialLinks = [
+    ["Telegram", "telegram_url", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.9-7.1L3 10.1 21 3Z"/><path d="m9.9 13.9 5.2-5.2"/></svg>'],
+    ["Instagram", "instagram_url", '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>'],
+    ["YouTube", "youtube_url", '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3V9Z"/></svg>'],
+  ];
+  for (const [label, key, icon] of socialLinks) {
+    const value = profile[key];
+    if (!value) continue;
+    try {
+      const url = new URL(value);
+      if (url.protocol !== "https:" && url.protocol !== "http:") continue;
+      const link = document.createElement("a");
+      link.href = url.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute("aria-label", label);
+      link.title = label;
+      link.innerHTML = icon;
+      socials.append(link);
+    } catch {
+      // Ignore malformed public profile links.
+    }
   }
 
 
