@@ -141,10 +141,10 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
 
 
 /* Shared header navigation */
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] .page-back { display: inline-grid; }
-body[data-app-state="workspace"] .workspace-header-actions { display: none; }
+body[data-app-state="workspace"] .workspace-header-actions { display: flex; }
 body[data-app-state="workspace"] .workspace-layout { display: block; min-height: auto; }
 body[data-app-state="workspace"] .workspace-sidebar,
 body[data-app-state="workspace"] .workspace-mobile-nav,
