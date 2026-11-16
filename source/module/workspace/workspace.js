@@ -69,7 +69,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
   }
   syncProfileIdentityCard();
  }).catch((error) => {
-  if (sequence !== workspaceMountSequence || currentRoute() !== "projects") return;
+  if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
   renderWorkspaceView(container, user, section, profileData, {
    status: "error",
    message: error?.message || "Не удалось получить список проектов."
