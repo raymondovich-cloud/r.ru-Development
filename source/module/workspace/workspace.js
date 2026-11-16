@@ -100,7 +100,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
 
  if (section !== "projects" && !section.startsWith("projects/")) return;
 
- authClient.getProjects().then((payload) => {
+ authClient.getProjects().then(async (payload) => {
   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
   const projects = Array.isArray(payload?.projects) ? payload.projects : [];
   if (section.startsWith("projects/")) {
