@@ -1,4 +1,4 @@
-/* Version: 1.0.8 */
+/* Version: 1.0.9 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -205,7 +205,7 @@ export function renderPublicProfileView(container, payload, error = "") {
 
     const projectHeading = document.createElement("h2");
     projectHeading.className = "public-profile-projects-heading";
-    projectHeading.textContent = "Приоритетный проект";
+    projectHeading.textContent = "Приоритетный проект:";
 
     const priorityProjectName = document.createElement("h3");
     priorityProjectName.className = "public-profile-priority-project-name";
@@ -214,10 +214,22 @@ export function renderPublicProfileView(container, payload, error = "") {
     panel.append(priorityHeadingRow);
 
     if (priorityProject.description) {
-      const priorityDescription = document.createElement("p");
-      priorityDescription.className = "public-profile-priority-project-description";
-      priorityDescription.textContent = priorityProject.description;
-      panel.append(priorityDescription);
+      const descriptionLines = String(priorityProject.description)
+        .split(/\\r?\\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      if (descriptionLines.length) {
+        const prioritySubtitle = document.createElement("p");
+        prioritySubtitle.className = "public-profile-priority-project-subtitle";
+        prioritySubtitle.textContent = descriptionLines[0];
+        panel.append(prioritySubtitle);
+      }
+      if (descriptionLines.length > 1) {
+        const priorityDescription = document.createElement("p");
+        priorityDescription.className = "public-profile-priority-project-description";
+        priorityDescription.textContent = descriptionLines.slice(1).join(" ");
+        panel.append(priorityDescription);
+      }
     }
 
     if (projects.length > 1) {
