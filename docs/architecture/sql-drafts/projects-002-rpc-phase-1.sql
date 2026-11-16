@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 SQL draft
--- Version: 1.0.2
+-- Version: 1.0.3
 -- Updated: 2026-11-16
 -- Canonical migration: supabase/migrations/20261116070000_projects_002_rpc_phase_1.sql
 -- Validated against disposable PostgreSQL 17.11 before promotion to the primary database.
@@ -14,7 +14,7 @@ create table projects.project_audit_logs (
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   constraint project_audit_logs_event_code_format
-    check (event_code ~ '^[a-z][a-z0-9_]*[.][a-z][a-z0-9_]*([.][a-z][a-z0-9_]*)*
+    check (event_code ~ '^[a-z][a-z0-9_]*[.][a-z][a-z0-9_]*([.][a-z][a-z0-9_]*)*$'),
   constraint project_audit_logs_metadata_object
     check (jsonb_typeof(metadata) = 'object')
 );
