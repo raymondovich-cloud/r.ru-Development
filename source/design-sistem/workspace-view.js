@@ -1,4 +1,4 @@
-/* Version: 2.4.0 */
+/* Version: 2.5.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -114,7 +114,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
   : active === "profile"
    ? profileMarkup(user, profileData)
    : isProjects
-    ? '<section class="projects-overview"><div class="projects-toolbar"><div><span class="projects-eyebrow">ВАШЕ РАБОЧЕЕ ПРОСТРАНСТВО</span><h2>Все ваши проекты — в одном месте</h2><p>Здесь отображаются проекты, которые вы создали, и проекты, к которым вас пригласили.</p></div><a class="project-primary-button projects-create-button" href="#projects/create"><span aria-hidden="true">＋</span> Создать проект</a></div><div class="projects-empty-state"><div class="projects-empty-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h3>Пока нет проектов</h3><p>Создайте первый проект, чтобы организовать работу, подключить инструменты и при необходимости пригласить участников.</p><a class="projects-empty-action" href="#projects/create">Создать первый проект <span aria-hidden="true">→</span></a></div><p class="projects-access-note">Создавать проекты может любой зарегистрированный пользователь. Доступ к инструментам определяется отдельно.</p></section>'
+    ? '<section class="projects-overview"><div class="projects-empty-state"><div class="projects-empty-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h3>Пока нет проектов</h3><p>Создайте первый проект, чтобы организовать работу, подключить инструменты и при необходимости пригласить участников.</p><a class="projects-empty-action" href="#projects/create">Создать первый проект <span aria-hidden="true">→</span></a></div></section>'
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
