@@ -1,10 +1,9 @@
 -- Raymondovich Projects: core schema draft
--- Version: 0.2.0
+-- Version: 0.3.0
 -- Created: 2026-11-16
--- Status: PostgreSQL 17.11 validated in disposable CI database; NOT APPLIED to Supabase
+-- Status: Applied to primary Supabase project on 2026-11-16; post-apply checks passed
 -- Target: Supabase PostgreSQL 17.11
--- This is a validated SQL draft, not yet a Supabase CLI migration.
--- Do not apply to the connected project.
+-- Canonical migration: supabase/migrations/20261116060455_projects_001_core_schema.sql
 
 begin;
 
@@ -335,7 +334,7 @@ alter default privileges in schema projects
 
 commit;
 
--- Post-apply checks in a disposable PostgreSQL 17.11/Supabase local instance:
+-- Post-apply checks completed in the primary Supabase project:
 -- 1. Confirm all eight tables exist and relrowsecurity = true.
 -- 2. Confirm anon/authenticated have no direct table privileges.
 -- 3. Confirm six system roles, 20 permissions and the approved mapping counts.
