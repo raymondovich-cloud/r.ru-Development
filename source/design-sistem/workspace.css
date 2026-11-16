@@ -1,4 +1,4 @@
-/* Version: 2.6.0 */
+/* Version: 2.7.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -493,14 +493,14 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 }
 
 
-/* Project information avatar menu */
+/* Project information page */
 /* Version: 1.0.0 */
 /* Updated: 2026-11-16 */
 .project-detail-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .project-detail-heading { justify-content: flex-start; }
 .project-detail-heading h2 { margin-top: 0; }
 .project-info-menu { position: relative; z-index: 4; display: flex; justify-content: flex-end; }
-.project-info-avatar { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 1px solid var(--color-accent-border); border-radius: 16px; color: var(--color-accent); background: var(--color-accent-wash); box-shadow: var(--shadow-surface); font-size: 13px; font-weight: 750; letter-spacing: -.03em; cursor: pointer; list-style: none; transition: transform var(--motion-standard), border-color var(--motion-standard), background-color var(--motion-standard); }
+.project-info-avatar { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 1px solid var(--color-accent-border); border-radius: 16px; color: var(--color-accent); background: var(--color-accent-wash); box-shadow: var(--shadow-surface); font-size: 13px; font-weight: 750; letter-spacing: -.03em; text-decoration: none; cursor: pointer; transition: transform var(--motion-standard), border-color var(--motion-standard), background-color var(--motion-standard); }
 .project-info-avatar::-webkit-details-marker { display: none; }
 .project-info-avatar::marker { content: ""; }
 .project-info-avatar:hover { transform: translateY(-1px); border-color: var(--color-accent); }
