@@ -150,7 +150,6 @@ function projectMembersMarkup(state) {
  const inviteForm = data.can_invite ? '<form class="project-member-invite-form" data-project-member-form><label class="project-form-field"><span>Логин пользователя</span><input name="username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{2,29}" placeholder="Например, raymondovich" autocomplete="off" required></label><label class="project-form-field"><span>Роль в проекте</span><select name="role_id" required>' + roleOptions + '</select></label><button class="project-primary-button" type="submit"' + (roles.length ? '' : ' disabled') + '>Добавить участника</button><p class="project-form-feedback" data-project-member-feedback role="status" aria-live="polite"></p></form>' : '';
  return '<section class="project-detail-card project-members-card"><div class="project-members-heading"><div><h3>Участники проекта</h3><p>' + members.length + ' ' + (members.length === 1 ? 'участник' : members.length > 1 && members.length < 5 ? 'участника' : 'участников') + '</p></div></div><div class="project-members-list">' + memberRows + '</div>' + inviteForm + '</section>';
 }
-}
 
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
