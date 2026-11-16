@@ -1,4 +1,4 @@
-/* Version: 3.2.0 */
+/* Version: 3.3.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -615,10 +615,14 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 
 
 /* Public profile cards */
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
-.profile-share-actions { display: flex; justify-content: flex-end; margin: -4px 0 18px; }
-.public-profile-setup-link { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.profile-identity-card { position: relative; }
+.profile-share-icon-button { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; margin-left: auto; padding: 0; border: 1px solid var(--color-surface-border); border-radius: 14px; color: var(--color-text-muted); background: var(--color-page); cursor: pointer; transition: color var(--motion-standard), border-color var(--motion-standard), background-color var(--motion-standard), transform var(--motion-standard); }
+.profile-share-icon-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.profile-share-icon-button:hover { color: var(--color-accent); border-color: var(--color-accent-border); background: var(--color-accent-wash); transform: translateY(-1px); }
+.profile-share-icon-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.profile-share-icon-button:disabled { opacity: .55; cursor: wait; transform: none; }
 .public-profile-dialog { width: min(520px, calc(100% - 28px)); max-width: 520px; max-height: min(88vh, 760px); padding: 0; border: 1px solid var(--color-surface-border); border-radius: 24px; color: var(--color-text); background: var(--color-surface); box-shadow: var(--shadow-floating); }
 .public-profile-dialog::backdrop { background: rgba(0,0,0,.48); backdrop-filter: blur(5px); }
 .public-profile-dialog-panel { display: grid; gap: 18px; padding: 22px; }
