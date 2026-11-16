@@ -1,4 +1,4 @@
-# Version: 1.2.0
+# Version: 1.2.1
 # Updated: 2026-11-16
 # Validates Projects SQL and authenticated PostgREST RPC behavior against ephemeral PostgreSQL 17.11.
 name: Projects SQL validation
@@ -59,12 +59,12 @@ jobs:
           );
           create or replace function auth.uid()
           returns uuid language sql stable
-          as $
+          as $auth_uid$
             select coalesce(
               nullif(current_setting('request.jwt.claim.sub', true), ''),
               (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
             )::uuid
-          $;
+          $auth_uid$;
           SQL
 
       - name: Apply Projects core schema
