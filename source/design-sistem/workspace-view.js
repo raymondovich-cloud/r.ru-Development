@@ -1,4 +1,4 @@
-/* Version: 3.0.0 */
+/* Version: 3.1.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -128,7 +128,7 @@ function projectDetailMarkup(state) {
  if (!project) return '<section class="project-detail"><h2>Проект не найден</h2><p>Возможно, проект удалён или у вас нет доступа к нему.</p></section>';
  const componentLabels = { website: "Сайт", telegram_bot: "Telegram-бот", telegram_mini_app: "Telegram Mini App", ios_app: "iOS-приложение" };
  const components = Array.isArray(project.components) ? project.components : [];
- return '<section class="project-detail"><p class="project-detail-intro">Информация и параметры выбранного проекта.</p><div class="project-detail-heading"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>' + escapeHtml(project.name) + '</h2></div><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div>' +
+ return '<section class="project-detail"><div class="project-detail-heading"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>' + escapeHtml(project.name) + '</h2></div><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div>' +
   '<div class="project-detail-card"><h3>Общая информация</h3><dl><div><dt>Тип проекта</dt><dd>' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</dd></div><div><dt>Статус</dt><dd>' + escapeHtml(project.status || "Активен") + '</dd></div><div><dt>Описание</dt><dd>' + (project.description ? escapeHtml(project.description) : "Описание не добавлено") + '</dd></div><div><dt>Создан</dt><dd>' + escapeHtml(formatProjectDate(project.created_at) || "—") + '</dd></div><div><dt>ID проекта</dt><dd><code>' + escapeHtml(project.id) + '</code></dd></div></dl></div>' +
   (components.length ? '<div class="project-detail-card"><h3>Компоненты проекта</h3><div class="project-card-components">' + components.map((item) => '<span>' + escapeHtml(componentLabels[item.code] || item.name || item.code) + '</span>').join("") + '</div></div>' : '') +
   (project.parent_project_id ? '<div class="project-detail-card"><h3>Структура</h3><p>Этот проект является подпроектом.</p></div>' : '') +
