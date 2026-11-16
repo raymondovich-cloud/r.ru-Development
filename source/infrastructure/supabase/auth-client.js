@@ -1,4 +1,4 @@
-/* Version: 1.1.0 */
+/* Version: 1.2.0 */
 /* Updated: 2026-11-16 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -181,6 +181,23 @@ export const authClient = {
     if (!response.ok) {
       throw new Error(payload.error || "Не удалось загрузить профиль.");
     }
+    return payload;
+  },
+
+  async updateProfile(profile) {
+    const session = await this.getSession();
+    if (!session) throw new Error("Сессия пользователя не найдена.");
+    const response = await fetch(`${EDGE_FUNCTIONS_URL}/profile-update`, {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profile),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Не удалось сохранить профиль.");
     return payload;
   },
 
