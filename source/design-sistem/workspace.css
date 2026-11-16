@@ -1,4 +1,4 @@
-/* Version: 1.5.0 */
+/* Version: 1.6.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -178,3 +178,19 @@ body[data-app-state="workspace"] .workspace-content { width: 100%; }
  .settings-security-action { align-items: flex-start; flex-direction: column; }
  .settings-secondary-button { width: 100%; }
 }
+
+
+/* Settings navigation */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.settings-group-list { display: grid; gap: 10px; }
+.settings-group-link { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 17px; border: 1px solid var(--color-surface-border); border-radius: 18px; color: var(--color-text); background: var(--color-surface); text-decoration: none; transition: border-color .2s ease, transform .2s ease, background .2s ease; }
+.settings-group-link:active { transform: scale(.99); }
+.settings-group-link:hover { border-color: var(--color-accent-border); }
+.settings-group-symbol { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 14px; color: var(--color-accent); background: var(--color-accent-wash); font-size: 20px; }
+.settings-group-copy { display: grid; flex: 1; min-width: 0; gap: 4px; }
+.settings-group-copy strong { font-size: 14px; font-weight: 650; }
+.settings-group-copy small { color: var(--color-text-muted); font-size: 12px; line-height: 1.4; }
+.settings-group-chevron { color: var(--color-text-muted); font-size: 25px; line-height: 1; }
+.settings-group-back { display: inline-flex; margin: 0 0 14px; color: var(--color-text-muted); font-size: 13px; text-decoration: none; }
+.settings-group-back:hover { color: var(--color-accent); }
