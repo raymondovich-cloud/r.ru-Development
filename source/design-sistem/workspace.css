@@ -1,4 +1,4 @@
-/* Version: 1.9.0 */
+/* Version: 2.0.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -223,4 +223,33 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 @media (max-width: 560px) {
  .settings-card { width: 100%; padding-inline: 16px; }
  .settings-field input[type="date"] { padding-inline: 10px; }
+}
+
+
+/* Center the native date value within the input control */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.settings-field input[type="date"] {
+  height: 48px;
+  min-height: 48px;
+  padding: 0 12px;
+  line-height: normal;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+.settings-field input[type="date"]::-webkit-date-and-time-value {
+  display: inline-flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: normal;
+}
+@media (max-width: 560px) {
+  .settings-field input[type="date"] { padding: 0 12px; }
 }
