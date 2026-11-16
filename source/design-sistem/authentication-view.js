@@ -1,4 +1,4 @@
-/* Version: 1.0.3 */
+/* Version: 1.0.4 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -150,11 +150,21 @@ export function renderPublicProfileView(container, payload, error = "") {
   description.textContent = profile.username ? `@${profile.username}` : "Публичный профиль Raymondovich";
   panel.append(heading, description);
 
-  if (profile.bio) {
-    const bio = document.createElement("p");
-    bio.className = "auth-description";
-    bio.textContent = profile.bio;
-    panel.append(bio);
+  if (typeof profile.about === "string" && profile.about.trim()) {
+    const aboutSection = document.createElement("section");
+    aboutSection.className = "public-profile-about-section";
+    aboutSection.setAttribute("aria-labelledby", "public-profile-about-title");
+
+    const aboutHeading = document.createElement("h2");
+    aboutHeading.id = "public-profile-about-title";
+    aboutHeading.textContent = "О себе";
+
+    const aboutText = document.createElement("p");
+    aboutText.className = "public-profile-about";
+    aboutText.textContent = profile.about.trim();
+
+    aboutSection.append(aboutHeading, aboutText);
+    panel.append(aboutSection);
   }
 
   const socials = document.createElement("nav");
