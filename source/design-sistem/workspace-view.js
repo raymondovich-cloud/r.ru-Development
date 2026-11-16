@@ -1,4 +1,4 @@
-/* Version: 2.7.0 */
+/* Version: 2.8.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -116,19 +116,35 @@ function projectsOverviewMarkup(state) {
    ? '<p class="project-card-description">' + escapeHtml(project.description) + '</p>'
    : '<p class="project-card-description project-card-description-muted">Описание не добавлено</p>';
   const date = formatProjectDate(project.created_at);
-  return '<article class="project-card"><div class="project-card-meta"><span class="project-card-type">' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><h3>' + escapeHtml(project.name) + '</h3>' + description + componentMarkup + '<div class="project-card-footer">' + (project.parent_project_id ? '<span>Подпроект</span>' : '<span>Основной проект</span>') + (date ? '<time datetime="' + escapeHtml(project.created_at) + '">Создан ' + escapeHtml(date) + '</time>' : '') + '</div></article>';
+  return '<a class="project-card project-card-link" href="#projects/' + encodeURIComponent(project.id) + '" aria-label="Открыть проект: ' + escapeHtml(project.name) + '"><div class="project-card-meta"><span class="project-card-type">' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><h3>' + escapeHtml(project.name) + '</h3>' + description + componentMarkup + '<div class="project-card-footer">' + (project.parent_project_id ? '<span>Подпроект</span>' : '<span>Основной проект</span>') + (date ? '<time datetime="' + escapeHtml(project.created_at) + '">Создан ' + escapeHtml(date) + '</time>' : '') + '</div></a>';
  }).join("");
  return '<section class="projects-overview">' + toolbar + '<div class="project-card-grid">' + cards + '</div></section>';
 }
+
+function projectDetailMarkup(state) {
+ if (!state || state.status === "loading") return '<section class="project-detail"><p role="status">Загружаем проект…</p></section>';
+ if (state.status === "error") return '<section class="project-detail"><h2>Не удалось открыть проект</h2><p>' + escapeHtml(state.message || "Попробуйте открыть проект ещё раз.") + '</p><a class="project-secondary-button" href="#projects">Вернуться к проектам</a></section>';
+ const project = state.project;
+ if (!project) return '<section class="project-detail"><h2>Проект не найден</h2><p>Возможно, проект удалён или у вас нет доступа к нему.</p><a class="project-secondary-button" href="#projects">Вернуться к проектам</a></section>';
+ const componentLabels = { website: "Сайт", telegram_bot: "Telegram-бот", telegram_mini_app: "Telegram Mini App", ios_app: "iOS-приложение" };
+ const components = Array.isArray(project.components) ? project.components : [];
+ return '<section class="project-detail"><a class="project-detail-back" href="#projects">← Все проекты</a><div class="project-detail-heading"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>' + escapeHtml(project.name) + '</h2></div><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div>' +
+  '<div class="project-detail-card"><h3>Общая информация</h3><dl><div><dt>Тип проекта</dt><dd>' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</dd></div><div><dt>Статус</dt><dd>' + escapeHtml(project.status || "Активен") + '</dd></div><div><dt>Описание</dt><dd>' + (project.description ? escapeHtml(project.description) : "Описание не добавлено") + '</dd></div><div><dt>Создан</dt><dd>' + escapeHtml(formatProjectDate(project.created_at) || "—") + '</dd></div><div><dt>ID проекта</dt><dd><code>' + escapeHtml(project.id) + '</code></dd></div></dl></div>' +
+  (components.length ? '<div class="project-detail-card"><h3>Компоненты проекта</h3><div class="project-card-components">' + components.map((item) => '<span>' + escapeHtml(componentLabels[item.code] || item.name || item.code) + '</span>').join("") + '</div></div>' : '') +
+  (project.parent_project_id ? '<div class="project-detail-card"><h3>Структура</h3><p>Этот проект является подпроектом.</p></div>' : '') +
+  '</section>';
+}
+
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
  const isProjectCreate = activeSection === "projects/create";
+ const isProjectDetail = activeSection.startsWith("projects/") && !isProjectCreate;
  const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate ? (isProjectCreate ? "projects" : activeSection) : "projects";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
  const isSettings = activeSection.startsWith("profile/settings");
  const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
- const title = isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
+ const title = isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
   ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 15h3l2-4 2 3h3"></path></svg></div><h2>Действующие проекты появятся здесь</h2><p>В этом разделе будут только запущенные проекты, которые уже приносят доход. Проекты в разработке будут доступны через общий раздел «Проекты».</p></div></div>'
@@ -136,7 +152,9 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
     ['GitHub','Supabase','Cloudflare','REG.RU','ChatGPT','Claude'].map((name) => '<article class="workspace-tool-card"><span class="workspace-tool-mark" aria-hidden="true">' + escapeHtml(name.slice(0,1)) + '</span><div><h3>' + escapeHtml(name) + '</h3><p>Инструмент экосистемы</p></div><span class="workspace-tool-status">Планируется</span></article>').join('') +
     '</div></div><p class="workspace-catalog-note">Каталог будет расширяться по мере подключения и запуска инструментов Raymondovich.</p></div>';
  const projectCreateContent = '<section class="project-create-panel"><div class="project-create-intro"><span class="project-create-kicker">НОВЫЙ ПРОЕКТ</span><h2>Начните с идеи</h2><p>Создайте пространство проекта. Позже вы сможете подключить участников и доступные вам инструменты экосистемы.</p></div><form class="project-create-form" data-project-create-form><label class="project-form-field"><span>Название проекта</span><input name="project_name" type="text" minlength="1" maxlength="120" placeholder="Например, мой новый проект" autocomplete="off" required></label><label class="project-form-field"><span>Тип проекта</span><select name="project_type" required><option value="online">Онлайн-проект</option><option value="offline">Офлайн-проект</option></select></label><fieldset class="project-component-options" data-project-components><legend>Компоненты онлайн-проекта <small>Можно выбрать несколько</small></legend><label><input type="checkbox" name="component_codes" value="website"><span>Сайт</span></label><label><input type="checkbox" name="component_codes" value="telegram_bot"><span>Telegram-бот</span></label><label><input type="checkbox" name="component_codes" value="telegram_mini_app"><span>Telegram Mini App</span></label><label><input type="checkbox" name="component_codes" value="ios_app"><span>iOS-приложение</span></label></fieldset><label class="project-form-field"><span>Краткое описание <small>Необязательно</small></span><textarea name="project_description" rows="4" maxlength="500" placeholder="Расскажите, над чем вы планируете работать"></textarea><small class="project-field-hint">До 500 символов</small></label><div class="project-create-note"><span aria-hidden="true">ⓘ</span><p>Вы станете владельцем созданного проекта. Компоненты можно указать для онлайн-проектов.</p></div><div class="project-create-actions"><a class="project-secondary-button" href="#projects">Отмена</a><button class="project-primary-button" type="submit">Создать проект</button></div><p class="project-form-feedback" data-project-feedback role="status" aria-live="polite"></p></form></section>';
- const content = isProjectCreate
+ const content = isProjectDetail
+  ? projectDetailMarkup(projectState)
+  : isProjectCreate
   ? projectCreateContent
   : isSettings
   ? settingsMarkup(user, profileData, activeSection)
@@ -150,7 +168,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
   ((active === "profile" && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
-   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
+   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectDetail ? "Информация и параметры выбранного проекта." : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
    '</p>') +
   '</div></header>' + content + '</section></div>' + workspaceNavigationMarkup(active);
 }
