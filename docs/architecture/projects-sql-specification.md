@@ -1,6 +1,6 @@
 # Projects — SQL Specification
 
-**Version:** 2.2.0  
+**Version:** 2.3.0  
 **Status:** Architecture specification — review required before migration  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -1359,8 +1359,24 @@ The public-wrapper/internal-schema design requires an explicit privilege decisio
 
 Invitation and ownership-transfer bearer token creation and delivery must be handled by a trusted server workflow. A client must not be allowed to choose arbitrary token hashes for newly created invitations/transfers. Store only a cryptographic token hash in the database; issue and deliver the raw token through a trusted one-time workflow.
 
-### 21.3 SQL draft scope
+### 21.3 Ownership-transfer membership precondition
+
+The target owner must not have a membership row in any project in the hierarchy being transferred. The release-one transfer operation must reject such a transfer until those memberships are explicitly removed, or atomically remove them with audit events. The recommended baseline is to reject and require membership cleanup first, avoiding implicit role/history changes.
+
+### 21.4 SQL draft scope
 
 The first core SQL draft intentionally enables RLS without client policies or direct table grants. Until the later authorization/RPC migration is complete, the subsystem remains inaccessible to browser roles by default.
 
 **Current state:** specification v2.2.0 and a separate migration validation plan/core SQL draft have been prepared. No database DDL, RLS, grants, functions, triggers, data or migrations have been changed.
+
+
+---
+
+## 22. Migration draft status
+
+The approved role matrix has been carried into the core SQL seed set, including `audit.view`. A first-phase core schema draft and a separate migration validation plan are stored in the repository:
+
+- `docs/architecture/sql-drafts/projects-001-core-schema.sql`
+- `docs/architecture/projects-migration-validation-plan.md`
+
+The SQL draft has not been executed. No PostgreSQL parser or Supabase CLI was available in the current execution environment; syntax and runtime behavior must be validated against a disposable local PostgreSQL 17.11/Supabase stack before the draft is promoted to a real migration. No production database changes have been made.
