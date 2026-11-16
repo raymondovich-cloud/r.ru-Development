@@ -10,6 +10,8 @@ on:
       - "docs/architecture/sql-drafts/projects-001-core-schema.sql"
       - "docs/architecture/sql-drafts/projects-002-rpc-phase-1.sql"
       - "supabase/migrations/20261116070000_projects_002_rpc_phase_1.sql"
+      - "supabase/migrations/20261116080000_projects_003_list_rpc.sql"
+      - "tests/sql/projects-list-rpc.test.sql"
       - "tests/sql/projects-core-schema.test.sql"
       - "tests/sql/projects-rpc-phase-1.test.sql"
       - "tests/api/projects-postgrest-phase-1.test.py"
@@ -80,6 +82,12 @@ jobs:
 
       - name: Validate Projects RPC phase 1
         run: psql -v ON_ERROR_STOP=1 -f tests/sql/projects-rpc-phase-1.test.sql
+
+      - name: Apply Projects list RPC migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261116080000_projects_003_list_rpc.sql
+
+      - name: Validate Projects list RPC
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/projects-list-rpc.test.sql
 
       - name: Start ephemeral PostgREST API
         env:
