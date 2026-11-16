@@ -1,4 +1,4 @@
-/* Version: 1.2.0 */
+/* Version: 1.3.0 */
 /* Updated: 2026-11-16 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 
@@ -7,7 +7,7 @@ let profileScrollFrame = 0;
 function syncProfileIdentityCard() {
  const card = document.querySelector(".profile-identity-card");
  if (!card) return;
- const shouldCollapse = card.getBoundingClientRect().top <= 20;
+ const shouldCollapse = window.scrollY > 48;
  card.classList.toggle("is-collapsed", shouldCollapse);
 }
 
