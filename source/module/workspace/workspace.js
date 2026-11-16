@@ -1,4 +1,4 @@
-/* Version: 1.5.0 */
+/* Version: 1.6.0 */
 /* Updated: 2026-11-16 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -49,18 +49,24 @@ export function mountWorkspace(container, user, section = "projects", profileDat
   user,
   section,
   profileData,
-  section === "projects" ? { status: "loading" } : null
+  (section === "projects" || section.startsWith("projects/")) ? { status: "loading" } : null
  );
  installProfileScrollBehavior();
  installProjectRetry(container);
  syncProfileIdentityCard();
 
- if (section !== "projects") return;
+ if (section !== "projects" && !section.startsWith("projects/")) return;
 
  authClient.getProjects().then((payload) => {
   if (sequence !== workspaceMountSequence || currentRoute() !== "projects") return;
   const projects = Array.isArray(payload?.projects) ? payload.projects : [];
-  renderWorkspaceView(container, user, section, profileData, { status: "ready", projects });
+  if (section.startsWith("projects/")) {
+   const projectId = decodeURIComponent(section.slice("projects/".length));
+   const project = projects.find((item) => String(item.id) === projectId) || null;
+   renderWorkspaceView(container, user, section, profileData, { status: "ready", project });
+  } else {
+   renderWorkspaceView(container, user, section, profileData, { status: "ready", projects });
+  }
   syncProfileIdentityCard();
  }).catch((error) => {
   if (sequence !== workspaceMountSequence || currentRoute() !== "projects") return;
