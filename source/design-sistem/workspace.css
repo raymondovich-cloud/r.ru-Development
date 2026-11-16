@@ -1,4 +1,4 @@
-/* Version: 3.3.3 */
+/* Version: 3.3.4 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -696,7 +696,7 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 
 
 /* Public profile projects heading — match the About heading */
-.public-profile-panel > .public-profile-projects-heading { margin: 0; color: var(--color-text-muted); font-size: 12px; font-weight: 650; letter-spacing: .045em; }
+.public-profile-panel > .public-profile-projects-heading { margin: 16px 0 0; color: var(--color-text-muted); font-size: 12px; font-weight: 650; letter-spacing: .045em; }
 
 /* Public profile about section */
 /* Version: 1.0.1 */
