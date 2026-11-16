@@ -31,9 +31,11 @@ Deno.serve(async (req: Request) => {
     try { payload = await req.json(); } catch { return json({ error: "Некорректный JSON." }, 400, origin); }
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) return json({ error: "Некорректные данные." }, 400, origin);
     const input = payload as Record<string, unknown>;
-    const allowed = new Set(["public_profile_enabled", "instagram_url", "youtube_url", "telegram_url", "showcase_project_ids"]);
+    const allowed = new Set(["public_profile_enabled", "about", "instagram_url", "youtube_url", "telegram_url", "showcase_project_ids"]);
     if (!Object.keys(input).length || Object.keys(input).some((key) => !allowed.has(key))) return json({ error: "Переданы неизвестные поля." }, 400, origin);
     if (typeof input.public_profile_enabled !== "boolean") return json({ error: "Укажите, включён ли публичный профиль." }, 400, origin);
+    const about = input.about === undefined || input.about === null ? "" : input.about;
+    if (typeof about !== "string" || [...about].length > 80) return json({ error: "Текст «О себе» не должен превышать 80 символов." }, 400, origin);
     const normalize = (key: string, host: RegExp, path: RegExp): string | null => {
       const raw = input[key];
       if (raw === undefined || raw === null || raw === "") return null;
@@ -52,6 +54,7 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: updateError } = await admin.rpc("profile_public_info_update", {
       p_user_id: data.user.id,
       p_enabled: input.public_profile_enabled,
+      p_about: about.trim() || null,
       p_instagram_url: instagram,
       p_youtube_url: youtube,
       p_telegram_url: telegram,
