@@ -138,3 +138,19 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
  .settings-theme-option { text-align: left; padding-left: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { .settings-field input, .settings-primary-button { transition: none; } }
+
+
+/* Shared header navigation */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+body[data-app-state="workspace"] .page-back { display: inline-grid; }
+body[data-app-state="workspace"] .workspace-header-actions { display: none; }
+body[data-app-state="workspace"] .workspace-layout { display: block; min-height: auto; }
+body[data-app-state="workspace"] .workspace-sidebar,
+body[data-app-state="workspace"] .workspace-mobile-nav,
+body[data-app-state="workspace"] .workspace-subpage-back { display: none; }
+body[data-app-state="workspace"] .workspace-content { width: 100%; }
+@media (max-width: 760px) {
+  body[data-app-state="workspace"] .page-back { display: inline-grid; }
+  body[data-app-state="workspace"] .page-shell { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+}
