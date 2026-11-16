@@ -85,7 +85,8 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
  const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) ? activeSection : "projects";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
- const isSettings = activeSection.startsWith("profile/settings");\n const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
+ const isSettings = activeSection.startsWith("profile/settings");
+ const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
  const title = isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
@@ -94,7 +95,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
     ['GitHub','Supabase','Cloudflare','REG.RU','ChatGPT','Claude'].map((name) => '<article class="workspace-tool-card"><span class="workspace-tool-mark" aria-hidden="true">' + escapeHtml(name.slice(0,1)) + '</span><div><h3>' + escapeHtml(name) + '</h3><p>Инструмент экосистемы</p></div><span class="workspace-tool-status">Планируется</span></article>').join('') +
     '</div></div><p class="workspace-catalog-note">Каталог будет расширяться по мере подключения и запуска инструментов Raymondovich.</p></div>';
  const content = isSettings
-  ? settingsMarkup(user, profileData)
+  ? settingsMarkup(user, profileData, activeSection)
   : isActiveProjects || isEcosystemTools
   ? subrouteContent
   : active === "profile"
