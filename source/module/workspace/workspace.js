@@ -157,9 +157,6 @@ function installProjectDeleteActions(container) {
    const dialog = form.closest("[data-project-delete-dialog]");
    if (dialog?.open) dialog.close();
    window.location.hash = "#projects";
-   if (lastWorkspaceMount) {
-    mountWorkspace(container, lastWorkspaceMount.user, "projects", lastWorkspaceMount.profileData);
-   }
   } catch (error) {
    const message = String(error?.message || "");
    if (feedback) {
