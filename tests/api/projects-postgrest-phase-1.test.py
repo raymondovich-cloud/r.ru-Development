@@ -1,5 +1,5 @@
 # Raymondovich Projects Phase 1 — PostgREST API integration test
-# Version: 1.0.1
+# Version: 1.0.2
 # Updated: 2026-11-16
 #
 # Runs against an ephemeral local PostgREST instance backed by PostgreSQL 17.11.
@@ -101,8 +101,11 @@ def main():
     outsider_token = make_jwt(OUTSIDER_ID)
 
     status, raw = http_request("GET", "/rpc/test_auth_uid", token=owner_token)
-    if status != 200 or json.loads(raw) != OWNER_ID:
-        raise AssertionError(f"JWT subject was not available to auth.uid(): HTTP {status}: {raw}")
+    if status != 200:
+        raise AssertionError(f"JWT diagnostic RPC failed: HTTP {status}: {raw}")
+    auth_context = json.loads(raw)
+    if auth_context.get("uid") != OWNER_ID:
+        raise AssertionError(f"JWT subject was not available to auth.uid(): {auth_context}")
 
     status, raw = http_request(
         "POST",
