@@ -1,4 +1,4 @@
-/* Version: 2.0.0 */
+/* Version: 2.1.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -7,6 +7,20 @@ const sections = [
  { id: "tools", label: "Инструменты" },
  { id: "profile", label: "Профиль" }
 ];
+function workspaceNavigationMarkup(active) {
+ const icons = {
+  projects: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path></svg>',
+  ideas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6m-5 3h4m-2-19a7 7 0 0 0-4 12.7c.8.6 1 1.1 1 2.3h6c0-1.2.2-1.7 1-2.3A7 7 0 0 0 12 2Z"></path></svg>',
+  team: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-15a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5v1h-3"></path></svg>',
+  tools: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6 4 4M4 20l4-1 11-11a2.8 2.8 0 0 0-4-4L4 15l-1 4 1 1Z"></path></svg>',
+  profile: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>'
+ };
+ return '<nav class="workspace-mobile-nav" aria-label="Основная навигация">' +
+  sections.map(({id,label}) => '<a class="workspace-nav-link" href="#' + id + '"' +
+   (active === id ? ' aria-current="page"' : '') +
+   '><span class="workspace-nav-icon">' + icons[id] + '</span><span>' + label + '</span></a>'
+  ).join("") + '</nav>';
+}
 function escapeHtml(value) {
  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -106,5 +120,5 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1><p>' +
   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "Ваш аккаунт и возможности в экосистеме Raymondovich.") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
-  '</p></div></header>' + content + '</section></div>';
+  '</p></div></header>' + content + '</section></div>' + workspaceNavigationMarkup(active);
 }
