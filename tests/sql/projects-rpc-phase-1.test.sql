@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.4
+-- Version: 1.0.5
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -72,6 +72,9 @@ begin
   end if;
   delete from projects.project_memberships
   where project_id = v_child and user_id = v_member;
+
+  -- Restore the owner identity before checking owner-specific authority.
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
 
   -- Owner authority bypasses role mappings and individual denies.
   insert into projects.project_access_grants(
