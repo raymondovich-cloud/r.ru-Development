@@ -1,4 +1,4 @@
-/* Version: 1.8.0 */
+/* Version: 1.9.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -245,6 +245,7 @@ if (root && pageMain) {
     try {
       await authClient.updatePublicProfile({
         public_profile_enabled: publicProfileForm.querySelector('[name="public_profile_enabled"]').checked,
+        about: String(values.about || "").trim(),
         instagram_url: String(values.instagram_url || "").trim() || null,
         youtube_url: String(values.youtube_url || "").trim() || null,
         telegram_url: String(values.telegram_url || "").trim() || null,
