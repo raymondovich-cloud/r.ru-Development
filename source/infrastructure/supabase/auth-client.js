@@ -1,4 +1,4 @@
-/* Version: 1.4.0 */
+/* Version: 1.5.0 */
 /* Updated: 2026-11-16 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -238,6 +238,30 @@ export const authClient = {
       method: "POST",
       accessToken: session.access_token,
       body: {},
+    });
+  },
+
+  async getProjectMembers(projectId) {
+    const session = await this.getSession();
+    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
+    return request("/rest/v1/rpc/project_members_list", {
+      method: "POST",
+      accessToken: session.access_token,
+      body: { p_project_id: projectId },
+    });
+  },
+
+  async addProjectMember({ projectId, username, roleId }) {
+    const session = await this.getSession();
+    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
+    return request("/rest/v1/rpc/project_member_add", {
+      method: "POST",
+      accessToken: session.access_token,
+      body: {
+        p_project_id: projectId,
+        p_username: String(username || "").trim().toLowerCase(),
+        p_role_id: roleId,
+      },
     });
   },
 
