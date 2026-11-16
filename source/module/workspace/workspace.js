@@ -1,4 +1,4 @@
-/* Version: 1.9.0 */
+/* Version: 2.0.0 */
 /* Updated: 2026-11-16 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -95,6 +95,91 @@ function installProjectMemberActions(container) {
  });
 }
 
+function installProjectDeleteActions(container) {
+ if (container.dataset.projectDeleteActionsBound === "true") return;
+ container.dataset.projectDeleteActionsBound = "true";
+
+ container.addEventListener("click", (event) => {
+  const openButton = event.target.closest("[data-project-delete-open]");
+  if (openButton) {
+   const dialog = container.querySelector("[data-project-delete-dialog]");
+   if (dialog && !dialog.open) {
+    dialog.showModal();
+    dialog.querySelector('input[name="password"]')?.focus();
+   }
+   return;
+  }
+
+  const closeButton = event.target.closest("[data-project-delete-close]");
+  if (closeButton) {
+   const dialog = closeButton.closest("[data-project-delete-dialog]");
+   if (dialog?.open) {
+    dialog.close();
+    dialog.querySelector("[data-project-delete-form]")?.reset();
+   }
+   return;
+  }
+
+  const dialog = event.target.closest("[data-project-delete-dialog]");
+  if (dialog && event.target === dialog) {
+   dialog.close();
+   dialog.querySelector("[data-project-delete-form]")?.reset();
+  }
+ });
+
+ container.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-project-delete-form]");
+  if (!form || form.dataset.submitting === "true") return;
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+
+  const route = currentRoute();
+  const routeParts = route.split("/");
+  if (routeParts[0] !== "projects" || !routeParts[1] || routeParts[1] === "create") return;
+
+  const projectId = decodeURIComponent(routeParts[1]);
+  const feedback = form.querySelector("[data-project-delete-feedback]");
+  const button = form.querySelector('button[type="submit"]');
+  const password = new FormData(form).get("password");
+
+  form.dataset.submitting = "true";
+  if (button) {
+   button.disabled = true;
+   button.textContent = "Проверяем пароль…";
+  }
+  if (feedback) {
+   feedback.textContent = "";
+   feedback.dataset.state = "";
+  }
+
+  try {
+   await authClient.deleteProject({ projectId, password });
+   const dialog = form.closest("[data-project-delete-dialog]");
+   if (dialog?.open) dialog.close();
+   window.location.hash = "#projects";
+  } catch (error) {
+   const message = String(error?.message || "");
+   if (feedback) {
+    feedback.textContent = /invalid login credentials|invalid_credentials|wrong password/i.test(message)
+     ? "Неверный пароль. Проверьте ввод и попробуйте ещё раз."
+     : /Recent password confirmation required/i.test(message)
+      ? "Не удалось подтвердить пароль. Повторите попытку."
+      : /Only the project owner|42501/i.test(message)
+       ? "Удалить проект может только его владелец."
+       : message || "Не удалось удалить проект. Попробуйте ещё раз.";
+    feedback.dataset.state = "error";
+   }
+   form.querySelector('input[name="password"]')?.focus();
+   form.querySelector('input[name="password"]')?.select();
+   form.dataset.submitting = "false";
+   if (button) {
+    button.disabled = false;
+    button.textContent = "Подтвердить удаление";
+   }
+  }
+ });
+}
+
 function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }
@@ -112,6 +197,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installProfileScrollBehavior();
  installProjectRetry(container);
  installProjectMemberActions(container);
+ installProjectDeleteActions(container);
  syncProfileIdentityCard();
 
  if (section !== "projects" && !section.startsWith("projects/")) return;
