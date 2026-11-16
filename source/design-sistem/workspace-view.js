@@ -1,4 +1,4 @@
-/* Version: 3.6.0 */
+/* Version: 3.7.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -121,7 +121,7 @@ function projectsOverviewMarkup(state) {
  return '<section class="projects-overview">' + toolbar + '<div class="project-card-grid">' + cards + '</div></section>';
 }
 
-function projectDetailMarkup(state) {
+function projectDetailMarkup(state, isProjectInformation = false) {
  if (!state || state.status === "loading") return '<section class="project-detail"><p role="status">Загружаем проект…</p></section>';
  if (state.status === "error") return '<section class="project-detail"><h2>Не удалось открыть проект</h2><p>' + escapeHtml(state.message || "Попробуйте открыть проект ещё раз.") + '</p></section>';
  const project = state.project;
@@ -174,7 +174,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
     '</div></div><p class="workspace-catalog-note">Каталог будет расширяться по мере подключения и запуска инструментов Raymondovich.</p></div>';
  const projectCreateContent = '<section class="project-create-panel"><div class="project-create-intro"><span class="project-create-kicker">НОВЫЙ ПРОЕКТ</span><h2>Начните с идеи</h2><p>Создайте пространство проекта. Позже вы сможете подключить участников и доступные вам инструменты экосистемы.</p></div><form class="project-create-form" data-project-create-form><label class="project-form-field"><span>Название проекта</span><input name="project_name" type="text" minlength="1" maxlength="120" placeholder="Например, мой новый проект" autocomplete="off" required></label><label class="project-form-field"><span>Тип проекта</span><select name="project_type" required><option value="online">Онлайн-проект</option><option value="offline">Офлайн-проект</option></select></label><fieldset class="project-component-options" data-project-components><legend>Компоненты онлайн-проекта <small>Можно выбрать несколько</small></legend><label><input type="checkbox" name="component_codes" value="website"><span>Сайт</span></label><label><input type="checkbox" name="component_codes" value="telegram_bot"><span>Telegram-бот</span></label><label><input type="checkbox" name="component_codes" value="telegram_mini_app"><span>Telegram Mini App</span></label><label><input type="checkbox" name="component_codes" value="ios_app"><span>iOS-приложение</span></label></fieldset><label class="project-form-field"><span>Краткое описание <small>Необязательно</small></span><textarea name="project_description" rows="4" maxlength="500" placeholder="Расскажите, над чем вы планируете работать"></textarea><small class="project-field-hint">До 500 символов</small></label><div class="project-create-note"><span aria-hidden="true">ⓘ</span><p>Вы станете владельцем созданного проекта. Компоненты можно указать для онлайн-проектов.</p></div><div class="project-create-actions"><a class="project-secondary-button" href="#projects">Отмена</a><button class="project-primary-button" type="submit">Создать проект</button></div><p class="project-form-feedback" data-project-feedback role="status" aria-live="polite"></p></form></section>';
  const content = isProjectDetail
-  ? projectDetailMarkup(projectState)
+  ? projectDetailMarkup(projectState, isProjectInformation)
   : isProjectCreate
   ? projectCreateContent
   : isSettings
