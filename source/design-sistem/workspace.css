@@ -1,4 +1,4 @@
-/* Version: 2.9.0 */
+/* Version: 3.0.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -358,8 +358,9 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .projects-toolbar { display: flex; align-items: flex-start; padding: 26px 28px; border: 1px solid var(--color-surface-border); border-radius: 24px; background: var(--color-surface); box-shadow: var(--shadow-surface); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
 .projects-toolbar-content { width: 100%; }
 .projects-toolbar-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.projects-toolbar-heading { min-width: 0; }
+.projects-toolbar-heading h2 { margin: 9px 0 0; font-size: clamp(19px, 2.5vw, 24px); letter-spacing: -.04em; }
 .projects-eyebrow, .project-create-kicker { color: var(--color-accent); font-size: 10px; font-weight: 750; letter-spacing: .13em; }
-.projects-toolbar h2 { margin: 9px 0 0; font-size: clamp(19px, 2.5vw, 24px); letter-spacing: -.04em; }
 .projects-toolbar p { max-width: 580px; margin: 8px 0 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
 .project-primary-button, .project-secondary-button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 8px; padding: 0 18px; border: 1px solid transparent; border-radius: 14px; font: inherit; font-size: 13px; font-weight: 650; text-decoration: none; white-space: nowrap; cursor: pointer; transition: transform var(--motion-standard), background-color var(--motion-standard), border-color var(--motion-standard); }
 .project-primary-button { color: var(--color-accent-contrast, #fff); background: var(--color-accent); }
