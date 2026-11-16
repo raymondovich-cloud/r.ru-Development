@@ -1,4 +1,4 @@
-/* Version: 1.6.0 */
+/* Version: 1.7.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -194,3 +194,12 @@ body[data-app-state="workspace"] .workspace-content { width: 100%; }
 .settings-group-chevron { color: var(--color-text-muted); font-size: 25px; line-height: 1; }
 .settings-group-back { display: inline-flex; margin: 0 0 14px; color: var(--color-text-muted); font-size: 13px; text-decoration: none; }
 .settings-group-back:hover { color: var(--color-accent); }
+
+
+/* Restore persistent mobile workspace navigation */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
+@media (max-width: 760px) {
+ body[data-app-state="workspace"] .workspace-mobile-nav { display: grid; }
+}
