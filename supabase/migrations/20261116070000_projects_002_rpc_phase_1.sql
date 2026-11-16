@@ -500,6 +500,5 @@ grant execute on function public.project_restore(uuid) to authenticated;
 grant execute on function public.project_access_check(uuid, text) to authenticated;
 
 revoke all on projects.project_audit_logs from public, anon, authenticated;
-revoke all on projects.project_audit_logs_id_seq from public, anon, authenticated;
 
 commit;
