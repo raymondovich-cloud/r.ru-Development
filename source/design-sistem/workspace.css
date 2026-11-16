@@ -668,3 +668,10 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  .public-profile-dialog-actions button { width: 100%; }
  .public-profile-card { border-radius: 20px; }
 }
+
+
+/* Public profile preview social links */
+/* Version: 1.0.1 */
+/* Updated: 2026-11-16 */
+.public-profile-preview-socials { display: flex; flex-wrap: wrap; gap: 8px; }
+.public-profile-preview-socials a { display: inline-flex; min-height: 34px; align-items: center; padding: 0 11px; border: 1px solid var(--color-surface-border); border-radius: 11px; color: var(--color-text); background: var(--color-page); font-size: 11px; font-weight: 600; text-decoration: none; }
