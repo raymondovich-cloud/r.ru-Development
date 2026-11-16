@@ -1,7 +1,8 @@
-/* Version: 1.0.2 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
+import { mountWorkspace } from "../workspace/workspace.js";
 import {
   renderAuthenticationView,
   renderAuthenticatedView,
@@ -16,23 +17,35 @@ const backButton = document.querySelector("[data-page-back]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
+  const workspaceRoutes = new Set(["projects", "ideas", "team", "tools", "profile"]);
   let currentMode = "login";
   let busy = false;
 
   function setRoute(mode) {
     currentMode = mode;
-    const isAuthRoute = validModes.has(mode) || mode === "account";
-    root.hidden = !isAuthRoute;
-    if (statusPanel) statusPanel.hidden = isAuthRoute;
+    const isAuthRoute = validModes.has(mode);
+    const isWorkspaceRoute = mode === "account" || workspaceRoutes.has(mode);
+    root.hidden = !(isAuthRoute || isWorkspaceRoute);
+    if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute;
+    document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
 
-    if (!isAuthRoute) return;
-    if (mode === "account") {
+    if (isWorkspaceRoute) {
       authClient.getUser().then((user) => {
-        if (user) renderAuthenticatedView(root, user);
-        else window.location.hash = "login";
+        if (!user) {
+          window.location.hash = "login";
+          return;
+        }
+        if (mode === "account") {
+          window.location.hash = "projects";
+          return;
+        }
+        mountWorkspace(root, user, mode);
+      }).catch(() => {
+        window.location.hash = "login";
       });
       return;
     }
+    if (!isAuthRoute) return;
     renderAuthenticationView(root, mode);
   }
 
@@ -146,13 +159,13 @@ if (root && pageMain) {
         renderAuthenticationView(root, "login", "Аккаунт создан. Проверьте электронную почту и перейдите по ссылке подтверждения, чтобы завершить регистрацию.", "success");
       } else if (mode === "login") {
         await authClient.signIn(values.identifier, values.password);
-        window.location.hash = "account";
+        window.location.hash = "projects";
       } else if (mode === "forgot-password") {
         await authClient.requestPasswordReset(values.email);
         showMessage("Если аккаунт с таким адресом существует, письмо для восстановления пароля отправлено.", "success");
       } else if (mode === "reset-password") {
         await authClient.updatePassword(values.password);
-        window.location.hash = "account";
+        window.location.hash = "projects";
       }
     } catch (error) {
       showMessage(normalizeError(error), "error");
