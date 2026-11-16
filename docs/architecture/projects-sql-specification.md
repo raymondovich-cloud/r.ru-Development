@@ -167,6 +167,7 @@ Core entities:
 
 - `projects.projects` — project records and hierarchy.
 - `projects.project_component_types` — supported technical component types.
+- `projects.project_components` — normalized many-to-many relation between projects and supported components; a project may have multiple components.
 - `projects.project_memberships` — active/suspended/removed membership records.
 - `projects.project_roles` — system and project-local roles.
 - `projects.project_permissions` — permission catalogue.
@@ -201,7 +202,7 @@ One row represents one independent project.
 | `name` | VARCHAR(120) | Yes | Trimmed; non-empty |
 | `description` | TEXT | No | Internal description only |
 | `project_type` | TEXT | Yes | `online` or `offline` |
-| `component_type_id` | UUID | No | FK to component type catalogue |
+| `component_type_id` | UUID | No | Legacy transition field only; deprecated in favour of `project_components` |
 | `status` | TEXT | Yes | `active` or `archived` |
 | `created_at` | TIMESTAMPTZ | Yes | Server default |
 | `updated_at` | TIMESTAMPTZ | Yes | Server-maintained |
@@ -246,7 +247,7 @@ Initial codes:
 - `telegram_bot`
 - `ios_app`
 
-The catalogue may be extended later. A project can have a null component type when it represents an organizational or functional direction rather than a specific technical component. Online/offline remains a separate project classification.
+The catalogue may be extended later. A project can have zero or more component types when it represents one or several technical products; an online project may combine a website, Telegram Mini App, Telegram Bot and iOS app. Offline projects cannot declare online components. The legacy scalar `projects.projects.component_type_id` is retained temporarily for migration compatibility, backfilled into `project_components`, and must not be written by new code. Remove it only in a later migration after all consumers have moved. A project can have no component when it represents an organizational or functional direction rather than a specific technical component. Online/offline remains a separate project classification.
 
 ### 6.3 `projects.project_memberships`
 
@@ -1380,3 +1381,12 @@ The approved role matrix has been carried into the core SQL seed set, including 
 - `docs/architecture/projects-migration-validation-plan.md`
 
 The SQL draft has not been executed. No PostgreSQL parser or Supabase CLI was available in the current execution environment; syntax and runtime behavior must be validated against a disposable local PostgreSQL 17.11/Supabase stack before the draft is promoted to a real migration. No production database changes have been made.
+
+
+## 20. Projects RPC security and component normalization (2026-11-16)
+
+- Public functions in the exposed `public` schema are `SECURITY INVOKER` wrappers only. They perform no privilege elevation.
+- Privileged implementation functions reside in the unexposed `projects` schema and use `SECURITY DEFINER`, fixed empty `search_path`, qualified object references, and explicit authenticated EXECUTE grants.
+- The `projects` schema remains excluded from PostgREST's exposed-schema list. Authenticated receives schema USAGE solely to call the narrowly granted implementation functions; base-table privileges remain revoked.
+- `project_create` accepts an array of component codes. Unknown, inactive, duplicate, empty and offline-project component combinations are rejected. Zero components remains valid.
+- `projects.project_components` is the authoritative normalized relation. Existing scalar component IDs are backfilled; the scalar column is deprecated and not written by the RPC.
