@@ -1,4 +1,4 @@
-/* Version: 3.10.0 */
+/* Version: 3.11.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -190,7 +190,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
   '<section class="workspace-content" aria-labelledby="workspace-title">' +
   (isProjectDetail ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
   ((active === "profile" && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
-   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
+   (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "" : "Рабочее пространство Raymondovich.") +
    '</p>') +
   '</div></header>') + content + '</section></div>' + workspaceNavigationMarkup(active);
 }
