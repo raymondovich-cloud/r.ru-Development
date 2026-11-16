@@ -1,16 +1,18 @@
 <!doctype html>
 <html lang="ru">
   <head>
-    <!-- Version: 1.1.0 -->
+    <!-- Version: 1.2.0 -->
     <!-- Updated: 2026-11-16 -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#f4f4f2">
-    <meta name="description" content="Raymondovich — сайт в разработке.">
+    <meta name="description" content="Raymondovich — цифровая экосистема.">
     <title>Raymondovich</title>
     <link rel="stylesheet" href="/source/design-sistem/public.css">
+    <link rel="stylesheet" href="/source/design-sistem/authentication.css">
     <script type="module" src="/source/design-sistem/public.js"></script>
+    <script type="module" src="/source/module/authentication/authentication.js"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -45,6 +47,7 @@
           <div class="status-indicator">Raymondovich</div>
           <h1 class="status-title" id="status-title">Сайт <span>в разработке</span></h1>
         </section>
+        <div data-auth-root hidden></div>
       </main>
     </div>
   </body>
