@@ -1,6 +1,6 @@
 # Projects — migration validation plan
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Status:** Review draft — no migrations applied  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -201,3 +201,34 @@ The SQL migration draft applied and committed successfully in the disposable dat
 This is real PostgreSQL 17.11 execution, not merely static inspection. However, it is **not yet a full Supabase local-stack test**: the Auth schema and roles were represented by a minimal fixture. PostgREST exposure, Supabase JWT/RLS behavior, Supabase-managed grants, extensions and RPC wrapper security remain later validation gates.
 
 The SQL remains a review draft and has **not** been applied to the connected Supabase project. Production schema remains unchanged.
+
+
+## 15. Primary Supabase deployment completed (2026-11-16)
+
+The user explicitly directed that the Projects core schema be applied directly to the primary Raymondovich Supabase project.
+
+Target:
+- Project ref: `yajybgdorhxebbigwjgi`
+- Project name: `raymondovich`
+- Region: `eu-central-1`
+- PostgreSQL: `17.11`
+
+Migration recorded by Supabase:
+- Version: `20261116060455`
+- Name: `projects_001_core_schema`
+
+Post-apply verification against the live database passed:
+- 8 of 8 expected tables exist in schema `projects`.
+- RLS is enabled on all 8 tables.
+- 6 system roles, 20 permissions, 54 role-permission mappings exist.
+- Four component types seeded and active.
+- `anon` and `authenticated` have no schema USAGE and no direct SELECT on `projects.projects`.
+- `projects` schema is not currently configured for PostgREST exposure (runtime settings returned null).
+- No project or membership records were created.
+- Auth users and private profiles remain at the same observed counts (2 and 2).
+- Existing Auth/private trigger count remains 3.
+- Existing Auth/profile functions and triggers were not modified by this migration.
+
+Supabase Security Advisor now reports the expected INFO finding `RLS Enabled No Policy` for the eight new tables. This is intentional default-deny: no browser grants, schema USAGE or RLS policies are added until the RPC/API authorization layer is implemented. Existing unrelated advisor findings remain unchanged.
+
+The migration does not yet implement project RPCs, invitations, publications, audit history, resource sharing or ownership transfer. Those remain subsequent migrations.
