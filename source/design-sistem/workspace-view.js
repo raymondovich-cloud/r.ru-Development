@@ -1,4 +1,4 @@
-/* Version: 2.1.0 */
+/* Version: 2.2.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -74,9 +74,7 @@ function settingsMarkup(user, profileData, route) {
   ({ "personal-data":"◉", privacy:"◇", appearance:"◐", cryptography:"⌘" }[id]) +
   '</span><span class="settings-group-copy"><strong>' + name + '</strong><small>' + description + '</small></span><span class="settings-group-chevron" aria-hidden="true">›</span></a>'
  ).join("") + '</div>';
- const back = '<a class="settings-group-back" href="#profile/settings">← Все настройки</a>';
- if (groupRoute === "personal-data") return back +
-  '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
+ if (groupRoute === "personal-data") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
   '<form class="settings-form" data-profile-settings-form><label class="settings-field"><span>ФИО</span><input name="full_name" type="text" autocomplete="name" minlength="3" maxlength="160" required value="' + escapeHtml(fullName) + '"></label>' +
   '<label class="settings-field"><span>Дата рождения</span><input name="birth_date" type="date" autocomplete="bday" required value="' + escapeHtml(birthDate) + '"></label>' +
   '<div class="settings-form-feedback" data-settings-feedback role="status" aria-live="polite"></div><button class="settings-primary-button" type="submit">Сохранить изменения</button></form></section>';
