@@ -1,4 +1,4 @@
-/* Version: 3.8.0 */
+/* Version: 3.9.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -129,7 +129,7 @@ function projectDetailMarkup(state, isProjectInformation = false) {
  const componentLabels = { website: "Сайт", telegram_bot: "Telegram-бот", telegram_mini_app: "Telegram Mini App", ios_app: "iOS-приложение" };
  const components = Array.isArray(project.components) ? project.components : [];
  const informationCard = '<div class="project-detail-card project-info-card"><h3>Общая информация</h3><dl><div><dt>Тип проекта</dt><dd>' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</dd></div><div><dt>Статус</dt><dd>' + escapeHtml(project.status || "Активен") + '</dd></div><div><dt>Описание</dt><dd>' + (project.description ? escapeHtml(project.description) : "Описание не добавлено") + '</dd></div><div><dt>Создан</dt><dd>' + escapeHtml(formatProjectDate(project.created_at) || "—") + '</dd></div><div><dt>ID проекта</dt><dd><code>' + escapeHtml(project.id) + '</code></dd></div></dl></div>';
- if (isProjectInformation) return '<section class="project-detail project-information-page"><div class="project-detail-topline"><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><div class="project-detail-heading"><h2>' + escapeHtml(project.name) + '</h2></div><h3 class="project-information-title">Общая информация</h3>' + informationCard + '</section>';
+ if (isProjectInformation) return '<section class="project-detail project-information-page"><div class="project-detail-topline"><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><div class="project-detail-heading"><h2>' + escapeHtml(project.name) + '</h2></div>' + informationCard + '<section class="project-detail-card project-settings-card"><h3>Настройки проекта</h3><p>Управление параметрами проекта будет доступно в этом разделе.</p></section></section>';
  return '<section class="project-detail"><div class="project-detail-topline"><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><div class="project-detail-heading"><h2>' + escapeHtml(project.name) + '</h2>' +
   '<a class="project-info-avatar" href="#projects/' + encodeURIComponent(project.id) + '/information" aria-label="Открыть общую информацию проекта" title="Общая информация проекта">' + escapeHtml(initials(project.name, "PR")) + '</a></div>' +
   (components.length ? '<div class="project-detail-card"><h3>Компоненты проекта</h3><div class="project-card-components">' + components.map((item) => '<span>' + escapeHtml(componentLabels[item.code] || item.name || item.code) + '</span>').join("") + '</div></div>' : '') +
