@@ -1,6 +1,6 @@
 # Projects — migration validation plan
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Status:** RPC phase 1 passed PostgreSQL 17.11 CI; primary Supabase not yet migrated  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -262,3 +262,22 @@ Final migration version 1.2.0 and test version 1.3.0 passed GitHub Actions run #
 - RPC test PASS: five invoker RPCs, isolated definer implementations, multi-component projects, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants.
 
 This validates SQL migration execution and the assertions in the repository's PostgreSQL CI. It is not a full Supabase stack/PostgREST integration test. Primary Supabase has not been modified.
+
+
+## 18. PostgREST API integration validation (2026-11-16)
+
+The development CI now starts PostgREST v14.17 against the ephemeral PostgreSQL 17.11 database after applying the Projects core and RPC migrations. A Python standard-library HTTP test signs synthetic HS256 JWTs for two test identities and exercises the RPC endpoints through HTTP.
+
+**Latest successful run:** GitHub Actions run `43818747946`, commit `c804500c2a72b263fcdfc9e734c19c97b22d81e1`.
+
+Assertions passed:
+- Authenticated `POST /rpc/project_create` succeeds using a JWT subject and creates an online project with both `website` and `telegram_bot` components.
+- Authenticated owner `GET /rpc/project_access_check` returns true for `project.update`.
+- A different authenticated identity cannot update the owner's project (HTTP 401/403).
+- An anonymous caller cannot execute `project_create` (HTTP 401/403).
+- The `projects` schema is not exposed through PostgREST (request with `Accept-Profile: projects` returns HTTP 406).
+- Both normalized project components are persisted in the database.
+
+A defect in the earlier SQL-only test fixture was found and fixed: its stub `auth.uid()` read only the legacy `request.jwt.claim.sub` setting, while PostgREST v14 supplies the aggregate `request.jwt.claims` JSON setting. The fixture now supports both forms. This does not alter the hosted Supabase Auth implementation.
+
+**Scope limitation:** this is a real HTTP/PostgREST integration test using an isolated local PostgREST 14.17 instance and synthetic JWTs. It is not yet a live request against the hosted Raymondovich Supabase API or a token issued by hosted Supabase Auth. The primary project remains unchanged; RPC Phase 1 is not applied there.
