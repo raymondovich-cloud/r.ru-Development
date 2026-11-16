@@ -1,4 +1,4 @@
-/* Version: 1.0.6 */
+/* Version: 1.0.7 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -200,7 +200,7 @@ export function renderPublicProfileView(container, payload, error = "") {
   const projects = Array.isArray(payload.projects) ? payload.projects : Array.isArray(profile.projects) ? profile.projects : [];
   if (projects.length) {
     const projectHeading = document.createElement("h2");
-    projectHeading.className = "auth-heading";
+    projectHeading.className = "public-profile-projects-heading";
     projectHeading.textContent = "Проекты";
     panel.append(projectHeading);
 
