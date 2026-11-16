@@ -1,4 +1,4 @@
-/* Version: 3.9.0 */
+/* Version: 3.10.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -95,7 +95,7 @@ function formatProjectDate(value) {
  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", year: "numeric" }).format(date);
 }
 function projectsOverviewMarkup(state) {
- const toolbar = '<div class="projects-toolbar"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>Ваши проекты</h2><p>Все проекты, в которых вы являетесь владельцем или участником.</p></div><a class="project-primary-button projects-create-button" href="#projects/create">Создать проект <span aria-hidden="true">+</span></a></div>';
+ const toolbar = '<div class="projects-toolbar"><div class="projects-toolbar-content"><div class="projects-toolbar-topline"><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><a class="project-primary-button projects-create-button" href="#projects/create" aria-label="Создать проект" title="Создать проект"><span aria-hidden="true">+</span></a></div><h2>Ваши проекты</h2></div></div>';
  if (!state || state.status === "loading") {
   return '<section class="projects-overview">' + toolbar + '<div class="projects-loading-state" role="status"><span class="projects-loading-indicator" aria-hidden="true"></span><p>Загружаем ваши проекты…</p></div></section>';
  }
