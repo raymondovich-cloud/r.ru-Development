@@ -1,4 +1,4 @@
-/* Version: 1.1.0 */
+/* Version: 1.2.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -82,3 +82,26 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
  .profile-access-label, .profile-soon-label { font-size: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .profile-link-card, .profile-signout { transition: none; } }
+
+
+/* Profile subpages and ecosystem-wide tool catalog */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.workspace-subpage-back { margin: -8px 0 18px; }
+.workspace-subpage-back a { color: var(--color-text-muted); font-size: 13px; font-weight: 580; text-decoration: none; }
+.workspace-subpage-back a:hover { color: var(--color-accent); }
+.workspace-catalog-intro, .workspace-catalog-note { color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
+.workspace-tool-category { margin-top: 24px; }
+.workspace-tool-category > h2 { margin: 0 0 12px; font-size: 17px; font-weight: 660; letter-spacing: -.03em; }
+.workspace-tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.workspace-tool-card { display: flex; min-width: 0; align-items: center; gap: 12px; padding: 15px; border: 1px solid var(--color-surface-border); border-radius: 18px; background: var(--color-surface); box-shadow: var(--shadow-surface); }
+.workspace-tool-mark { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 14px; color: var(--color-accent); background: var(--color-accent-wash); font-size: 17px; font-weight: 700; }
+.workspace-tool-card > div { min-width: 0; flex: 1; }
+.workspace-tool-card h3 { margin: 0; font-size: 14px; font-weight: 650; }
+.workspace-tool-card p { margin: 4px 0 0; color: var(--color-text-muted); font-size: 11px; }
+.workspace-tool-status { flex: 0 0 auto; color: var(--color-text-muted); font-size: 10px; font-weight: 600; }
+.workspace-catalog-note { margin-top: 18px; }
+@media (max-width: 560px) {
+ .workspace-tool-grid { grid-template-columns: 1fr; }
+ .workspace-tool-card { padding: 13px; }
+}
