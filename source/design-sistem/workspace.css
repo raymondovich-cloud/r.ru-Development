@@ -1,4 +1,4 @@
-/* Version: 3.3.2 */
+/* Version: 3.3.3 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -693,6 +693,10 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .settings-field textarea { box-sizing: border-box; display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 88px; padding: 12px 14px; border: 1px solid var(--color-surface-border); border-radius: 13px; outline: none; resize: vertical; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 14px; line-height: 1.5; transition: border-color var(--motion-standard), box-shadow var(--motion-standard); }
 .settings-field textarea:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-wash); }
 
+
+
+/* Public profile projects heading — match the About heading */
+.public-profile-panel > .public-profile-projects-heading { margin: 0; color: var(--color-text-muted); font-size: 12px; font-weight: 650; letter-spacing: .045em; }
 
 /* Public profile about section */
 /* Version: 1.0.1 */
