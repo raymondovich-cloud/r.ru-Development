@@ -1,4 +1,4 @@
-/* Version: 1.5.0 */
+/* Version: 1.6.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
