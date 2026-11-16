@@ -1,6 +1,6 @@
 # Projects — migration validation plan
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Status:** RPC phase 1 passed PostgreSQL 17.11 CI; primary Supabase not yet migrated  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -281,3 +281,16 @@ Assertions passed:
 A defect in the earlier SQL-only test fixture was found and fixed: its stub `auth.uid()` read only the legacy `request.jwt.claim.sub` setting, while PostgREST v14 supplies the aggregate `request.jwt.claims` JSON setting. The fixture now supports both forms. This does not alter the hosted Supabase Auth implementation.
 
 **Scope limitation:** this is a real HTTP/PostgREST integration test using an isolated local PostgREST 14.17 instance and synthetic JWTs. It is not yet a live request against the hosted Raymondovich Supabase API or a token issued by hosted Supabase Auth. The primary project remains unchanged; RPC Phase 1 is not applied there.
+
+
+## 19. Read-only hosted Supabase preflight (2026-11-16)
+
+The primary Raymondovich Supabase project (`yajybgdorhxebbigwjgi`, PostgreSQL 17.11) was rechecked after the local PostgREST integration passed.
+
+- The hosted `auth.uid()` definition supports both legacy `request.jwt.claim.sub` and aggregate `request.jwt.claims` JSON claims. This matches the corrected CI fixture.
+- The primary project still has only Projects Core Schema migration `20261116060455`; RPC Phase 1 is absent.
+- `projects.project_components`, `public.project_create(..., text[])`, and `projects.project_create_internal(..., text[])` are absent on primary, as expected.
+- `anon` and `authenticated` currently have no `USAGE` on schema `projects`.
+- No hosted database changes were made.
+
+A live HTTP request using a JWT issued by the hosted Supabase Auth service has not been performed. The available Supabase connector provides database operations but no authenticated user-session token or arbitrary REST request action. Do not substitute a service-role key or expose secrets to simulate a user. The hosted Auth/PostgREST end-to-end check remains a separate gate.
