@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -8,14 +8,14 @@ body[data-app-state="workspace"] .brand { font-size: 18px; }
 body[data-app-state="workspace"] .page-back, body[data-app-state="workspace"] .public-header-actions { display: none; }
 body[data-app-state="workspace"] .workspace-header-actions { display: flex; gap: 8px; }
 .workspace-icon-button { display: inline-grid; width: 42px; height: 42px; place-items: center; border: 1px solid var(--color-surface-border); border-radius: 14px; color: var(--color-text); background: var(--color-surface); cursor: pointer; transition: border-color var(--motion-standard), background-color var(--motion-standard), transform var(--motion-standard); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
-.workspace-icon-button:hover { border-color: rgb(244 119 33 / 45%); transform: translateY(-1px); }
+.workspace-icon-button:hover { border-color: var(--color-accent-hover-border); transform: translateY(-1px); }
 .workspace-icon-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1600px); margin: 0 auto; padding: 30px 0 48px; }
 .workspace-layout { display: grid; grid-template-columns: 244px minmax(0, 1fr); gap: 34px; align-items: start; min-height: calc(100svh - 130px); }
 .workspace-sidebar { position: sticky; top: 20px; display: grid; gap: 8px; padding: 12px; border: 1px solid var(--color-surface-border); border-radius: 22px; background: var(--color-surface); box-shadow: var(--shadow-surface); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
 .workspace-nav-link { display: flex; min-height: 46px; align-items: center; gap: 12px; padding: 0 13px; border-radius: 14px; color: var(--color-text-muted); font-size: 14px; font-weight: 570; text-decoration: none; transition: color var(--motion-standard), background-color var(--motion-standard); }
-.workspace-nav-link:hover { color: var(--color-text); background: rgb(127 127 127 / 8%); }
-.workspace-nav-link[aria-current="page"] { color: var(--color-text); background: rgb(244 119 33 / 12%); }
+.workspace-nav-link:hover { color: var(--color-text); background: var(--color-neutral-hover); }
+.workspace-nav-link[aria-current="page"] { color: var(--color-text); background: var(--color-accent-soft); }
 .workspace-nav-link[aria-current="page"] .workspace-nav-icon { color: var(--color-accent); }
 .workspace-nav-icon { display: inline-grid; width: 20px; place-items: center; color: var(--color-text-muted); }
 .workspace-nav-icon svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -25,7 +25,7 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
 .workspace-page-heading p { max-width: 600px; margin: 9px 0 0; color: var(--color-text-muted); font-size: 14px; line-height: 1.6; }
 .workspace-empty-state { display: grid; min-height: 330px; place-items: center; padding: 42px 24px; border: 1px solid var(--color-surface-border); border-radius: 26px; background: var(--color-surface); box-shadow: var(--shadow-surface); text-align: center; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
 .workspace-empty-inner { width: min(100%, 440px); }
-.workspace-empty-icon { display: grid; width: 64px; height: 64px; place-items: center; margin: 0 auto 20px; border: 1px solid rgb(244 119 33 / 22%); border-radius: 20px; color: var(--color-accent); background: rgb(244 119 33 / 9%); }
+.workspace-empty-icon { display: grid; width: 64px; height: 64px; place-items: center; margin: 0 auto 20px; border: 1px solid var(--color-accent-border); border-radius: 20px; color: var(--color-accent); background: var(--color-accent-wash); }
 .workspace-empty-icon svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .workspace-empty-state h2 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -.035em; }
 .workspace-empty-state p { margin: 10px 0 0; color: var(--color-text-muted); font-size: 14px; line-height: 1.65; }
@@ -41,7 +41,7 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
  .workspace-sidebar { display: none; }
  .workspace-page-heading { margin-bottom: 22px; }
  .workspace-empty-state { min-height: 290px; padding: 32px 20px; }
- .workspace-mobile-nav { position: fixed; z-index: 10; right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 8px 5px; border: 1px solid var(--color-surface-border); border-radius: 21px; background: var(--color-surface); box-shadow: 0 12px 40px rgb(0 0 0 / 14%); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+ .workspace-mobile-nav { position: fixed; z-index: 10; right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 8px 5px; border: 1px solid var(--color-surface-border); border-radius: 21px; background: var(--color-surface); box-shadow: var(--shadow-floating); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
  .workspace-mobile-nav .workspace-nav-link { min-width: 0; min-height: 55px; flex-direction: column; justify-content: center; gap: 4px; padding: 5px 1px; border-radius: 13px; font-size: 10px; font-weight: 600; }
  .workspace-mobile-nav .workspace-nav-icon { width: auto; }
  .workspace-mobile-nav .workspace-nav-icon svg { width: 19px; height: 19px; }
