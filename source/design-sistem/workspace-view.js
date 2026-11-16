@@ -1,4 +1,4 @@
-/* Version: 3.2.0 */
+/* Version: 3.3.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -142,10 +142,12 @@ function projectMembersMarkup(state) {
  if (data.status === "error") return '<section class="project-detail-card"><h3>Участники проекта</h3><p class="project-members-error">' + escapeHtml(data.message || "Не удалось загрузить участников.") + '</p><button class="project-secondary-button" type="button" data-project-members-retry>Повторить</button></section>';
  const members = Array.isArray(data.members) ? data.members : [];
  const roles = Array.isArray(data.roles) ? data.roles : [];
- const roleOptions = roles.map((role) => '<option value="' + escapeHtml(role.id) + '">' + escapeHtml(role.name) + '</option>').join("");
+ const roleLabels = { administrator: "Администратор", manager: "Менеджер", member: "Участник", leader: "Руководитель", developer: "Разработчик", observer: "Наблюдатель" };
+ const roleName = (role) => roleLabels[role.code] || role.name || "Участник";
+ const roleOptions = roles.map((role) => '<option value="' + escapeHtml(role.id) + '">' + escapeHtml(roleName(role)) + '</option>').join("");
  const memberRows = members.length ? members.map((member) => {
   const name = member.full_name || (member.username ? '@' + member.username : 'Пользователь');
-  return '<div class="project-member-row"><span class="project-member-avatar" aria-hidden="true">' + escapeHtml(initials(name, member.username)) + '</span><span class="project-member-copy"><strong>' + escapeHtml(name) + '</strong><small>' + (member.username ? '@' + escapeHtml(member.username) : 'Логин не указан') + '</small></span><span class="project-member-role">' + escapeHtml(member.role_name || 'Участник') + '</span></div>';
+  return '<div class="project-member-row"><span class="project-member-avatar" aria-hidden="true">' + escapeHtml(initials(name, member.username)) + '</span><span class="project-member-copy"><strong>' + escapeHtml(name) + '</strong><small>' + (member.username ? '@' + escapeHtml(member.username) : 'Логин не указан') + '</small></span><span class="project-member-role">' + escapeHtml(roleLabels[member.role_code] || member.role_name || 'Участник') + '</span></div>';
  }).join("") : '<p class="project-members-muted">Пока никто не добавлен.</p>';
  const inviteForm = data.can_invite ? '<form class="project-member-invite-form" data-project-member-form><label class="project-form-field"><span>Логин пользователя</span><input name="username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{2,29}" placeholder="Например, raymondovich" autocomplete="off" required></label><label class="project-form-field"><span>Роль в проекте</span><select name="role_id" required>' + roleOptions + '</select></label><button class="project-primary-button" type="submit"' + (roles.length ? '' : ' disabled') + '>Добавить участника</button><p class="project-form-feedback" data-project-member-feedback role="status" aria-live="polite"></p></form>' : '';
  return '<section class="project-detail-card project-members-card"><div class="project-members-heading"><div><h3>Участники проекта</h3><p>' + members.length + ' ' + (members.length === 1 ? 'участник' : members.length > 1 && members.length < 5 ? 'участника' : 'участников') + '</p></div></div><div class="project-members-list">' + memberRows + '</div>' + inviteForm + '</section>';
