@@ -1,4 +1,4 @@
-/* Version: 1.7.0 */
+/* Version: 1.8.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -6,6 +6,7 @@ import { mountWorkspace } from "../workspace/workspace.js";
 import {
   renderAuthenticationView,
   renderAuthenticatedView,
+  renderPublicProfileView,
   setAuthenticationMessage,
   setAuthenticationLoading,
 } from "../../design-sistem/authentication-view.js";
@@ -18,7 +19,7 @@ const workspaceActions = document.querySelector("[data-workspace-actions]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
-  const workspaceRoutes = new Set(["projects/create", "projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
+  const workspaceRoutes = new Set(["projects/create", "projects", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
   const isProjectDetailRoute = (route) => /^projects\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(route);
   let currentMode = "login";
   let busy = false;
@@ -26,11 +27,25 @@ if (root && pageMain) {
   function setRoute(mode) {
     currentMode = mode;
     const isAuthRoute = validModes.has(mode);
+    const publicProfileMatch = mode.match(/^profile\/([a-z0-9][a-z0-9._-]{2,23})$/i);
+    const isPublicProfileRoute = Boolean(publicProfileMatch);
     const isWorkspaceRoute = mode === "account" || workspaceRoutes.has(mode) || isProjectDetailRoute(mode);
-    root.hidden = !(isAuthRoute || isWorkspaceRoute);
-    if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute;
+    root.hidden = !(isAuthRoute || isWorkspaceRoute || isPublicProfileRoute);
+    if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute || isPublicProfileRoute;
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
     if (workspaceActions) workspaceActions.hidden = !isWorkspaceRoute;
+
+    if (isPublicProfileRoute) {
+      root.innerHTML = '<section class="public-profile-page"><div class="public-profile-loading">Загружаем публичный профиль…</div></section>';
+      authClient.getPublicProfile(publicProfileMatch[1]).then((payload) => {
+        const current = window.location.hash.replace(/^#/, "").split("?")[0];
+        if (current === mode) renderPublicProfileView(root, payload);
+      }).catch((error) => {
+        const current = window.location.hash.replace(/^#/, "").split("?")[0];
+        if (current === mode) renderPublicProfileView(root, null, error.message);
+      });
+      return;
+    }
 
     if (isWorkspaceRoute) {
       authClient.getUser().then(async (user) => {
