@@ -1,4 +1,4 @@
-/* Version: 1.3.0 */
+/* Version: 1.4.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты", icon: '<rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path>' },
@@ -36,7 +36,7 @@ function profileMarkup(user, profileData) {
   (username ? '<p class="profile-username">@' + escapeHtml(username) + '</p>' : '<p class="profile-username">Логин не указан</p>') +
   '<span class="profile-status"><span class="profile-status-dot"></span>' + escapeHtml(accountStatus) + '</span></div></section>' +
   '<div class="profile-sections">' +
-  '<section class="profile-group profile-control-card"><div class="profile-control-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15V9m4 6V5m4 10v-4m4 4V7"></path></svg></div><div class="profile-row-copy"><h2>Центр управления</h2><p>Управление экосистемой для пользователей с соответствующими правами.</p></div><span class="profile-access-label">По правам</span></section>' +
+  (appMetadata.raymondovich_role === "owner" ? '<section class="profile-group profile-control-card"><div class="profile-control-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15V9m4 6V5m4 10v-4m4 4V7"></path></svg></div><div class="profile-row-copy"><h2>Центр управления</h2><p>Управление экосистемой Raymondovich.</p></div><span class="profile-access-label">Владелец</span></section>' : '') +
   '<a class="profile-group profile-link-card" href="#projects"><span class="profile-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path></svg></span><span class="profile-row-copy"><strong>Действующие проекты</strong><small>Запущенные проекты, в которых вы участвуете.</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>' +
   '<a class="profile-group profile-link-card" href="#tools"><span class="profile-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m14.7 6.3 3 3M4 20l4.2-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5.2 16 4 20Z"></path></svg></span><span class="profile-row-copy"><strong>Инструменты экосистемы</strong><small>Инструменты, доступные вашему аккаунту.</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>' +
   '<section class="profile-group profile-static-card"><span class="profile-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3Z"></path><path d="M9 21v-7h6v7"></path></svg></span><span class="profile-row-copy"><strong>Витрина проектов</strong><small>Знакомство с проектами экосистемы.</small></span><span class="profile-soon-label">Скоро</span></section>' +
