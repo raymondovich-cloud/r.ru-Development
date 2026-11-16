@@ -1,4 +1,4 @@
-/* Version: 2.2.0 */
+/* Version: 2.3.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -298,6 +298,51 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  margin-bottom: 0;
  opacity: 0;
  transform: translateY(-4px);
+}
+@media (prefers-reduced-motion: reduce) {
+ .profile-identity-card,
+ .profile-avatar,
+ .profile-identity-copy h2,
+ .profile-username,
+ .profile-status { transition: none; }
+}
+
+
+/* Refined profile identity collapse motion */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.profile-identity-card {
+ transition:
+  gap 420ms cubic-bezier(.22, 1, .36, 1),
+  padding 420ms cubic-bezier(.22, 1, .36, 1),
+  border-radius 420ms cubic-bezier(.22, 1, .36, 1),
+  box-shadow 420ms ease,
+  background-color 420ms ease;
+}
+.profile-avatar {
+ transition:
+  width 420ms cubic-bezier(.22, 1, .36, 1),
+  height 420ms cubic-bezier(.22, 1, .36, 1),
+  flex-basis 420ms cubic-bezier(.22, 1, .36, 1),
+  border-radius 420ms cubic-bezier(.22, 1, .36, 1),
+  font-size 420ms cubic-bezier(.22, 1, .36, 1);
+}
+.profile-identity-copy h2 {
+ transition:
+  font-size 420ms cubic-bezier(.22, 1, .36, 1),
+  letter-spacing 420ms cubic-bezier(.22, 1, .36, 1);
+}
+.profile-username,
+.profile-status {
+ transition:
+  max-height 360ms cubic-bezier(.22, 1, .36, 1),
+  opacity 300ms ease,
+  margin 360ms cubic-bezier(.22, 1, .36, 1),
+  transform 360ms cubic-bezier(.22, 1, .36, 1);
+}
+.profile-identity-card.is-collapsed .profile-username,
+.profile-identity-card.is-collapsed .profile-status {
+ transform: translateY(-7px);
 }
 @media (prefers-reduced-motion: reduce) {
  .profile-identity-card,
