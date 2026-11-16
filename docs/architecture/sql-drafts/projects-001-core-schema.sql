@@ -343,3 +343,4 @@ commit;
 -- 5. Verify trigger rejects wrong-scope/custom-role mismatch and owner membership.
 -- 6. Verify parent deletion is restricted while children exist.
 -- 7. Verify deleting referenced Auth users is blocked by ON DELETE RESTRICT.
+-- 8. Transfer tests must reject a new owner who is already a member of any tree node.
