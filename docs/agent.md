@@ -1,6 +1,6 @@
 # Development Agent Rules
 
-**Version:** 1.0.0  
+**Version:** 1.0.1  
 **Updated:** 2026-11-16  
 **Status:** Active
 
@@ -209,19 +209,19 @@ Current core directories and their intended responsibilities:
 
 #### `application-contracts/`
 
-Shared application-level ports and protocols for communication with external mechanisms or infrastructure.
+Neutral application-level technical protocols shared by multiple independent application areas.
 
-Examples may include interfaces for persistence, identity providers, clocks, or external service gateways when those interfaces are genuinely shared.
+A contract required by one specific workflow belongs to that workflow's application boundary. Move a protocol here only when multiple independent consumers genuinely share the same provider-neutral requirement.
 
-Do not place business rules or domain entity definitions here.
+Do not place business rules, domain entity definitions, or provider-specific types here.
 
 #### `domain-contracts/`
 
-Only domain-neutral protocols that must be shared between multiple domains or application boundaries.
+Only domain-neutral primitives genuinely shared by multiple Domains.
 
-Domain-specific entity contracts, repository interfaces, and business types should normally remain with the domain that owns them.
+Domain-specific entity contracts, repository interfaces, and business types remain with the Domain that owns them. This directory may remain empty if no real shared primitive exists.
 
-Do not copy domain interfaces into this directory just to make them appear globally accessible.
+Do not invent universal entities or repositories to populate it.
 
 #### `event-system/`
 
@@ -239,19 +239,21 @@ Use events when decoupled notification is valuable. Prefer direct, explicit call
 
 #### `presentation-contracts/`
 
-Neutral contracts for communication between presentation components and application modules.
+Minimal, presentation-neutral protocols required by multiple Design System and Module boundaries.
 
-Examples include UI event shapes, presentation-facing data structures, and view-model conventions.
+Feature-specific view models normally belong to the Module that assembles the data. Visual components and local presentation behavior belong to Design System.
 
-Do not expose domain internals or duplicate domain entities here. Presentation models should contain only the data needed by the relevant interface.
+Do not expose domain internals, duplicate domain entities, or create a universal UI schema.
 
 #### `dependency-management/`
 
-Explicit application composition and dependency wiring.
+Small, reusable technical utilities for explicit dependency construction, only when repeated composition needs justify them.
 
-For this vanilla JavaScript project, prefer clear, manual dependency construction and passing dependencies into modules.
+The application composition root belongs to the actual application bootstrap boundary, not automatically to Core. Core may provide a lightweight helper, but it must not select business workflows or act as a global service locator.
 
-Do not introduce a complex dependency injection container, runtime scanning, or implicit global service locator without a demonstrated requirement and prior approval.
+For this vanilla JavaScript project, prefer clear, manual dependency construction and passing dependencies into modules. Do not introduce a complex dependency injection container, runtime scanning, or implicit global service locator.
+
+See `docs/architecture/core-structure.md` for the detailed responsibility and boundaries of each Core directory.
 
 ## 6. Dependency direction and communication
 
