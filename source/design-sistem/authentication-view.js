@@ -1,4 +1,4 @@
-/* Version: 1.0.7 */
+/* Version: 1.0.8 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -199,27 +199,45 @@ export function renderPublicProfileView(container, payload, error = "") {
 
   const projects = Array.isArray(payload.projects) ? payload.projects : Array.isArray(profile.projects) ? profile.projects : [];
   if (projects.length) {
+    const priorityProject = projects[0];
+    const priorityHeadingRow = document.createElement("div");
+    priorityHeadingRow.className = "public-profile-priority-heading-row";
+
     const projectHeading = document.createElement("h2");
     projectHeading.className = "public-profile-projects-heading";
-    projectHeading.textContent = "Проекты";
-    panel.append(projectHeading);
+    projectHeading.textContent = "Приоритетный проект";
 
-    const list = document.createElement("div");
-    list.className = "public-profile-projects";
-    for (const project of projects) {
-      const item = document.createElement("article");
-      item.className = "public-profile-project";
-      const title = document.createElement("h3");
-      title.textContent = project.name || "Проект";
-      item.append(title);
-      if (project.description) {
-        const text = document.createElement("p");
-        text.textContent = project.description;
-        item.append(text);
-      }
-      list.append(item);
+    const priorityProjectName = document.createElement("h3");
+    priorityProjectName.className = "public-profile-priority-project-name";
+    priorityProjectName.textContent = priorityProject.name || "Проект";
+    priorityHeadingRow.append(projectHeading, priorityProjectName);
+    panel.append(priorityHeadingRow);
+
+    if (priorityProject.description) {
+      const priorityDescription = document.createElement("p");
+      priorityDescription.className = "public-profile-priority-project-description";
+      priorityDescription.textContent = priorityProject.description;
+      panel.append(priorityDescription);
     }
-    panel.append(list);
+
+    if (projects.length > 1) {
+      const list = document.createElement("div");
+      list.className = "public-profile-projects";
+      for (const project of projects.slice(1)) {
+        const item = document.createElement("article");
+        item.className = "public-profile-project";
+        const title = document.createElement("h3");
+        title.textContent = project.name || "Проект";
+        item.append(title);
+        if (project.description) {
+          const text = document.createElement("p");
+          text.textContent = project.description;
+          item.append(text);
+        }
+        list.append(item);
+      }
+      panel.append(list);
+    }
   }
   if (socials.childElementCount) panel.append(socials);
 
