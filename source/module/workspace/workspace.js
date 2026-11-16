@@ -58,7 +58,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  if (section !== "projects" && !section.startsWith("projects/")) return;
 
  authClient.getProjects().then((payload) => {
-  if (sequence !== workspaceMountSequence || currentRoute() !== "projects") return;
+  if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
   const projects = Array.isArray(payload?.projects) ? payload.projects : [];
   if (section.startsWith("projects/")) {
    const projectId = decodeURIComponent(section.slice("projects/".length));
