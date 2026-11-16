@@ -1,4 +1,4 @@
-/* Version: 1.8.0 */
+/* Version: 1.9.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -205,4 +205,22 @@ body[data-app-state="workspace"] .workspace-content { width: 100%; }
 body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 @media (max-width: 760px) {
  body[data-app-state="workspace"] .workspace-mobile-nav { display: grid; }
+}
+
+
+/* Normalize personal-data inputs on narrow mobile viewports */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.settings-card,
+.settings-form,
+.settings-field { box-sizing: border-box; min-width: 0; }
+.settings-form { grid-template-columns: minmax(0, 1fr); }
+.settings-field { grid-template-columns: minmax(0, 1fr); width: 100%; }
+.settings-field input,
+.settings-field input[type="date"] { box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; justify-self: stretch; }
+.settings-field input[type="date"] { -webkit-appearance: none; appearance: none; padding-inline: 14px; }
+.settings-field input[type="date"]::-webkit-date-and-time-value { width: 100%; min-width: 0; text-align: left; }
+@media (max-width: 560px) {
+ .settings-card { width: 100%; padding-inline: 16px; }
+ .settings-field input[type="date"] { padding-inline: 10px; }
 }
