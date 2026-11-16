@@ -402,3 +402,24 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  .project-create-actions > * { width: 100%; }
  .project-prototype-note { text-align: left; }
 }
+
+
+/* Project creation RPC controls */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.project-form-field select { box-sizing: border-box; width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--color-surface-border); border-radius: 13px; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 14px; }
+.project-form-field select:focus { border-color: var(--color-accent); outline: 2px solid var(--color-accent-wash); }
+.project-component-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; border: 0; }
+.project-component-options[hidden] { display: none; }
+.project-component-options legend { margin-bottom: 10px; color: var(--color-text); font-size: 13px; font-weight: 650; }
+.project-component-options legend small { color: var(--color-text-muted); font-size: 11px; font-weight: 450; }
+.project-component-options label { display: flex; min-height: 46px; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--color-surface-border); border-radius: 12px; color: var(--color-text); background: var(--color-page); font-size: 12px; }
+.project-component-options input { accent-color: var(--color-accent); }
+.project-form-feedback { min-height: 0; margin: 0; color: var(--color-text-muted); font-size: 12px; }
+.project-form-feedback[data-state="error"] { color: #d94b4b; }
+.project-create-success { display: grid; gap: 12px; padding-top: 25px; }
+.project-create-success h2 { margin: 0; font-size: 22px; }
+.project-create-success p { margin: 0; color: var(--color-text-muted); line-height: 1.5; }
+.project-create-success small { overflow-wrap: anywhere; color: var(--color-text-muted); }
+.project-create-success .project-primary-button { justify-self: start; margin-top: 8px; }
+@media (max-width: 560px) { .project-component-options { grid-template-columns: 1fr; } .project-create-success .project-primary-button { width: 100%; } }
