@@ -1,4 +1,4 @@
-/* Version: 1.9.0 */
+/* Version: 1.9.1 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -33,6 +33,7 @@ if (root && pageMain) {
     root.hidden = !(isAuthRoute || isWorkspaceRoute || isPublicProfileRoute);
     if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute || isPublicProfileRoute;
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
+    document.body.dataset.pageType = isPublicProfileRoute ? "public-profile" : "";
     if (workspaceActions) workspaceActions.hidden = !isWorkspaceRoute;
 
     if (isPublicProfileRoute) {
