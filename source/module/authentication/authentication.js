@@ -30,7 +30,7 @@ if (root && pageMain) {
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
 
     if (isWorkspaceRoute) {
-      authClient.getUser().then((user) => {
+      authClient.getUser().then(async (user) => {
         if (!user) {
           window.location.hash = "login";
           return;
