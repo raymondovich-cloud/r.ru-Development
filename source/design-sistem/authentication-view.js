@@ -1,4 +1,4 @@
-/* Version: 1.0.2 */
+/* Version: 1.0.3 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -117,4 +117,92 @@ export function setAuthenticationLoading(container, loading) {
   button.disabled = loading;
   button.textContent = loading ? "Подождите…" : button.dataset.defaultLabel || button.textContent;
   if (!button.dataset.defaultLabel && !loading) button.dataset.defaultLabel = button.textContent;
+}
+
+
+export function renderPublicProfileView(container, payload, error = "") {
+  container.innerHTML = "";
+
+  const page = document.createElement("section");
+  page.className = "public-profile-page";
+
+  const panel = document.createElement("article");
+  panel.className = "auth-panel public-profile-panel";
+
+  const heading = document.createElement("h1");
+  heading.className = "auth-heading";
+  heading.textContent = error ? "Профиль недоступен" : "Публичный профиль";
+
+  const description = document.createElement("p");
+  description.className = "auth-description";
+
+  if (error || !payload) {
+    description.textContent = error || "Не удалось загрузить публичный профиль.";
+    panel.append(heading, description);
+    page.append(panel);
+    container.append(page);
+    return;
+  }
+
+  const profile = payload.profile || payload.user || payload;
+  const fullName = profile.full_name || profile.name || profile.username || "Пользователь Raymondovich";
+  heading.textContent = fullName;
+  description.textContent = profile.username ? `@${profile.username}` : "Публичный профиль Raymondovich";
+  panel.append(heading, description);
+
+  if (profile.bio) {
+    const bio = document.createElement("p");
+    bio.className = "auth-description";
+    bio.textContent = profile.bio;
+    panel.append(bio);
+  }
+
+  const socials = document.createElement("nav");
+  socials.className = "auth-links";
+  socials.setAttribute("aria-label", "Социальные сети");
+  for (const [label, key] of [["Telegram", "telegram_url"], ["Instagram", "instagram_url"], ["YouTube", "youtube_url"]]) {
+    const value = profile[key];
+    if (!value) continue;
+    try {
+      const url = new URL(value);
+      if (url.protocol !== "https:" && url.protocol !== "http:") continue;
+      const link = document.createElement("a");
+      link.href = url.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = label;
+      socials.append(link);
+    } catch {
+      // Ignore malformed public profile links.
+    }
+  }
+  if (socials.childElementCount) panel.append(socials);
+
+  const projects = Array.isArray(payload.projects) ? payload.projects : Array.isArray(profile.projects) ? profile.projects : [];
+  if (projects.length) {
+    const projectHeading = document.createElement("h2");
+    projectHeading.className = "auth-heading";
+    projectHeading.textContent = "Проекты";
+    panel.append(projectHeading);
+
+    const list = document.createElement("div");
+    list.className = "public-profile-projects";
+    for (const project of projects) {
+      const item = document.createElement("article");
+      item.className = "public-profile-project";
+      const title = document.createElement("h3");
+      title.textContent = project.name || "Проект";
+      item.append(title);
+      if (project.description) {
+        const text = document.createElement("p");
+        text.textContent = project.description;
+        item.append(text);
+      }
+      list.append(item);
+    }
+    panel.append(list);
+  }
+
+  page.append(panel);
+  container.append(page);
 }
