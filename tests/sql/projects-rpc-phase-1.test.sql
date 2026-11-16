@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.1
+-- Version: 1.0.2
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -12,7 +12,10 @@ as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
 $$;
 
-do $test$
+create or replace function pg_temp.run_projects_rpc_phase_1_tests()
+returns void
+language plpgsql
+as $test$
 declare
   v_owner uuid := '30000000-0000-4000-8000-000000000001';
   v_member uuid := '30000000-0000-4000-8000-000000000002';
@@ -163,3 +166,5 @@ begin
   raise notice 'PASS: five Projects RPCs, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
 end;
 $test$;
+
+select pg_temp.run_projects_rpc_phase_1_tests();
