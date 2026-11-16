@@ -1,4 +1,4 @@
-# Version: 1.2.1
+# Version: 1.2.2
 # Updated: 2026-11-16
 # Validates Projects SQL and authenticated PostgREST RPC behavior against ephemeral PostgreSQL 17.11.
 name: Projects SQL validation
@@ -83,7 +83,7 @@ jobs:
         env:
           PGRST_JWT_SECRET: raymondovich-ci-only-secret-at-least-32-bytes
         run: |
-          docker run -d --name projects-postgrest --network host -e PGRST_DB_URI=postgres://authenticator:postgres@127.0.0.1:5432/projects_test -e PGRST_DB_SCHEMAS=public -e PGRST_DB_ANON_ROLE=anon -e PGRST_JWT_SECRET="$PGRST_JWT_SECRET" -e PGRST_LOG_LEVEL=info postgrest/postgrest:v14.17.0
+          docker run -d --name projects-postgrest --network host -e PGRST_DB_URI=postgres://authenticator:postgres@127.0.0.1:5432/projects_test -e PGRST_DB_SCHEMAS=public -e PGRST_DB_ANON_ROLE=anon -e PGRST_JWT_SECRET="$PGRST_JWT_SECRET" -e PGRST_LOG_LEVEL=info postgrest/postgrest:v14.17
           for attempt in $(seq 1 60); do
             if curl --silent --fail http://127.0.0.1:3000/ >/dev/null; then
               break
