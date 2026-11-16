@@ -35,6 +35,7 @@ if (root && pageMain) {
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
     document.body.dataset.pageType = isPublicProfileRoute ? "public-profile" : "";
     updateBrandForRoute(isPublicProfileRoute);
+    updateBrandForRoute(isPublicProfileRoute);
     if (workspaceActions) workspaceActions.hidden = !isWorkspaceRoute;
 
     if (isPublicProfileRoute) {
@@ -71,6 +72,14 @@ if (root && pageMain) {
   }
 
   const brandLink = document.querySelector(".brand");
+  const brandLabel = brandLink?.querySelector("[data-brand-label]");
+
+  function updateBrandForRoute(isPublicProfileRoute) {
+    if (!brandLink || !brandLabel) return;
+    const label = isPublicProfileRoute ? "raymondovich digital ecosystem" : "raymondovich";
+    brandLabel.textContent = label;
+    brandLink.setAttribute("aria-label", isPublicProfileRoute ? label : "Raymondovich — главная");
+  }
   const brandLabel = brandLink?.querySelector("[data-brand-label]");
 
   function updateBrandForRoute(isPublicProfileRoute) {
