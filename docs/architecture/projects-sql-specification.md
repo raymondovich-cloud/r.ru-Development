@@ -1,6 +1,6 @@
 # Projects — SQL Specification
 
-**Version:** 2.1.0  
+**Version:** 2.2.0  
 **Status:** Architecture specification — review required before migration  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -313,7 +313,7 @@ Owner is not a role. Ownership remains a separate property.
 
 ### 6.5 `projects.project_permissions`
 
-Global permission catalogue.
+Global permission catalogue. The approved role matrix also requires `audit.view` (view project audit history); include it in the canonical seed catalogue.
 
 | Column | Type | Required | Rules |
 |---|---|---:|---|
@@ -1334,3 +1334,33 @@ The next review must focus on Sections 16–19, especially role defaults, the pu
 
 
 **Current state:** specification draft expanded to v2.1.0. No database DDL, RLS, grants, functions, triggers, data or migrations have been changed.
+
+
+---
+
+## 21. Live preflight and implementation corrections
+
+A read-only database preflight was repeated on 2026-11-16.
+
+Observed:
+- PostgreSQL server version is 17.11.
+- The `projects` schema does not exist.
+- No Projects or Tools tables were found in the inspected application schemas.
+- `pgcrypto` is already installed in schema `extensions`, version 1.3.
+- Existing identity/profile source remains `private.user_profiles`.
+- Existing authentication/profile functions remain present and are not to be replaced by Projects migrations.
+- The exposed-schema setting was not available through the inspected database setting; verify it in Supabase Dashboard before deployment.
+
+### 21.1 Public RPC wrapper security
+
+The public-wrapper/internal-schema design requires an explicit privilege decision. A public wrapper that must access an unexposed internal schema may need `SECURITY DEFINER`. If so, it is a privileged API endpoint and must check `auth.uid()`, use `SET search_path = ''`, fully qualify all references, revoke default EXECUTE from `PUBLIC` and grant only the exact intended signatures. Do not grant broad schema usage or blanket function execution merely to make PostgREST calls work.
+
+### 21.2 Bearer-token boundary
+
+Invitation and ownership-transfer bearer token creation and delivery must be handled by a trusted server workflow. A client must not be allowed to choose arbitrary token hashes for newly created invitations/transfers. Store only a cryptographic token hash in the database; issue and deliver the raw token through a trusted one-time workflow.
+
+### 21.3 SQL draft scope
+
+The first core SQL draft intentionally enables RLS without client policies or direct table grants. Until the later authorization/RPC migration is complete, the subsystem remains inaccessible to browser roles by default.
+
+**Current state:** specification v2.2.0 and a separate migration validation plan/core SQL draft have been prepared. No database DDL, RLS, grants, functions, triggers, data or migrations have been changed.
