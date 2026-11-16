@@ -1,4 +1,4 @@
-/* Version: 1.9.0 */
+/* Version: 2.0.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -39,7 +39,7 @@ function profileMarkup(user, profileData) {
   '<a class="profile-group profile-link-card" href="#profile/settings"><span class="profile-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M19.4 15a1.8 1.8 0 0 0 .9 2.1l.1.1-2.5 2.5-.1-.1a1.8 1.8 0 0 0-2.1-.9 1.8 1.8 0 0 0-1.2 1.7v.2h-3.6v-.2a1.8 1.8 0 0 0-1.2-1.7 1.8 1.8 0 0 0-2.1.9l-.1.1L5 17.2l.1-.1A1.8 1.8 0 0 0 6 15a1.8 1.8 0 0 0-1.7-1.2h-.2v-3.6h.2A1.8 1.8 0 0 0 6 9a1.8 1.8 0 0 0-.9-2.1L5 6.8l2.5-2.5.1.1a1.8 1.8 0 0 0 2.1.9A1.8 1.8 0 0 0 11 3.6v-.2h3.6v.2a1.8 1.8 0 0 0 1.2 1.7 1.8 1.8 0 0 0 2.1-.9l.1-.1 2.5 2.5-.1.1a1.8 1.8 0 0 0-.9 2.1 1.8 1.8 0 0 0 1.7 1.2h.2v3.6h-.2a1.8 1.8 0 0 0-1.8 1.2Z"></path></svg></span><span class="profile-row-copy"><strong>Настройки</strong><small>Данные профиля, оформление и аккаунт.</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>' +
   '<button class="profile-signout" type="button" data-auth-signout>Выйти из аккаунта</button></div>';
 }
-function settingsMarkup(user, profileData) {
+function settingsMarkup(user, profileData, route) {
  const profile = profileData?.profile || profileData || {};
  const metadata = user?.user_metadata || {};
  const fullName = profile.full_name || metadata.full_name || metadata.name || "";
@@ -48,29 +48,45 @@ function settingsMarkup(user, profileData) {
  let preference = "system";
  try { preference = window.localStorage.getItem("raymondovich-theme") || "system"; } catch {}
  const labels = { system: "Как на устройстве", light: "Светлая", dark: "Тёмная" };
- return '<div class="profile-settings">' +
+ const groups = [
+  ["personal-data","Личные данные","ФИО и дата рождения"],
+  ["privacy","Конфиденциальность","Электронная почта и пароль"],
+  ["appearance","Оформление","Тема интерфейса и иконки"],
+  ["cryptography","Криптография","Управление криптографическими ключами"]
+ ];
+ const groupRoute = route.split("/")[2] || "";
+ if (!groupRoute) return '<div class="settings-group-list">' + groups.map(([id,name,description]) =>
+  '<a class="settings-group-link" href="#profile/settings/' + id + '"><span class="settings-group-symbol" aria-hidden="true">' +
+  ({ "personal-data":"◉", privacy:"◇", appearance:"◐", cryptography:"⌘" }[id]) +
+  '</span><span class="settings-group-copy"><strong>' + name + '</strong><small>' + description + '</small></span><span class="settings-group-chevron" aria-hidden="true">›</span></a>'
+ ).join("") + '</div>';
+ const back = '<a class="settings-group-back" href="#profile/settings">← Все настройки</a>';
+ if (groupRoute === "personal-data") return back +
   '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
-  '<form class="settings-form" data-profile-settings-form>' +
-  '<label class="settings-field"><span>ФИО</span><input name="full_name" type="text" autocomplete="name" minlength="3" maxlength="160" required value="' + escapeHtml(fullName) + '"></label>' +
+  '<form class="settings-form" data-profile-settings-form><label class="settings-field"><span>ФИО</span><input name="full_name" type="text" autocomplete="name" minlength="3" maxlength="160" required value="' + escapeHtml(fullName) + '"></label>' +
   '<label class="settings-field"><span>Дата рождения</span><input name="birth_date" type="date" autocomplete="bday" required value="' + escapeHtml(birthDate) + '"></label>' +
-  '<div class="settings-form-feedback" data-settings-feedback role="status" aria-live="polite"></div><button class="settings-primary-button" type="submit">Сохранить изменения</button></form></section>' +
+  '<div class="settings-form-feedback" data-settings-feedback role="status" aria-live="polite"></div><button class="settings-primary-button" type="submit">Сохранить изменения</button></form></section>';
+ if (groupRoute === "privacy") return back +
   '<section class="settings-card"><div class="settings-card-heading"><div><h2>Конфиденциальность</h2><p>Контактные данные и защита доступа к аккаунту.</p></div></div>' +
   '<div class="settings-security-list"><label class="settings-field"><span>Электронная почта</span><input type="email" value="' + escapeHtml(email) + '" disabled><small>Используется для входа и восстановления доступа.</small></label>' +
   '<div class="settings-security-action"><div><strong>Пароль</strong><p>Для смены пароля отправим ссылку на вашу электронную почту.</p></div><button class="settings-secondary-button" type="button" data-password-reset>Сменить пароль</button></div>' +
-  '<div class="settings-form-feedback" data-password-feedback role="status" aria-live="polite"></div></div></section>' +
+  '<div class="settings-form-feedback" data-password-feedback role="status" aria-live="polite"></div></div></section>';
+ if (groupRoute === "appearance") return back +
   '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Настройте внешний вид интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
-  ["system", "light", "dark"].map((theme) => '<button type="button" class="settings-theme-option" data-theme-option="' + theme + '" aria-pressed="' + (preference === theme) + '">' + labels[theme] + '</button>').join("") +
-  '</div><p class="settings-section-note">Дополнительные варианты оформления и наборы иконок появятся позднее.</p></section>' +
+  ["system","light","dark"].map((theme) => '<button type="button" class="settings-theme-option" data-theme-option="' + theme + '" aria-pressed="' + (preference === theme) + '">' + labels[theme] + '</button>').join("") +
+  '</div><p class="settings-section-note">Дополнительные варианты оформления и наборы иконок появятся позднее.</p></section>';
+ if (groupRoute === "cryptography") return back +
   '<section class="settings-card"><div class="settings-card-heading"><div><h2>Криптография</h2><p>Управление криптографическими ключами.</p></div></div>' +
-  '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section></div>';
+  '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section>';
+ return '<div class="workspace-empty-state"><h2>Раздел не найден</h2><p>Выберите группу настроек.</p></div>';
 }
 export function renderWorkspaceView(container, user, activeSection, profileData) {
- const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings"]);
+ const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
  const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) ? activeSection : "projects";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
- const isSettings = activeSection === "profile/settings";
- const title = isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? "Настройки" : sections.find((section) => section.id === active).label;
+ const isSettings = activeSection.startsWith("profile/settings");\n const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
+ const title = isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
   ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 15h3l2-4 2 3h3"></path></svg></div><h2>Действующие проекты появятся здесь</h2><p>В этом разделе будут только запущенные проекты, которые уже приносят доход. Проекты в разработке будут доступны через общий раздел «Проекты».</p></div></div>'
@@ -88,6 +104,6 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1><p>' +
-  (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? "Персональные данные и параметры вашего аккаунта." : "Ваш аккаунт и возможности в экосистеме Raymondovich.") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
+  (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "Ваш аккаунт и возможности в экосистеме Raymondovich.") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
   '</p></div></header>' + content + '</section></div>';
 }
