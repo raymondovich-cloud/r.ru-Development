@@ -1,4 +1,4 @@
-/* Version: 1.3.3 */
+/* Version: 1.3.4 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -14,6 +14,7 @@ const root = document.querySelector("[data-auth-root]");
 const statusPanel = document.querySelector(".status-panel");
 const pageMain = document.querySelector(".page-main");
 const backButton = document.querySelector("[data-page-back]");
+const workspaceActions = document.querySelector("[data-workspace-actions]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
@@ -28,6 +29,7 @@ if (root && pageMain) {
     root.hidden = !(isAuthRoute || isWorkspaceRoute);
     if (statusPanel) statusPanel.hidden = isAuthRoute || isWorkspaceRoute;
     document.body.dataset.appState = isWorkspaceRoute ? "workspace" : "public";
+    if (workspaceActions) workspaceActions.hidden = !isWorkspaceRoute;
 
     if (isWorkspaceRoute) {
       authClient.getUser().then(async (user) => {
