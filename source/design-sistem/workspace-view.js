@@ -45,16 +45,26 @@ function profileMarkup(user, profileData) {
   '</div><button class="profile-signout" type="button" data-auth-signout>Выйти из аккаунта</button></div>';
 }
 export function renderWorkspaceView(container, user, activeSection, profileData) {
- const active = sections.some((section) => section.id === activeSection) ? activeSection : "projects";
- const title = sections.find((section) => section.id === active).label;
+ const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools"]);
+ const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) ? activeSection : "projects";
+ const isActiveProjects = activeSection === "profile/active-projects";
+ const isEcosystemTools = activeSection === "profile/ecosystem-tools";
+ const title = isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
- const content = active === "profile"
-  ? profileMarkup(user, profileData)
-  : isProjects
-   ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h2>Проекты будут отображаться здесь</h2><p>Здесь соберутся проекты, в которых вы участвуете: созданные вами и те, к которым вас пригласили.</p></div></div><p class="workspace-section-notice">Подключение списка проектов и управление участием — следующий этап разработки.</p>'
-   : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
+ const subrouteContent = isActiveProjects
+  ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 15h3l2-4 2 3h3"></path></svg></div><h2>Действующие проекты появятся здесь</h2><p>В этом разделе будут только запущенные проекты, которые уже приносят доход. Проекты в разработке останутся в отдельном разделе «Проекты» нижней навигации.</p></div></div>'
+  : '<div class="ecosystem-tools-catalog"><p class="workspace-catalog-intro">Полный каталог инструментов экосистемы. Доступность каждого инструмента определяется отдельно и не влияет на его отображение в этом каталоге.</p><div class="workspace-tool-category"><h2>Инструменты разработки</h2><div class="workspace-tool-grid">' +
+    ['GitHub','Supabase','Cloudflare','REG.RU','ChatGPT','Claude'].map((name) => '<article class="workspace-tool-card"><span class="workspace-tool-mark" aria-hidden="true">' + escapeHtml(name.slice(0,1)) + '</span><div><h3>' + escapeHtml(name) + '</h3><p>Инструмент экосистемы</p></div><span class="workspace-tool-status">Планируется</span></article>').join('') +
+    '</div></div><p class="workspace-catalog-note">Каталог будет расширяться по мере подключения и запуска инструментов Raymondovich.</p></div>';
+ const content = isActiveProjects || isEcosystemTools
+  ? '<div class="workspace-subpage-back"><a href="#profile">← Вернуться в профиль</a></div>' + subrouteContent
+  : active === "profile"
+   ? profileMarkup(user, profileData)
+   : isProjects
+    ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h2>Проекты будут отображаться здесь</h2><p>Здесь соберутся проекты, в которых вы участвуете: созданные вами и те, к которым вас пригласили.</p></div></div><p class="workspace-section-notice">Подключение списка проектов и управление участием — следующий этап разработки.</p>'
+    : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' + navigationMarkup("workspace-sidebar", active) +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1><p>' +
-  (active === "profile" ? "Ваш аккаунт и возможности в экосистеме Raymondovich." : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
+  (active === "profile" ? (isActiveProjects ? "Запущенные проекты, которые приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : "Ваш аккаунт и возможности в экосистеме Raymondovich.") : isProjects ? "Все проекты, в которых вы участвуете, независимо от того, кто их создал." : "Рабочее пространство Raymondovich.") +
   '</p></div></header>' + content + '</section></div>' + navigationMarkup("workspace-mobile-nav", active);
 }
