@@ -1,4 +1,4 @@
-/* Version: 1.3.1 */
+/* Version: 1.3.2 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -206,6 +206,27 @@ if (root && pageMain) {
   });
 
   root.addEventListener("click", async (event) => {
+    const passwordResetButton = event.target.closest("[data-password-reset]");
+    if (passwordResetButton && !busy) {
+      const feedback = root.querySelector("[data-password-feedback]");
+      busy = true;
+      passwordResetButton.disabled = true;
+      passwordResetButton.textContent = "Отправка…";
+      if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+      try {
+        const user = await authClient.getUser();
+        if (!user?.email) throw new Error("В аккаунте не найден адрес электронной почты.");
+        await authClient.requestPasswordReset(user.email);
+        if (feedback) { feedback.textContent = "Ссылка для смены пароля отправлена на вашу почту."; feedback.dataset.state = "success"; }
+      } catch (error) {
+        if (feedback) { feedback.textContent = normalizeError(error); feedback.dataset.state = "error"; }
+      } finally {
+        busy = false;
+        passwordResetButton.disabled = false;
+        passwordResetButton.textContent = "Сменить пароль";
+      }
+      return;
+    }
     const themeOption = event.target.closest("[data-theme-option]");
     if (themeOption) {
       const preference = themeOption.dataset.themeOption;
