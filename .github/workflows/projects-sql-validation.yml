@@ -1,6 +1,6 @@
-# Version: 1.0.0
+# Version: 1.1.0
 # Updated: 2026-11-16
-# Validates the Projects core SQL draft against an ephemeral PostgreSQL 17.11 instance.
+# Validates Projects core schema and phase-1 RPCs against ephemeral PostgreSQL 17.11.
 name: Projects SQL validation
 
 on:
@@ -8,7 +8,10 @@ on:
     branches: [main]
     paths:
       - "docs/architecture/sql-drafts/projects-001-core-schema.sql"
+      - "docs/architecture/sql-drafts/projects-002-rpc-phase-1.sql"
+      - "supabase/migrations/20261116070000_projects_002_rpc_phase_1.sql"
       - "tests/sql/projects-core-schema.test.sql"
+      - "tests/sql/projects-rpc-phase-1.test.sql"
       - ".github/workflows/projects-sql-validation.yml"
   workflow_dispatch:
 
@@ -52,10 +55,14 @@ jobs:
           );
           SQL
 
-      - name: Apply core SQL draft to disposable PostgreSQL
-        run: |
-          psql -v ON_ERROR_STOP=1             -f docs/architecture/sql-drafts/projects-001-core-schema.sql
+      - name: Apply Projects core schema
+        run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql-drafts/projects-001-core-schema.sql
 
-      - name: Run structural and integrity tests
-        run: |
-          psql -v ON_ERROR_STOP=1             -f tests/sql/projects-core-schema.test.sql
+      - name: Validate Projects core schema
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/projects-core-schema.test.sql
+
+      - name: Apply Projects RPC phase 1 migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261116070000_projects_002_rpc_phase_1.sql
+
+      - name: Validate Projects RPC phase 1
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/projects-rpc-phase-1.test.sql
