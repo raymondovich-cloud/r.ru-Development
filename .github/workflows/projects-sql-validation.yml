@@ -1,0 +1,61 @@
+# Version: 1.0.0
+# Updated: 2026-11-16
+# Validates the Projects core SQL draft against an ephemeral PostgreSQL 17.11 instance.
+name: Projects SQL validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/architecture/sql-drafts/projects-001-core-schema.sql"
+      - "tests/sql/projects-core-schema.test.sql"
+      - ".github/workflows/projects-sql-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-validation:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: projects_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d projects_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: projects_test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare minimal Supabase Auth compatibility fixture
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create schema auth;
+          create table auth.users (
+            id uuid primary key
+          );
+          SQL
+
+      - name: Apply core SQL draft to disposable PostgreSQL
+        run: |
+          psql -v ON_ERROR_STOP=1             -f docs/architecture/sql-drafts/projects-001-core-schema.sql
+
+      - name: Run structural and integrity tests
+        run: |
+          psql -v ON_ERROR_STOP=1             -f tests/sql/projects-core-schema.test.sql
