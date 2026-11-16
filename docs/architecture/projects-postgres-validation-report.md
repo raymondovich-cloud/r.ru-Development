@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -121,3 +121,17 @@ The revised migration and test suite passed in GitHub Actions:
 - RPC assertions cover five SECURITY INVOKER public wrappers, isolated SECURITY DEFINER implementations, multi-component projects, ownership and permission evaluation, deny precedence, suspension, private defaults, immutable audit records, archive/restore and grants.
 
 **Scope limitation:** this is a PostgreSQL migration/test CI run, not a full Supabase Auth + PostgREST + API integration test. The migration remains unapplied to primary Supabase pending separate explicit approval.
+
+
+## PostgREST HTTP integration — PASS (2026-11-16)
+
+- Run: `43818747946` — success.
+- Commit: `c804500c2a72b263fcdfc9e734c19c97b22d81e1`.
+- API layer: PostgREST v14.17.
+- Database: ephemeral PostgreSQL 17.11.
+- Authentication: synthetic HS256 JWTs for test identities.
+- Authenticated project creation, owner access check, outsider update denial, anonymous RPC denial, private schema isolation and normalized multi-component persistence all passed.
+
+The test fixture's `auth.uid()` now supports both the legacy individual claim setting and the modern `request.jwt.claims` JSON setting used by PostgREST v14.
+
+This is not a live hosted Supabase Auth/PostgREST test. Primary Supabase has not been modified and the RPC migration remains unapplied there.
