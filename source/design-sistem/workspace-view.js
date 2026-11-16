@@ -234,7 +234,7 @@ export function renderPublicProfileView(container, payload, errorMessage = "") {
  ].filter(([, url]) => typeof url === "string" && url.startsWith("https://"));
  const projects = Array.isArray(profile.projects) ? profile.projects : [];
  container.innerHTML = '<section class="public-profile-page"><article class="public-profile-card"><header class="public-profile-heading"><div class="profile-avatar" aria-hidden="true">' + escapeHtml(avatar) + '</div><div><h1>' + escapeHtml(profile.full_name || "Пользователь Raymondovich") + '</h1><p>@' + escapeHtml(profile.username || "") + '</p></div></header>' +
-  (profile.about ? '<p class="public-profile-about">' + escapeHtml(profile.about) + '</p>' : '') +
+  (typeof profile.about === "string" && profile.about.trim() ? '<section class="public-profile-about-section" aria-labelledby="public-profile-about-title"><h2 id="public-profile-about-title">О себе</h2><p class="public-profile-about">' + escapeHtml(profile.about.trim()) + '</p></section>' : '') +
   (projects.length ? '<section class="public-profile-projects"><h2>Проекты</h2>' + projects.map((project) => '<article class="public-profile-project-card"><h3>' + escapeHtml(project.name) + '</h3>' + (project.description ? '<p>' + escapeHtml(project.description) + '</p>' : '') + '</article>').join("") + '</section>' : '') +
   (socials.length ? '<nav class="public-profile-social-icons" aria-label="Социальные сети">' + socials.map(([label,url]) => {
    const icons = {
