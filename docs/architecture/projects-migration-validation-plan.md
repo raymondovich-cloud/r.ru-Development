@@ -1,7 +1,7 @@
 # Projects — migration validation plan
 
 **Version:** 1.3.0  
-**Status:** Review draft — no migrations applied  
+**Status:** RPC phase 1 review in development; not applied to primary Supabase  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
 **Target Supabase project:** `yajybgdorhxebbigwjgi`  
