@@ -1,4 +1,4 @@
-/* Version: 1.1.0 */
+/* Version: 1.2.0 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -39,7 +39,8 @@ if (root && pageMain) {
           window.location.hash = "projects";
           return;
         }
-        mountWorkspace(root, user, mode);
+        const profileData = await authClient.getProfile().catch(() => null);
+        mountWorkspace(root, user, mode, profileData);
       }).catch(() => {
         window.location.hash = "login";
       });
