@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.2
+-- Version: 1.0.3
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -158,10 +158,10 @@ begin
   -- Anonymous execution is not granted; authenticated execution is explicit.
   if has_function_privilege('anon', 'public.project_create(uuid,text,text,text,text)', 'EXECUTE') then
     raise exception 'anon unexpectedly has project_create EXECUTE';
-  end;
+  end if;
   if not has_function_privilege('authenticated', 'public.project_create(uuid,text,text,text,text)', 'EXECUTE') then
     raise exception 'authenticated lacks project_create EXECUTE';
-  end;
+  end if;
 
   raise notice 'PASS: five Projects RPCs, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
 end;
