@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -60,3 +60,24 @@ These remain required before promoting the draft to a real migration or applying
 - Supabase CLI migration: not generated yet.
 - Connected Supabase database: unchanged.
 - Production: unchanged.
+
+
+## Primary Supabase deployment
+
+On 2026-11-16, at the user's explicit direction, the same core schema was applied to the primary Raymondovich Supabase project `yajybgdorhxebbigwjgi` (PostgreSQL 17.11, eu-central-1).
+
+Supabase migration history records version `20261116060455`, name `projects_001_core_schema`.
+
+Live post-apply checks passed:
+- 8/8 tables present; 8/8 have RLS enabled.
+- 6 system roles, 20 permissions, 54 role-permission mappings.
+- 4 active project component types.
+- No `anon` or `authenticated` schema USAGE or direct SELECT on `projects.projects`.
+- No project or membership records created.
+- Auth users and profiles remain at 2 each.
+- Existing Auth/private trigger count remains 3.
+- `projects` not configured for PostgREST exposure at the time of verification.
+
+The Security Advisor reports eight additional INFO notices for the new tables having RLS enabled with no policies. This is deliberate default-deny until the RPC authorization layer is implemented. Do not resolve these by adding broad policies or client grants.
+
+This is a core-schema deployment only. The remaining RPCs and application workflows are not deployed.
