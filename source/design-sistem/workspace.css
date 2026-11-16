@@ -679,3 +679,14 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 /* Updated: 2026-11-16 */
 .public-profile-preview-socials { display: flex; flex-wrap: wrap; gap: 8px; }
 .public-profile-preview-socials a { display: inline-flex; min-height: 34px; align-items: center; padding: 0 11px; border: 1px solid var(--color-surface-border); border-radius: 11px; color: var(--color-text); background: var(--color-page); font-size: 11px; font-weight: 600; text-decoration: none; }
+
+
+/* Public profile biography and social icon row */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.public-profile-about { margin: -5px 0 0; color: var(--color-text-muted); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.public-profile-social-icons { display: flex; justify-content: center; align-items: center; gap: 16px; padding-top: 14px; }
+.public-profile-social-icons a { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border: 1px solid var(--color-surface-border); border-radius: 50%; color: var(--color-text); background: var(--color-page); transition: transform .18s ease, color .18s ease, border-color .18s ease; }
+.public-profile-social-icons a:hover { color: var(--color-accent); border-color: var(--color-accent-border); transform: translateY(-2px); }
+.public-profile-social-icons svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.public-profile-brand { justify-content: center; gap: 7px; flex-wrap: wrap; }
