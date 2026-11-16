@@ -1,4 +1,4 @@
-/* Version: 1.0.2 */
+/* Version: 1.0.3 */
 /* Updated: 2026-11-16 */
 
 .header-identity {
@@ -103,6 +103,20 @@
   font-size: 16px;
   font-weight: 450;
   transition: border-color var(--motion-standard), background-color var(--motion-standard), box-shadow var(--motion-standard);
+}
+
+.auth-field input[type="date"] {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.auth-field input[type="date"]::-webkit-date-and-time-value {
+  min-width: 100%;
+  text-align: left;
 }
 
 .auth-field input:focus {
