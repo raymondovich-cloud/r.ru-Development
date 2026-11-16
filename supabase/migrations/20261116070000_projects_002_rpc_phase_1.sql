@@ -600,6 +600,12 @@ $function$;
 -- Authenticated callers may enter the private schema only to invoke these
 -- audited SECURITY DEFINER operations. Base tables remain inaccessible and
 -- the schema must remain absent from PostgREST's exposed-schema allowlist.
+revoke all on function projects.project_create_internal(uuid, text, text, text, text[]) from public, anon, authenticated;
+revoke all on function projects.project_update_internal(uuid, text, text) from public, anon, authenticated;
+revoke all on function projects.project_archive_internal(uuid) from public, anon, authenticated;
+revoke all on function projects.project_restore_internal(uuid) from public, anon, authenticated;
+revoke all on function projects.project_access_check_internal(uuid, text) from public, anon, authenticated;
+
 grant usage on schema projects to authenticated;
 grant execute on function projects.project_create_internal(uuid, text, text, text, text[]) to authenticated;
 grant execute on function projects.project_update_internal(uuid, text, text) to authenticated;
