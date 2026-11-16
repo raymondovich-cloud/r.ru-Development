@@ -1,4 +1,4 @@
-/* Version: 2.6.0 */
+/* Version: 2.7.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -89,7 +89,38 @@ function settingsMarkup(user, profileData, route) {
   '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section>';
  return '<div class="workspace-empty-state"><h2>Раздел не найден</h2><p>Выберите группу настроек.</p></div>';
 }
-export function renderWorkspaceView(container, user, activeSection, profileData) {
+function formatProjectDate(value) {
+ const date = new Date(value);
+ if (Number.isNaN(date.getTime())) return "";
+ return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+function projectsOverviewMarkup(state) {
+ const toolbar = '<div class="projects-toolbar"><div><span class="projects-eyebrow">ПРОЕКТНОЕ ПРОСТРАНСТВО</span><h2>Ваши проекты</h2><p>Все проекты, в которых вы являетесь владельцем или участником.</p></div><a class="project-primary-button projects-create-button" href="#projects/create">Создать проект <span aria-hidden="true">+</span></a></div>';
+ if (!state || state.status === "loading") {
+  return '<section class="projects-overview">' + toolbar + '<div class="projects-loading-state" role="status"><span class="projects-loading-indicator" aria-hidden="true"></span><p>Загружаем ваши проекты…</p></div></section>';
+ }
+ if (state.status === "error") {
+  return '<section class="projects-overview">' + toolbar + '<div class="projects-empty-state projects-error-state"><h3>Не удалось загрузить проекты</h3><p>' + escapeHtml(state.message || "Проверьте подключение и попробуйте ещё раз.") + '</p><button class="project-secondary-button" type="button" data-project-retry>Повторить загрузку</button></div></section>';
+ }
+ const projects = Array.isArray(state.projects) ? state.projects : [];
+ if (!projects.length) {
+  return '<section class="projects-overview">' + toolbar + '<div class="projects-empty-state"><div class="projects-empty-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h3>Пока нет проектов</h3><p>Создайте первый проект, чтобы организовать работу, подключить инструменты и при необходимости пригласить участников.</p><a class="projects-empty-action" href="#projects/create">Создать первый проект <span aria-hidden="true">→</span></a></div></section>';
+ }
+ const componentLabels = { website: "Сайт", telegram_bot: "Telegram-бот", telegram_mini_app: "Telegram Mini App", ios_app: "iOS-приложение" };
+ const cards = projects.map((project) => {
+  const components = Array.isArray(project.components) ? project.components : [];
+  const componentMarkup = components.length
+   ? '<div class="project-card-components">' + components.map((component) => '<span>' + escapeHtml(componentLabels[component.code] || component.name || component.code) + '</span>').join("") + '</div>'
+   : "";
+  const description = project.description
+   ? '<p class="project-card-description">' + escapeHtml(project.description) + '</p>'
+   : '<p class="project-card-description project-card-description-muted">Описание не добавлено</p>';
+  const date = formatProjectDate(project.created_at);
+  return '<article class="project-card"><div class="project-card-meta"><span class="project-card-type">' + (project.project_type === "offline" ? "Офлайн-проект" : "Онлайн-проект") + '</span><span class="project-card-role">' + (project.role === "owner" ? "Владелец" : "Участник") + '</span></div><h3>' + escapeHtml(project.name) + '</h3>' + description + componentMarkup + '<div class="project-card-footer">' + (project.parent_project_id ? '<span>Подпроект</span>' : '<span>Основной проект</span>') + (date ? '<time datetime="' + escapeHtml(project.created_at) + '">Создан ' + escapeHtml(date) + '</time>' : '') + '</div></article>';
+ }).join("");
+ return '<section class="projects-overview">' + toolbar + '<div class="project-card-grid">' + cards + '</div></section>';
+}
+export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
  const isProjectCreate = activeSection === "projects/create";
  const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate ? (isProjectCreate ? "projects" : activeSection) : "projects";
@@ -114,7 +145,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData)
   : active === "profile"
    ? profileMarkup(user, profileData)
    : isProjects
-    ? '<section class="projects-overview"><div class="projects-empty-state"><div class="projects-empty-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18M8 15h3"></path></svg></div><h3>Пока нет проектов</h3><p>Создайте первый проект, чтобы организовать работу, подключить инструменты и при необходимости пригласить участников.</p><a class="projects-empty-action" href="#projects/create">Создать первый проект <span aria-hidden="true">→</span></a></div></section>'
+    ? projectsOverviewMarkup(projectState)
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title"><header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
