@@ -1,4 +1,4 @@
-/* Version: 1.0.1 */
+/* Version: 1.0.2 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -24,7 +24,6 @@ if (root && pageMain) {
     const isAuthRoute = validModes.has(mode) || mode === "account";
     root.hidden = !isAuthRoute;
     if (statusPanel) statusPanel.hidden = isAuthRoute;
-    if (backButton) backButton.hidden = !isAuthRoute;
 
     if (!isAuthRoute) return;
     if (mode === "account") {
