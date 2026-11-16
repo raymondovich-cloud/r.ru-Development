@@ -146,14 +146,30 @@ begin
     return false;
   end if;
 
+  -- A system child role assigned at an ancestor project applies to its
+  -- descendants. Custom roles and parent-scope roles do not inherit.
+  with recursive ancestors(id, parent_project_id, depth) as (
+    select p.id, p.parent_project_id, 0
+    from projects.projects p
+    where p.id = p_project_id
+    union all
+    select parent.id, parent.parent_project_id, child.depth + 1
+    from projects.projects parent
+    join ancestors child on child.parent_project_id = parent.id
+  )
   select exists (
     select 1
-    from projects.project_memberships m
+    from ancestors a
+    join projects.project_memberships m on m.project_id = a.id
+    join projects.project_roles r on r.id = m.role_id
     join projects.project_role_permissions rp on rp.role_id = m.role_id
-    where m.project_id = p_project_id
-      and m.user_id = v_actor
+    where m.user_id = v_actor
       and m.status = 'active'
       and rp.permission_id = v_permission_id
+      and (
+        a.depth = 0
+        or (a.depth > 0 and r.scope = 'child' and r.is_system)
+      )
   ) into v_role_allowed;
 
   select g.effect into v_grant_effect
