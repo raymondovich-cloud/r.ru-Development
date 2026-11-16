@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.0.0
+-- Version: 1.0.1
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -133,10 +133,10 @@ begin
 
   if public.project_access_check(v_parent, 'unknown.permission') then
     raise exception 'Unknown permission must return false';
-  end;
+  end if;
   if public.project_access_check(v_parent, 'project.view') then
     raise exception 'Outsider unexpectedly has project.view';
-  end;
+  end if;
 
   -- Audit log must reject UPDATE and DELETE even under table owner.
   begin
@@ -161,5 +161,5 @@ begin
   end;
 
   raise notice 'PASS: five Projects RPCs, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
-end
+end;
 $test$;
