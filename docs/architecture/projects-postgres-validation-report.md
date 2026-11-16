@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -106,3 +106,18 @@ The SQL test emitted: `PASS: five invoker RPCs, isolated definer implementations
 The final test suite also verifies that internal helper functions (`lock_hierarchy`, `has_permission`) are not directly executable by `authenticated` or `anon`. This final run covers migration version 1.2.0 and test version 1.3.0.
 
 **Scope limitation:** this is an ephemeral PostgreSQL 17.11 CI validation with a minimal Supabase Auth compatibility fixture. It is not a full Supabase integration test and is not proof of a successful deployment to the primary Supabase project. Primary Supabase has not been modified.
+
+
+## CI validation completed — 2026-11-16
+
+The revised migration and test suite passed in GitHub Actions:
+
+- Run: `43817425318` — success.
+- Job: `postgres-validation` (`133132540239`) — success.
+- Tested commit: `8eef9f64e8b607eca0423cfc4673de598afb1d32`.
+- PostgreSQL: 17.11, ephemeral CI database, minimal Supabase Auth compatibility fixture.
+- Core schema migration and tests: PASS.
+- RPC phase-1 migration and tests: PASS.
+- RPC assertions cover five SECURITY INVOKER public wrappers, isolated SECURITY DEFINER implementations, multi-component projects, ownership and permission evaluation, deny precedence, suspension, private defaults, immutable audit records, archive/restore and grants.
+
+**Scope limitation:** this is a PostgreSQL migration/test CI run, not a full Supabase Auth + PostgREST + API integration test. The migration remains unapplied to primary Supabase pending separate explicit approval.
