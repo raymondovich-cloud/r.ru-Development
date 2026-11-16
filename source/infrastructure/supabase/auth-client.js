@@ -1,4 +1,6 @@
-/* Version: 1.5.0 */
+import { createProjectApi } from "./project-api.js";
+
+/* Version: 1.6.0 */
 /* Updated: 2026-11-16 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -215,54 +217,32 @@ export const authClient = {
     }
   },
 
-  async createProject({ name, description, projectType, componentCodes = [] }) {
-    const session = await this.getSession();
-    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
-    return request("/rest/v1/rpc/project_create", {
-      method: "POST",
-      accessToken: session.access_token,
-      body: {
-        p_parent_project_id: null,
-        p_name: String(name || "").trim(),
-        p_description: String(description || "").trim() || null,
-        p_project_type: projectType,
-        p_component_codes: projectType === "online" ? componentCodes : [],
-      },
-    });
+  async createProject(input) {
+    return createProjectApi({
+      getSession: () => this.getSession(),
+      request,
+    }).createProject(input);
   },
 
   async getProjects() {
-    const session = await this.getSession();
-    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
-    return request("/rest/v1/rpc/project_list", {
-      method: "POST",
-      accessToken: session.access_token,
-      body: {},
-    });
+    return createProjectApi({
+      getSession: () => this.getSession(),
+      request,
+    }).getProjects();
   },
 
   async getProjectMembers(projectId) {
-    const session = await this.getSession();
-    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
-    return request("/rest/v1/rpc/project_members_list", {
-      method: "POST",
-      accessToken: session.access_token,
-      body: { p_project_id: projectId },
-    });
+    return createProjectApi({
+      getSession: () => this.getSession(),
+      request,
+    }).getProjectMembers(projectId);
   },
 
-  async addProjectMember({ projectId, username, roleId }) {
-    const session = await this.getSession();
-    if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
-    return request("/rest/v1/rpc/project_member_add", {
-      method: "POST",
-      accessToken: session.access_token,
-      body: {
-        p_project_id: projectId,
-        p_username: String(username || "").trim().toLowerCase(),
-        p_role_id: roleId,
-      },
-    });
+  async addProjectMember(input) {
+    return createProjectApi({
+      getSession: () => this.getSession(),
+      request,
+    }).addProjectMember(input);
   },
 
   async signOut() {
