@@ -1,4 +1,4 @@
-/* Version: 3.17.0 */
+/* Version: 3.18.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -93,6 +93,7 @@ function settingsMarkup(user, profileData, route, projectState = null) {
    '<form class="settings-form" data-public-profile-form>' +
    '<label class="settings-field"><span>ФИО</span><input type="text" value="' + escapeHtml(fullName) + '" disabled><small>Изменяется в разделе «Личные данные».</small></label>' +
    '<label class="settings-field"><span>Логин в экосистеме</span><input type="text" value="' + escapeHtml(username ? "@" + username : "Логин не указан") + '" disabled></label>' +
+   '<label class="settings-field"><span>О себе</span><textarea name="about" rows="3" maxlength="80" placeholder="Коротко расскажите о себе — до 80 символов">' + escapeHtml(profile.about || "") + '</textarea><small>Не более 80 символов.</small></label>' +
    '<label class="settings-field"><span>Instagram</span><input name="instagram_url" type="url" inputmode="url" placeholder="https://instagram.com/username" value="' + escapeHtml(profile.instagram_url || "") + '"></label>' +
    '<label class="settings-field"><span>YouTube</span><input name="youtube_url" type="url" inputmode="url" placeholder="https://youtube.com/@channel" value="' + escapeHtml(profile.youtube_url || "") + '"></label>' +
    '<label class="settings-field"><span>Telegram</span><input name="telegram_url" type="url" inputmode="url" placeholder="https://t.me/username" value="' + escapeHtml(profile.telegram_url || "") + '"></label>' +
@@ -234,6 +235,15 @@ export function renderPublicProfileView(container, payload, errorMessage = "") {
  const projects = Array.isArray(profile.projects) ? profile.projects : [];
  container.innerHTML = '<section class="public-profile-page"><article class="public-profile-card"><header class="public-profile-heading"><div class="profile-avatar" aria-hidden="true">' + escapeHtml(avatar) + '</div><div><h1>' + escapeHtml(profile.full_name || "Пользователь Raymondovich") + '</h1><p>@' + escapeHtml(profile.username || "") + '</p></div></header>' +
   (socials.length ? '<nav class="public-profile-socials" aria-label="Социальные сети">' + socials.map(([label,url]) => '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>').join("") + '</nav>' : '') +
-  '<section class="public-profile-projects"><h2>Проекты</h2>' + (projects.length ? projects.map((project) => '<article class="public-profile-project-card"><h3>' + escapeHtml(project.name) + '</h3>' + (project.description ? '<p>' + escapeHtml(project.description) + '</p>' : '') + '</article>').join("") : '<p class="settings-section-note">Пользователь пока не добавил проекты в публичную карточку.</p>') + '</section>' +
-  '<footer class="public-profile-brand"><span>Профиль в экосистеме</span><a href="#register">Присоединиться к Raymondovich →</a></footer></article></section>';
+  (profile.about ? '<p class="public-profile-about">' + escapeHtml(profile.about) + '</p>' : '') +
+  (projects.length ? '<section class="public-profile-projects"><h2>Проекты</h2>' + projects.map((project) => '<article class="public-profile-project-card"><h3>' + escapeHtml(project.name) + '</h3>' + (project.description ? '<p>' + escapeHtml(project.description) + '</p>' : '') + '</article>').join("") + '</section>' : '') +
+  (socials.length ? '<nav class="public-profile-social-icons" aria-label="Социальные сети">' + socials.map(([label,url]) => {
+   const icons = {
+    Telegram: '<path d="m21 3-7.2 18-4.1-7.1L3 10.2 21 3Z"/><path d="m9.7 13.9 5.1-5.1"/>',
+    Instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+    YouTube: '<rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3V9Z"/>'
+   };
+   return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + label + '" title="' + label + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + icons[label] + '</svg></a>';
+  }).join("") + '</nav>' : '') +
+  '<footer class="public-profile-brand"><span>Дата регистрации</span><time datetime="' + escapeHtml(profile.registered_at || "") + '">' + escapeHtml(profile.registered_at ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(new Date(profile.registered_at)) : "—") + '</time></footer></article></section>';
 }
