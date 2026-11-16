@@ -1,4 +1,4 @@
-/* Version: 1.0.4 */
+/* Version: 1.0.5 */
 /* Updated: 2026-11-16 */
 
 const templates = {
@@ -167,26 +167,7 @@ export function renderPublicProfileView(container, payload, error = "") {
     panel.append(aboutSection);
   }
 
-  const socials = document.createElement("nav");
-  socials.className = "auth-links";
-  socials.setAttribute("aria-label", "Социальные сети");
-  for (const [label, key] of [["Telegram", "telegram_url"], ["Instagram", "instagram_url"], ["YouTube", "youtube_url"]]) {
-    const value = profile[key];
-    if (!value) continue;
-    try {
-      const url = new URL(value);
-      if (url.protocol !== "https:" && url.protocol !== "http:") continue;
-      const link = document.createElement("a");
-      link.href = url.href;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = label;
-      socials.append(link);
-    } catch {
-      // Ignore malformed public profile links.
-    }
-  }
-  if (socials.childElementCount) panel.append(socials);
+
 
   const projects = Array.isArray(payload.projects) ? payload.projects : Array.isArray(profile.projects) ? profile.projects : [];
   if (projects.length) {
@@ -212,6 +193,7 @@ export function renderPublicProfileView(container, payload, error = "") {
     }
     panel.append(list);
   }
+  if (socials.childElementCount) panel.append(socials);
 
   page.append(panel);
   container.append(page);
