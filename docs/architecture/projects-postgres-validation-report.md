@@ -1,6 +1,6 @@
 # Projects core SQL — PostgreSQL validation report
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Created:** 2026-11-16  
 **Status:** PostgreSQL 17.11 execution tests passed; Supabase integration tests pending
 
@@ -95,3 +95,14 @@ The development migration was revised after compatibility review of the primary 
 - Expanded the test suite to assert wrapper and implementation security modes, grants, schema USAGE and multi-component persistence.
 
 **Validation status:** The revised migration and test changes are committed in the development repository. Their PostgreSQL 17.11 CI run has not yet been confirmed in this report. Do not treat the earlier successful run for migration version 1.0.4 as validation of the revised SQL. Primary Supabase remains unchanged by this work.
+
+
+## RPC phase 1 — final PostgreSQL 17.11 CI verification (2026-11-16)
+
+**Result: PASS.** GitHub Actions run [#31](https://github.com/raymondovich-cloud/r.ru-Development/actions/runs/43817425318) completed successfully against PostgreSQL 17.11 after the final migration, draft and test version bumps. Job `postgres-validation` completed all stages: Auth compatibility fixture, core schema apply/test, RPC phase 1 migration apply, and RPC phase 1 tests.
+
+The SQL test emitted: `PASS: five invoker RPCs, isolated definer implementations, multi-component projects, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants`.
+
+The final test suite also verifies that internal helper functions (`lock_hierarchy`, `has_permission`) are not directly executable by `authenticated` or `anon`. This final run covers migration version 1.2.0 and test version 1.3.0.
+
+**Scope limitation:** this is an ephemeral PostgreSQL 17.11 CI validation with a minimal Supabase Auth compatibility fixture. It is not a full Supabase integration test and is not proof of a successful deployment to the primary Supabase project. Primary Supabase has not been modified.
