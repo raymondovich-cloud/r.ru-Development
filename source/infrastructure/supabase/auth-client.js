@@ -1,6 +1,6 @@
 import { createProjectApi } from "./project-api.js";
 
-/* Version: 1.6.0 */
+/* Version: 1.7.0 */
 /* Updated: 2026-11-16 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -243,6 +243,13 @@ export const authClient = {
       getSession: () => this.getSession(),
       request,
     }).addProjectMember(input);
+  },
+
+  async deleteProject(input) {
+    return createProjectApi({
+      getSession: () => this.getSession(),
+      request,
+    }).deleteProject(input);
   },
 
   async signOut() {
