@@ -1,5 +1,5 @@
 -- Raymondovich Projects RPC phase-1 validation
--- Version: 1.1.0
+-- Version: 1.2.0
 -- Updated: 2026-11-16
 \set ON_ERROR_STOP on
 
@@ -182,8 +182,25 @@ begin
   if (select prosecdef from pg_proc where oid = 'public.project_create(uuid,text,text,text,text[])'::regprocedure) then
     raise exception 'Public project_create wrapper must be SECURITY INVOKER';
   end if;
-  if not (select prosecdef from pg_proc where oid = 'projects.project_create_internal(uuid,text,text,text,text[])'::regprocedure) then
-    raise exception 'Internal project_create implementation must be SECURITY DEFINER';
+  if not (select bool_and(prosecdef) from pg_proc
+    where oid in (
+      'projects.project_create_internal(uuid,text,text,text,text[])'::regprocedure,
+      'projects.project_update_internal(uuid,text,text)'::regprocedure,
+      'projects.project_archive_internal(uuid)'::regprocedure,
+      'projects.project_restore_internal(uuid)'::regprocedure,
+      'projects.project_access_check_internal(uuid,text)'::regprocedure
+    )) then
+    raise exception 'All internal implementations must be SECURITY DEFINER';
+  end if;
+  if (select count(*) from pg_proc
+    where oid in (
+      'public.project_create(uuid,text,text,text,text[])'::regprocedure,
+      'public.project_update(uuid,text,text)'::regprocedure,
+      'public.project_archive(uuid)'::regprocedure,
+      'public.project_restore(uuid)'::regprocedure,
+      'public.project_access_check(uuid,text)'::regprocedure
+    ) and prosecdef) <> 0 then
+    raise exception 'A public RPC wrapper unexpectedly elevates privileges';
   end if;
 
   -- Anonymous execution is not granted; authenticated execution is explicit.
@@ -192,6 +209,18 @@ begin
   end if;
   if not has_function_privilege('authenticated', 'public.project_create(uuid,text,text,text,text[])', 'EXECUTE') then
     raise exception 'authenticated lacks project_create EXECUTE';
+  end if;
+  if has_function_privilege('anon', 'projects.project_create_internal(uuid,text,text,text,text[])', 'EXECUTE') then
+    raise exception 'anon unexpectedly has internal implementation EXECUTE';
+  end if;
+  if not has_function_privilege('authenticated', 'projects.project_create_internal(uuid,text,text,text,text[])', 'EXECUTE') then
+    raise exception 'authenticated lacks internal implementation EXECUTE';
+  end if;
+  if has_schema_privilege('anon', 'projects', 'USAGE') then
+    raise exception 'anon unexpectedly has projects schema USAGE';
+  end if;
+  if not has_schema_privilege('authenticated', 'projects', 'USAGE') then
+    raise exception 'authenticated lacks projects schema USAGE';
   end if;
 
   raise notice 'PASS: five invoker RPCs, isolated definer implementations, multi-component projects, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
