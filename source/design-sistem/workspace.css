@@ -1,4 +1,4 @@
-/* Version: 2.4.0 */
+/* Version: 2.5.0 */
 /* Updated: 2026-11-16 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -463,3 +463,31 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .project-detail-card dd { min-width: 0; margin: 0; font-size: 13px; overflow-wrap: anywhere; }
 .project-detail-card code { font-size: 11px; overflow-wrap: anywhere; }
 @media (max-width: 520px) { .project-detail-heading { align-items: flex-start; flex-direction: column; } .project-detail-card dl div { grid-template-columns: 1fr; gap: 4px; } }
+
+
+/* Project member management */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.project-members-card { display: grid; gap: 17px; }
+.project-members-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.project-members-heading h3 { margin: 0; }
+.project-members-heading p { margin: 5px 0 0; color: var(--color-text-muted); font-size: 11px; }
+.project-members-list { display: grid; gap: 9px; }
+.project-member-row { display: flex; min-width: 0; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid var(--color-surface-border); }
+.project-member-avatar { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 13px; color: var(--color-accent); background: var(--color-accent-wash); font-size: 12px; font-weight: 750; }
+.project-member-copy { display: grid; min-width: 0; gap: 3px; }
+.project-member-copy strong { overflow: hidden; color: var(--color-text); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.project-member-copy small, .project-members-muted { color: var(--color-text-muted); font-size: 11px; }
+.project-member-role { margin-left: auto; padding: 6px 9px; border-radius: 9px; color: var(--color-text-muted); background: var(--color-page); font-size: 10px; white-space: nowrap; }
+.project-member-invite-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr) auto; align-items: end; gap: 12px; padding-top: 17px; border-top: 1px solid var(--color-surface-border); }
+.project-member-invite-form .project-form-field { gap: 7px; }
+.project-member-invite-form input, .project-member-invite-form select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 0 11px; border: 1px solid var(--color-surface-border); border-radius: 12px; outline: none; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 13px; }
+.project-member-invite-form input:focus, .project-member-invite-form select:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-wash); }
+.project-member-invite-form .project-primary-button { min-height: 44px; padding: 0 13px; font-size: 11px; }
+.project-member-invite-form .project-form-feedback { grid-column: 1 / -1; }
+.project-members-error, .project-form-feedback[data-state="error"] { color: #d94b4b; }
+@media (max-width: 760px) {
+ .project-member-invite-form { grid-template-columns: 1fr; }
+ .project-member-invite-form .project-primary-button { width: 100%; }
+ .project-member-role { font-size: 9px; }
+}
