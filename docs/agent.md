@@ -1,6 +1,6 @@
 # Development Agent Rules
 
-**Version:** 1.0.1  
+**Version:** 1.0.2  
 **Updated:** 2026-11-16  
 **Status:** Active
 
@@ -424,7 +424,44 @@ Do not perform broad cleanup or unrelated refactoring as part of a narrowly scop
 - After a write, verify the resulting file or commit when the available tools allow it.
 - Never state that a deployment occurred merely because a Git commit succeeded.
 
-## 15. Agent execution protocol
+## 15. Skill selection and activation
+
+The repository's agent Skills provide task-specific operating instructions. The main Agent Rules remain mandatory for every task; a Skill supplements these rules and does not override them.
+
+Before implementation, identify the primary responsibility of the task and read the corresponding Skill in full.
+
+### Available Skills
+
+- `docs/agent-skill/core-architect.md` — architecture boundaries, shared contracts, dependency direction, and structural decisions.
+- `docs/agent-skill/domain-developer.md` — domain entities, business rules, domain operations, and public domain interfaces.
+- `docs/agent-skill/module-developer.md` — application workflows, orchestration, application state, and presentation coordination.
+- `docs/agent-skill/infrastructure-developer.md` — external providers, infrastructure adapters, transport, and technical integrations.
+- `docs/agent-skill/web-designer.md` — UX/UI design, information architecture, visual language, design-system components, responsive layouts, themes, accessibility, and visual verification.
+
+### When to use Web Designer
+
+Web Designer must be activated whenever a task primarily involves:
+
+- Designing or redesigning a website page, application screen, or user journey.
+- Defining or changing layout, visual hierarchy, typography, spacing, colors, themes, or responsive behavior.
+- Creating, extending, or reviewing reusable UI components.
+- Designing interactions, transitions, animation, or visual states.
+- Evaluating accessibility, usability, and rendered visual quality.
+
+For tasks that combine visual implementation with application behavior, use Web Designer together with Module Developer. For tasks involving domain-owned meaning or business rules, also use Domain Developer. For shared architectural changes, involve Core Architect.
+
+A Skill is not required merely because a task displays data. Select Skills according to the responsibility being changed, not the names of files or screens.
+
+### Skill precedence
+
+1. Repository-wide Agent Rules are mandatory for all work.
+2. Architecture documents define approved structural boundaries and decisions.
+3. The relevant Skill defines task-specific responsibilities and procedures.
+4. A task instruction may narrow scope but must not silently override higher-level rules.
+
+If Skills appear to conflict or ownership is unclear, stop and request an architecture decision rather than combining responsibilities implicitly.
+
+## 16. Agent execution protocol
 
 Every development agent must follow this sequence:
 
@@ -454,7 +491,7 @@ Every development agent must follow this sequence:
 5. Identify limitations, unresolved decisions, and follow-up work.
 6. Do not claim unperformed work.
 
-## 16. Architecture decision rule
+## 17. Architecture decision rule
 
 When a requirement does not clearly belong to an existing layer, do not place it in the most convenient folder by default.
 
