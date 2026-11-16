@@ -142,3 +142,14 @@ No deployment to the connected Supabase project until:
 - Core SQL: draft only; not executed.
 - Real Supabase migrations: not generated.
 - Supabase production schema: unchanged.
+
+
+## 11. Additional ownership-transfer invariant
+
+The target owner must not already have a membership row in any project in the transferred hierarchy. The transfer-confirm operation must either reject the transfer until the target leaves those memberships, or atomically remove those memberships with explicit audit events before changing ownership. Release-one recommendation: reject and require membership cleanup first; this avoids silently changing the target's role/history during transfer.
+
+The implementation must also ensure the previous owner is not accidentally reinserted as a member and that every descendant remains owner-consistent after the atomic transfer.
+
+## 12. Validation status
+
+The draft was reviewed structurally and stored in GitHub. A PostgreSQL parser/CLI is not available in the current execution environment, so SQL syntax has **not** been executed or certified. The next validation must run this draft against a disposable local Supabase/PostgreSQL 17.11 instance. This is an explicit remaining gate, not a claim of successful SQL execution.
