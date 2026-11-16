@@ -1,4 +1,4 @@
-/* Version: 1.2.1 */
+/* Version: 1.2.2 */
 /* Updated: 2026-11-16 */
 
 :root {
@@ -333,4 +333,18 @@ body[data-app-state="workspace"] .workspace-header-actions { display: flex; }
 body[data-page-type="public-profile"] .page-back,
 body[data-page-type="public-profile"] .public-header-actions {
   display: none;
+}
+
+body[data-page-type="public-profile"] .site-header {
+  justify-content: center;
+}
+
+body[data-page-type="public-profile"] .header-identity {
+  justify-content: center;
+  width: 100%;
+}
+
+body[data-page-type="public-profile"] .brand {
+  justify-content: center;
+  text-align: center;
 }
