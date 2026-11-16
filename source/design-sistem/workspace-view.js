@@ -1,4 +1,4 @@
-/* Version: 1.2.0 */
+/* Version: 1.3.0 */
 /* Updated: 2026-11-16 */
 const sections = [
  { id: "projects", label: "Проекты", icon: '<rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path>' },
@@ -25,14 +25,16 @@ function initials(fullName, username) {
 }
 function profileMarkup(user, profileData) {
  const metadata = user?.user_metadata || {};
+ const appMetadata = user?.app_metadata || {};
  const profile = profileData?.profile || profileData || {};
+ const accountStatus = appMetadata.raymondovich_role === "owner" ? "Владелец" : "Пользователь";
  const fullName = profile.full_name || metadata.full_name || metadata.name || "Имя не указано";
  const username = profile.username || metadata.username || "";
  const avatar = initials(fullName, username);
  return '<div class="profile-page">' +
   '<section class="profile-identity-card" aria-label="Карточка пользователя"><div class="profile-avatar" aria-hidden="true">' + escapeHtml(avatar) + '</div><div class="profile-identity-copy"><h2>' + escapeHtml(fullName) + '</h2>' +
   (username ? '<p class="profile-username">@' + escapeHtml(username) + '</p>' : '<p class="profile-username">Логин не указан</p>') +
-  '<span class="profile-status"><span class="profile-status-dot"></span>Аккаунт активен</span></div></section>' +
+  '<span class="profile-status"><span class="profile-status-dot"></span>' + escapeHtml(accountStatus) + '</span></div></section>' +
   '<div class="profile-sections">' +
   '<section class="profile-group profile-control-card"><div class="profile-control-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15V9m4 6V5m4 10v-4m4 4V7"></path></svg></div><div class="profile-row-copy"><h2>Центр управления</h2><p>Управление экосистемой для пользователей с соответствующими правами.</p></div><span class="profile-access-label">По правам</span></section>' +
   '<a class="profile-group profile-link-card" href="#projects"><span class="profile-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path></svg></span><span class="profile-row-copy"><strong>Действующие проекты</strong><small>Запущенные проекты, в которых вы участвуете.</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>' +
