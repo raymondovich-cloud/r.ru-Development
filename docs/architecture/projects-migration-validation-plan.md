@@ -1,7 +1,7 @@
 # Projects — migration validation plan
 
-**Version:** 1.7.0  
-**Status:** RPC phase 1 passed PostgreSQL 17.11 CI; primary Supabase not yet migrated  
+**Version:** 1.8.0  
+**Status:** PostgreSQL 17.11 and isolated PostgREST 14.17 CI passed; hosted RPC deployment not performed  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
 **Target Supabase project:** `yajybgdorhxebbigwjgi`  
@@ -294,3 +294,19 @@ The primary Raymondovich Supabase project (`yajybgdorhxebbigwjgi`, PostgreSQL 17
 - No hosted database changes were made.
 
 A live HTTP request using a JWT issued by the hosted Supabase Auth service has not been performed. The available Supabase connector provides database operations but no authenticated user-session token or arbitrary REST request action. Do not substitute a service-role key or expose secrets to simulate a user. The hosted Auth/PostgREST end-to-end check remains a separate gate.
+
+
+## 20. Final API CI and hosted deployment boundary (2026-11-16)
+
+The final development-repository CI run `43818747946` passed on commit `c804500c2a72b263fcdfc9e734c19c97b22d81e1`. The PostgREST HTTP test reached all required positive and negative assertions; the earlier failed diagnostic runs are superseded by this successful run.
+
+A fresh read-only query against primary Supabase confirmed:
+- Core migration `20261116060455` remains the only Projects migration.
+- All five RPC Phase 1 public functions are absent.
+- `projects.project_components` and `projects.project_audit_logs` are absent.
+- Neither `anon` nor `authenticated` currently has USAGE on schema `projects`.
+- No hosted database objects were changed by this preflight.
+
+Therefore a live hosted PostgREST call to the new RPCs cannot yet be made: those RPC endpoints do not exist on the primary project. Creating a Supabase development branch would allow an isolated hosted-stack test, but Supabase states that branch compute can incur hourly and other usage charges. Do not create a branch until its cost is disclosed and the user explicitly agrees.
+
+The remaining gate is a hosted Auth + PostgREST test in a cost-approved isolated Supabase branch, or a separately authorized deployment to primary after the user reviews the final migration. The current CI result must not be described as a hosted Supabase end-to-end test.
