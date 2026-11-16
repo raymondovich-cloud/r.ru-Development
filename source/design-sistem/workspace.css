@@ -692,3 +692,11 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .public-profile-brand { justify-content: center; gap: 7px; flex-wrap: wrap; }
 .settings-field textarea { box-sizing: border-box; display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 88px; padding: 12px 14px; border: 1px solid var(--color-surface-border); border-radius: 13px; outline: none; resize: vertical; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 14px; line-height: 1.5; transition: border-color var(--motion-standard), box-shadow var(--motion-standard); }
 .settings-field textarea:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-wash); }
+
+
+/* Public profile about section */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-16 */
+.public-profile-about-section { display: grid; gap: 9px; padding: 16px 17px; border: 1px solid var(--color-surface-border); border-radius: 17px; background: var(--color-page); }
+.public-profile-about-section h2 { margin: 0; color: var(--color-text); font-size: 15px; font-weight: 650; letter-spacing: -.02em; }
+.public-profile-about-section .public-profile-about { margin: 0; color: var(--color-text); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
