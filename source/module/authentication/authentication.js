@@ -1,4 +1,4 @@
-/* Version: 1.3.4 */
+/* Version: 1.3.5 */
 /* Updated: 2026-11-16 */
 
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -51,6 +51,15 @@ if (root && pageMain) {
     if (!isAuthRoute) return;
     renderAuthenticationView(root, mode);
   }
+
+  const brandLink = document.querySelector(".brand");
+  brandLink?.addEventListener("click", (event) => {
+    if (document.body.dataset.appState !== "workspace") return;
+    event.preventDefault();
+    if (window.location.hash !== "#projects") {
+      window.location.hash = "projects";
+    }
+  });
 
   backButton?.addEventListener("click", () => {
     const route = window.location.hash.replace(/^#/, "").split("?")[0];
