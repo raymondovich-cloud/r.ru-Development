@@ -1,6 +1,6 @@
 # Projects — migration validation plan
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Review draft — no migrations applied  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -171,3 +171,33 @@ A repository-level structural check of `projects-001-core-schema.sql` passed the
 10. The transfer membership precondition is documented for the later ownership-transfer phase.
 
 This is a structural text-level review only. It does not parse or execute PostgreSQL SQL and does not prove runtime behavior. PostgreSQL/Supabase CLI, Docker and a PostgreSQL server are not installed in the current execution environment. The mandatory next validation remains execution against a disposable local Supabase/PostgreSQL 17.11 instance.
+
+
+## 14. PostgreSQL execution validation passed (2026-11-16)
+
+The core SQL draft was executed against an ephemeral PostgreSQL **17.11** service container in GitHub Actions. The database was disposable and contained only a minimal compatibility fixture for Supabase Auth (`auth.users`, `anon`, and `authenticated`). No production or development Supabase project was connected.
+
+Two final validation runs completed successfully:
+
+- Initial SQL application and core integrity suite: [run 43814014601](https://github.com/raymondovich-cloud/r.ru-Development/actions/runs/43814014601) — success.
+- Expanded integrity suite, including private defaults, invalid project type, archive-state consistency, owner cascade through three hierarchy levels, Auth deletion blockers and parent deletion restriction: [run 43814119385](https://github.com/raymondovich-cloud/r.ru-Development/actions/runs/43814119385) — success.
+
+The SQL migration draft applied and committed successfully in the disposable database. The test suite confirmed:
+- eight core tables created;
+- RLS enabled on all eight;
+- six system roles and 20 permissions seeded;
+- 54 role-permission mappings seeded;
+- no schema/table access granted to `anon` or `authenticated`;
+- parent/child owner consistency enforced by the composite FK;
+- owner changes cascade through the tested three-level hierarchy;
+- project and membership references block Auth account deletion;
+- wrong role scope, wrong custom-role project, and owner-as-member assignments are rejected;
+- invalid type/archive states are rejected;
+- private visibility defaults are correct;
+- parent deletion is blocked while descendants exist.
+
+### Validation boundary
+
+This is real PostgreSQL 17.11 execution, not merely static inspection. However, it is **not yet a full Supabase local-stack test**: the Auth schema and roles were represented by a minimal fixture. PostgREST exposure, Supabase JWT/RLS behavior, Supabase-managed grants, extensions and RPC wrapper security remain later validation gates.
+
+The SQL remains a review draft and has **not** been applied to the connected Supabase project. Production schema remains unchanged.
