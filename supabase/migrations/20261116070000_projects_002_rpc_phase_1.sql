@@ -538,6 +538,10 @@ end;
 $function$;
 
 
+revoke all on function projects.reject_audit_mutation() from public, anon, authenticated;
+revoke all on function projects.lock_hierarchy(uuid) from public, anon, authenticated;
+revoke all on function projects.has_permission(uuid, text, boolean) from public, anon, authenticated;
+
 -- Narrow PostgREST endpoints. These wrappers do not elevate privileges.
 create or replace function public.project_create(
   p_parent_project_id uuid,
