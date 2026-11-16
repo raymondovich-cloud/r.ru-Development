@@ -1,6 +1,6 @@
 # Projects — SQL Specification
 
-**Version:** 2.0.0  
+**Version:** 2.1.0  
 **Status:** Architecture specification — review required before migration  
 **Created:** 2026-11-16  
 **Updated:** 2026-11-16  
@@ -1067,4 +1067,270 @@ The specification is ready to become migration SQL only when:
 - no old Projects/Tools implementation is implicitly reused;
 - user explicitly approves the final executable migration plan.
 
-**Current state:** specification draft prepared. No database DDL, RLS, grants, functions, triggers, data or migrations have been changed.
+
+---
+
+## 16. Initial system-role permission matrix (normative proposal)
+
+This section resolves the initial role-permission matrix using least privilege. It is the proposed release-one baseline. Ownership authority is not represented in this matrix.
+
+Legend: **✓** granted by default; **—** not granted. An individual project grant may add or deny an eligible permission, but cannot grant owner-only actions or bypass hierarchy/privacy invariants.
+
+| Permission | Parent administrator | Parent manager | Parent member | Child leader | Child developer | Child observer |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| `project.view` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `project.update` | ✓ | ✓ | — | ✓ | ✓ | — |
+| `project.archive` | ✓ | — | — | ✓ | — | — |
+| `members.view` | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| `members.invite` | ✓ | ✓ | — | ✓ | — | — |
+| `members.remove` | ✓ | — | — | ✓ | — | — |
+| `members.manage` | ✓ | — | — | ✓ | — | — |
+| `members.roles.manage` | ✓ | — | — | — | — | — |
+| `roles.create` | ✓ | — | — | — | — | — |
+| `roles.update` | ✓ | — | — | — | — | — |
+| `roles.delete` | ✓ | — | — | — | — | — |
+| `tools.view` | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| `tools.connect` | ✓ | ✓ | — | ✓ | ✓ | — |
+| `tools.manage` | ✓ | — | — | ✓ | — | — |
+| `visibility.view` | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| `visibility.manage` | ✓ | — | — | — | — | — |
+| `publication.manage` | ✓ | — | — | — | — | — |
+| `resources.view` | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| `resources.manage` | ✓ | — | — | ✓ | — | — |
+| `audit.view` | ✓ | — | — | — | — | — |
+
+### 16.1 Role semantics and guardrails
+
+- **Parent administrator:** operationally manages the parent project, members, project-local roles, tools and resources. Cannot transfer ownership, physically delete the project, delete the owner's account, or override hierarchy-level owner authority.
+- **Parent manager:** coordinates project work; may update ordinary project information, view members/resources/tools, invite members and connect an already-entitled tool. Cannot remove members, change roles, alter confidentiality/publication, archive or delete.
+- **Parent member:** read access to project information, member directory, tools and shared resources where the underlying resource permission allows it.
+- **Child leader:** leads the child project; may update/archive that child, manage its members, invite/remove participants, connect/manage child-authorized tools and resources. Cannot create custom roles, transfer ownership, change hierarchy ownership, or make a child public when ancestor rules prohibit it.
+- **Child developer:** may update child project information, view members, view/connect entitled tools and view shared resources. Cannot manage members or project visibility.
+- **Child observer:** project read access only. No member directory, tool, resource, publication or administrative access by default.
+
+### 16.2 Additional authorization rules
+
+1. The owner and root hierarchy owner receive owner-level authority outside role mappings.
+2. `members.manage` does not imply `members.roles.manage`; role assignment is a separate elevated permission.
+3. `visibility.manage` and `publication.manage` are deliberately excluded from all default non-owner roles in release one. The owner may delegate them later through an explicit reviewed policy.
+4. Custom roles may be created only by the owner or a parent administrator with `roles.create`. Child leaders do not create custom roles in release one.
+5. Individual grants cannot grant `roles.*`, ownership transfer, physical deletion, account deletion or any permission marked owner-only.
+6. A child leader's `project.archive` applies only to that child; it cannot archive its parent or siblings.
+7. Role permissions authorize an action only within the exact project scope and do not imply access to descendants or ancestors.
+8. Resource-share permissions are an additional gate. A project role cannot override a resource owner's explicit share denial.
+9. The `audit.view` permission is added to the global permission catalogue and is granted only to parent administrators by default. Root owner can always inspect hierarchy audit history.
+10. This matrix is the proposed baseline for review; it must be seeded as explicit rows, not implemented as hard-coded conditionals.
+
+---
+
+## 17. Table-by-table RLS and SQL privilege matrix
+
+### 17.1 Schema/API boundary
+
+The `projects` schema is an internal schema and is not added to the PostgREST exposed-schema list in release one.
+
+To make Supabase client RPC calls possible without exposing base tables:
+
+- Expose only the required wrapper functions in the already exposed `public` schema.
+- Keep implementation tables and privileged helper functions in `projects`.
+- Public wrapper functions have narrow signatures and delegate to internal routines.
+- Grant `EXECUTE` on each wrapper only to `authenticated`, except a specifically reviewed public publication endpoint if one is later required.
+- Internal routines are not directly exposed through PostgREST.
+- The wrapper must not accept an actor UUID; internal logic derives actor from `auth.uid()`.
+- Do not grant `USAGE` on the internal schema to `anon`.
+- Do not expose `projects` tables through PostgREST.
+
+If Supabase deployment constraints make this wrapper arrangement impossible, stop and revise the exposure design before granting schema-wide access. Do not solve it by exposing all Projects tables.
+
+### 17.2 Table policy matrix
+
+All listed tables have RLS enabled. The matrix describes row visibility and write path. Direct client writes are denied for every table.
+
+| Table | authenticated SELECT policy | INSERT | UPDATE | DELETE |
+|---|---|---|---|---|
+| `projects.projects` | Owner/root owner, or active member with `project.view` | RPC only | RPC only | RPC only |
+| `project_component_types` | Active catalogue rows to authenticated users | Migration/service only | Migration/service only | Migration/service only |
+| `project_memberships` | Own membership row; or project users with `members.view`; owner/root owner | RPC only | RPC only | Never directly; status transition by RPC |
+| `project_roles` | System roles; project roles only to users with `members.view` or role-management permission | RPC/migration only | RPC/migration only | RPC/migration only |
+| `project_permissions` | Permission catalogue to authenticated users | Migration only | Migration only | Migration only |
+| `project_role_permissions` | Mappings for system roles and project roles visible to caller | RPC/migration only | RPC/migration only | RPC/migration only |
+| `project_access_grants` | Own grants only; or project owner/root owner and users with `members.roles.manage` | RPC only | RPC only | RPC only |
+| `project_invitations` | Invitee sees own invitation; inviter and authorized member managers see invitations for their project; owner/root owner | RPC only | RPC only | RPC only |
+| `project_visibility` | Users with `visibility.view`; owner/root owner | RPC only | RPC only | Never directly |
+| `project_publications` | Project-authorized users with `publication.manage`; public users receive data only through safe publication endpoint | RPC only | RPC only | RPC only |
+| `project_profile_listings` | Project owner/root owner and the profile subject; public profile projection only when listing active and publication is effectively public | RPC only | RPC only | RPC only |
+| `project_tool_connections` | Users with `tools.view`; owner/root owner | RPC only | RPC only | RPC only |
+| `project_resource_shares` | Authorized users of resource-owner and consumer projects with `resources.view`; owner/root owner | RPC only | RPC only | RPC only |
+| `project_resource_permissions` | Users authorized to inspect the corresponding share; owner/root owner | RPC only | RPC only | RPC only |
+| `project_ownership_transfers` | Previous owner, new owner, and root owner; no other member | RPC only | RPC only | RPC only |
+| `project_audit_logs` | Owner/root owner; otherwise users with `audit.view` | Internal audit routine only | Denied | Denied |
+
+### 17.3 RLS implementation details
+
+- RLS predicates must call narrowly scoped, stable authorization helpers and must avoid recursive policy evaluation.
+- Helper functions used in policies must not be exposed as general-purpose client APIs.
+- Use `SECURITY DEFINER` only where needed to avoid policy recursion or to inspect protected membership/role rows; each helper must have a fixed search path, fully qualified names and restricted EXECUTE grants.
+- Policy helpers must not accept an actor UUID as authority. The actor is `auth.uid()`.
+- Policies must be tested as `anon`, two unrelated `authenticated` users, project owner, root hierarchy owner, parent member, child member, and service role.
+- RLS is not a replacement for RPC authorization. Every write RPC validates permissions independently before mutation.
+- Service-role bypass of RLS is expected; service-role use is server-only and must be audited at application boundaries.
+- No policy may use a caller-controlled JWT user metadata field as proof of project ownership. Ownership is read from the Projects table.
+- For publication, prefer a narrowly scoped public wrapper that returns only approved publication fields. Do not grant `anon` SELECT on `project_publications` or `projects`.
+
+### 17.4 Required database grants
+
+Target grants, to be translated into explicit migration statements after preflight:
+
+- Revoke all table privileges on `projects.*` from `PUBLIC`, `anon` and `authenticated` by default.
+- Grant only catalogue SELECT where needed to `authenticated`, protected by RLS.
+- Do not grant direct DML on business tables to `authenticated`.
+- Grant EXECUTE on each public RPC wrapper individually to `authenticated`.
+- Revoke EXECUTE on internal privileged functions from `PUBLIC`, `anon` and `authenticated` unless the wrapper's execution model specifically requires a narrowly scoped grant.
+- Do not grant `USAGE` on the internal `projects` schema to `anon`.
+- Do not use blanket `GRANT ALL ON ALL TABLES` or blanket `GRANT EXECUTE ON ALL FUNCTIONS`.
+
+---
+
+## 18. Exact RPC API contracts (release-one target)
+
+All client-facing RPC wrappers live in `public` and use the `project_*` prefix. Internal implementations live in `projects` and are not directly exposed.
+
+Conventions:
+
+- Every mutating RPC derives the actor from `auth.uid()`.
+- No RPC accepts `actor_user_id`, `owner_user_id`, `created_by`, or an arbitrary membership user UUID as authority input.
+- UUIDs identify target records; they do not prove authorization.
+- JSONB is used for bounded DTO input/output only, not as the permission storage model.
+- All text inputs are trimmed and length-validated server-side.
+- Errors use stable SQLSTATE where practical and safe, non-sensitive messages.
+- Mutating operations write audit events in the same transaction.
+- All RPCs are transaction-atomic at the PostgreSQL function-call boundary.
+
+### 18.1 Project operations
+
+| Public RPC signature | Return | Contract |
+|---|---|---|
+| `public.project_create(p_parent_project_id uuid, p_name text, p_description text, p_project_type text, p_component_code text default null) returns jsonb` | Project DTO | Root: owner is `auth.uid()`. Child: parent must be active and caller must be its owner/root owner; child owner is copied from parent. Insert project, private visibility and audit atomically. |
+| `public.project_update(p_project_id uuid, p_name text, p_description text) returns jsonb` | Project DTO | Requires `project.update`; only name/description mutable in release one. Parent, owner, creator, type and status cannot be changed through this RPC. |
+| `public.project_archive(p_project_id uuid) returns jsonb` | Status DTO | Requires `project.archive` or owner/root owner. Archives exactly one project; no cascade. |
+| `public.project_restore(p_project_id uuid) returns jsonb` | Status DTO | Owner/root owner or explicitly authorized `project.archive` policy. Restores only selected row. |
+| `public.project_delete(p_project_id uuid, p_confirmation_project_id uuid) returns jsonb` | Deletion receipt | Owner/root owner only. Both UUIDs must match. Reject children and all blocking dependencies; preserve audit. No cascading child deletion. |
+| `public.project_access_check(p_project_id uuid, p_permission_code text) returns boolean` | Boolean | Read-only check for current caller; never accepts actor identity. Unknown permission returns false. |
+
+### 18.2 Membership, invitations and roles
+
+| Public RPC signature | Return | Contract |
+|---|---|---|
+| `public.project_user_lookup(p_username text) returns jsonb` | Minimal user DTO or null | Authenticated only; exact case-insensitive username match; returns UUID, username and approved display name only. Rate-limited. No email/birth date. |
+| `public.project_member_invite(p_project_id uuid, p_invitee_username text, p_invitee_email text, p_role_id uuid, p_token_hash text) returns jsonb` | Invitation DTO | Exactly one of username/email required. Username resolves internally to UUID. Email path normalizes and binds invitation to verified email at acceptance. Inviter requires `members.invite`. Token hash only is stored. Email dispatch occurs in trusted server workflow; no membership is created on send. |
+| `public.project_invitation_accept(p_token_hash text) returns jsonb` | Membership DTO | Authenticated caller only. Verifies pending state, expiry and invitee binding; for email invitation, verifies current Auth email is confirmed and matches normalized invitee email. Creates/reactivates membership atomically. |
+| `public.project_invitation_decline(p_token_hash text) returns jsonb` | Invitation status DTO | Only bound invitee may decline a pending invitation. |
+| `public.project_member_remove(p_project_id uuid, p_member_user_id uuid) returns jsonb` | Membership status DTO | Requires `members.remove`; cannot remove owner; cannot leave project without required administrator continuity. |
+| `public.project_member_role_update(p_project_id uuid, p_member_user_id uuid, p_role_id uuid) returns jsonb` | Membership DTO | Requires `members.roles.manage`; role scope must match project scope; owner cannot be assigned a membership role. |
+| `public.project_role_create(p_project_id uuid, p_code text, p_name text, p_description text, p_permission_codes text[]) returns jsonb` | Role DTO | Owner or parent administrator with `roles.create`; custom role scoped to one project; permissions must be an allowlisted subset of the project's scope. |
+| `public.project_role_update(p_role_id uuid, p_name text, p_description text, p_permission_codes text[]) returns jsonb` | Role DTO | Custom role only; owner or authorized parent administrator; cannot edit system role. |
+| `public.project_role_delete(p_role_id uuid) returns jsonb` | Result DTO | Custom role only; reject while assigned to any membership or otherwise referenced. |
+| `public.project_permission_update(p_project_id uuid, p_user_id uuid, p_permission_code text, p_effect text, p_expires_at timestamptz) returns jsonb` | Grant DTO | Requires `members.roles.manage`; target must have active membership; effect allow/deny; protected owner-only permissions cannot be granted or denied. Null effect is not used to delete; use a dedicated revoke operation. |
+| `public.project_permission_revoke(p_project_id uuid, p_user_id uuid, p_permission_code text) returns jsonb` | Result DTO | Requires `members.roles.manage`; removes the current override and audits the previous state. |
+
+### 18.3 Visibility, publication and profile listing
+
+| Public RPC signature | Return | Contract |
+|---|---|---|
+| `public.project_visibility_update(p_project_id uuid, p_confidentiality text, p_showcase_visibility boolean, p_profile_visibility boolean) returns jsonb` | Visibility DTO | Owner/root owner only in release one. Child cannot become effectively public beneath private/archived ancestor. |
+| `public.project_publication_update(p_project_id uuid, p_public_slug text, p_title text, p_public_description text, p_cover_image text, p_status text) returns jsonb` | Publication DTO | Owner/root owner only in release one. Validate slug, fields and safe asset reference. Published state requires effective public availability. |
+| `public.project_profile_listing_update(p_project_id uuid, p_profile_user_id uuid, p_position integer, p_status text) returns jsonb` | Listing DTO | Owner/root owner authorizes or hides one profile listing. Does not itself make project public. Profile user UUID is target data, not authority. |
+| `public.project_publication_get(p_public_slug text) returns jsonb` | Safe public DTO | If a public page is released, callable by `anon` and `authenticated`; returns only title, public description, cover and explicitly approved public fields. Verifies complete ancestor chain. No base table access. |
+
+### 18.4 Tools/resource references
+
+| Public RPC signature | Return | Contract |
+|---|---|---|
+| `public.project_resource_share(p_resource_owner_project_id uuid, p_consumer_project_id uuid, p_resource_type text, p_resource_id uuid, p_permission_codes text[]) returns jsonb` | Share DTO | Requires authority over resource-owner project; both projects must belong to same hierarchy; consumer cannot re-share; resource permissions are normalized rows. |
+| `public.project_resource_revoke(p_share_id uuid) returns jsonb` | Share status DTO | Resource owner/root owner only; revokes one share and its effective permissions; does not affect other consumers. |
+| `public.project_tool_connection_register(p_project_id uuid, p_tool_code text, p_connection_id uuid) returns jsonb` | Connection DTO | Reserved integration contract for later Tools implementation. Must not be deployed until Tools entitlement and connection ownership APIs exist. |
+| `public.project_tool_connection_update(p_connection_id uuid, p_status text) returns jsonb` | Connection DTO | Reserved integration contract for later Tools implementation. Must not be deployed until Tools subsystem defines lifecycle and service authentication. |
+
+### 18.5 Ownership transfer and account deletion preflight
+
+| Public RPC signature | Return | Contract |
+|---|---|---|
+| `public.project_transfer_initiate(p_root_project_id uuid, p_new_owner_username text, p_token_hash text) returns jsonb` | Pending transfer DTO | Current root owner only; resolves registered target by exact username; target account must have confirmed email. Creates pending transfer and sends confirmation through trusted server workflow. |
+| `public.project_transfer_confirm(p_token_hash text) returns jsonb` | Transfer receipt | Authenticated new owner only; verifies token and account confirmation; locks and atomically updates entire descendant hierarchy. |
+| `public.project_transfer_cancel(p_transfer_id uuid) returns jsonb` | Transfer status DTO | Previous owner/root owner only; pending transfer only. |
+| `public.project_account_deletion_preflight(p_user_id uuid) returns jsonb` | Blocker DTO | Service-role/server-only. Returns machine-readable blockers (owned projects, sole-admin memberships, pending transfers/dependencies). Must not be executable by browser roles. Does not delete the Auth user. |
+
+### 18.6 RPC implementation security
+
+- The public wrapper functions must be explicitly granted by function signature, not by schema-wide blanket grants.
+- Internal privileged routines must use a fixed `search_path`, fully qualified names, minimal owner privileges and restricted EXECUTE.
+- Public wrappers must not permit arbitrary SQL, table names, function names or dynamic column selection.
+- Public wrapper parameters must be validated before delegation.
+- Invitation and transfer token hashes must be compared using a constant-time comparison where supported by the application/server layer; raw tokens are never persisted.
+- Rate limiting must be enforced in a trusted server layer or a dedicated database-backed limiter; client-side throttling is insufficient.
+- Email delivery must occur outside the database transaction. Use an outbox or trusted Edge Function workflow with retry/idempotency. A failed email send must not create membership or complete transfer.
+- Functions reserved for the future Tools subsystem are documented contracts only and must not be created in the first Projects migration set.
+
+---
+
+## 19. Transaction, concurrency and data-integrity implementation notes
+
+### 19.1 Hierarchy lock strategy
+
+A hierarchy operation must serialize against other hierarchy mutations. Use a deterministic transaction-scoped advisory lock derived from a stable root identifier, and then lock all affected project rows in ascending UUID order.
+
+For a new root project, lock is not needed beyond the insert. For a child create, resolve and lock the current root before validating the parent. For transfer, archive, delete and any future reparent operation, lock the root and all descendants.
+
+The implementation must re-read hierarchy membership after acquiring the lock; a pre-lock recursive query is not authoritative.
+
+### 19.2 Parent/child owner constraint
+
+The composite unique key and composite self-FK are the primary relational guard for parent/child owner equality. The transfer implementation must be tested against PostgreSQL's FK update behavior and constraint checking.
+
+Do not rely solely on a trigger that checks owner equality without appropriate row locking; concurrent changes can race.
+
+### 19.3 Role scope integrity
+
+A membership's role must be either:
+- a system role with `project_id IS NULL` and matching `scope`; or
+- a custom role whose `project_id` equals the membership's `project_id` and whose scope matches that project.
+
+This is cross-row validation and must be enforced by a constraint trigger or by a single transactional RPC with a database trigger as a final invariant guard. Direct DML remains revoked.
+
+### 19.4 Exactly one invitation target
+
+Add a CHECK constraint requiring exactly one of `invitee_user_id` and `invitee_email` to be non-null. Normalize email before persistence. A unique partial index must prevent duplicate pending invitations for the same project and target.
+
+### 19.5 Audit immutability
+
+Audit insert must be available only to internal routines. Add a trigger that rejects UPDATE and DELETE regardless of client role. Any legal retention/purge exception must be a separately reviewed privileged maintenance operation and must never be callable by normal users.
+
+### 19.6 Publication projection
+
+The public publication function must traverse ancestors and return a minimal DTO. It must not return `project_id`, `owner_user_id`, internal description, visibility internals, membership counts unless deliberately approved, or any member information. The slug is the public lookup key; internal UUID remains private.
+
+### 19.7 Resource share uniqueness and revocation
+
+Define a uniqueness rule for an active share on `(resource_owner_project_id, consumer_project_id, resource_type, resource_id)`. Re-sharing after revocation may either reactivate the existing row or create a new version; release-one recommendation is to reactivate the existing share while preserving audit history. Permission rows are replaced transactionally and old state is audited.
+
+### 19.8 Invitation and transfer outbox
+
+Email sending is an external side effect and cannot be made atomic with PostgreSQL commit. Use an outbox record written in the same transaction as the pending invitation/transfer, then process it asynchronously with idempotent delivery. The current entity list does not yet include a generic outbox table; before implementing email workflows, add a dedicated `project_notification_outbox` table with retry state, attempt count, next-attempt time, provider message ID and safe error metadata. Never put raw invitation/transfer tokens in the outbox; store a protected encrypted payload or use a one-time token handoff design reviewed separately.
+
+---
+
+## 20. Updated implementation status
+
+- Product model: agreed.
+- Logical entities and table-level field definitions: drafted.
+- Initial role-permission matrix: proposed in Section 16.
+- Table-by-table RLS and privilege matrix: drafted in Section 17.
+- Public RPC signatures and contracts: drafted in Section 18.
+- Transaction/concurrency constraints: expanded in Section 19.
+- Executable SQL migrations: **not created**.
+- Supabase schema, tables, policies, grants, functions and triggers: **unchanged**.
+
+The next review must focus on Sections 16–19, especially role defaults, the public-wrapper/internal-schema API boundary, and the invitation/transfer outbox design. Once those are accepted, the next technical step is a migration-level PostgreSQL validation plan and executable SQL draft in the development repository. No migration may be applied to Supabase without separate explicit approval.
+
+
+**Current state:** specification draft expanded to v2.1.0. No database DDL, RLS, grants, functions, triggers, data or migrations have been changed.
