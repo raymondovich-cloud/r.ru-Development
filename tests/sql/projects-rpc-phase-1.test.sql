@@ -161,5 +161,5 @@ begin
   end;
 
   raise notice 'PASS: five Projects RPCs, ownership, permissions, deny precedence, suspension, private defaults, audit immutability, archive/restore and grants';
-end;
+end
 $test$;
