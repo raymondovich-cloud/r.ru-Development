@@ -351,6 +351,10 @@ function installTrashActions(container) {
  if (container.dataset.trashActionsBound === "true") return;
  container.dataset.trashActionsBound = "true";
  container.addEventListener("click", async (event) => {
+  if (event.target.closest("[data-trash-retry]") && lastWorkspaceMount) {
+   mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
+   return;
+  }
   const button = event.target.closest("[data-trash-restore]");
   if (!button || button.disabled || !lastWorkspaceMount) return;
   const kind = button.dataset.trashRestore;
