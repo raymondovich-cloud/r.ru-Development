@@ -1,6 +1,6 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Status:** Core database and initial Team workspace integration implemented in development  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
@@ -24,7 +24,7 @@ This document records the approved Team architecture and implementation state. D
 - Append-only audit for core mutations.
 
 ### Deferred
-Billing implementation, invitations, public user search, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract.
+Billing implementation, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract. Member management and invitations are specified separately; no implementation or database migration has been applied.
 
 ## 2. Existing identity and integration facts
 
@@ -250,6 +250,10 @@ Recommended MVP: duplicate names allowed, no slug, description optional, no bill
 
 **Phase D — Monetization:** shared entitlements, billing, renewals/cancellations, grace periods, admin grants.
 
-## 14. Implementation boundary
+## 14. Next phase specification
+
+The membership and invitation design is documented in [Teams Membership and Invitations Specification](./teams-membership-invitations-specification.md). It defines role hierarchy, invitation lifecycle, RPC contracts, privacy boundaries, audit events, frontend behavior, and acceptance tests. It is design-only; implementation requires separate approval and live schema verification.
+
+## 15. Implementation boundary
 
 Phase A database migrations and the initial Team workspace frontend are implemented in the development environment. The work does not modify authentication internals, existing Projects tables/RLS, or production website code. Team invitations, member management, project association, and billing are not implemented. Any further database changes require a separate reviewed migration.
