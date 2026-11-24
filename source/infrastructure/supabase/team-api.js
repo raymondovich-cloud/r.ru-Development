@@ -1,4 +1,4 @@
-/* Version: 1.3.0 */
+/* Version: 1.4.0 */
 /* Updated: 2026-11-24 */
 
 /**
@@ -26,6 +26,8 @@ export function createTeamApi({ getSession, request }) {
       });
     },
     async archiveTeam(teamId) { return authenticatedRequest("team_archive", { p_team_id: teamId }); },
+    async restoreTeam(teamId) { return authenticatedRequest("team_restore", { p_team_id: teamId }); },
+    async getArchivedTeams() { return authenticatedRequest("team_archived_list"); },
     async getTeams() {
       return authenticatedRequest("team_list");
     },

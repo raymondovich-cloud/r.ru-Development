@@ -1,4 +1,4 @@
-/* Version: 2.8.0 */
+/* Version: 2.9.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -347,6 +347,36 @@ function installPublicProfileActions(container) {
   } finally { shareButton.disabled = false; }
  });
 }
+function installTrashActions(container) {
+ if (container.dataset.trashActionsBound === "true") return;
+ container.dataset.trashActionsBound = "true";
+ container.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-trash-restore]");
+  if (!button || button.disabled || !lastWorkspaceMount) return;
+  const kind = button.dataset.trashRestore;
+  const id = button.dataset.trashId;
+  if (!id || !["project", "team"].includes(kind)) return;
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = "Восстанавливаем…";
+  try {
+   if (kind === "project") await authClient.restoreProject(id);
+   else await authClient.restoreTeam(id);
+   mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
+  } catch (error) {
+   button.disabled = false;
+   button.textContent = original;
+   const feedback = container.querySelector("[data-trash-feedback]");
+   if (feedback) {
+    feedback.textContent = /permission|42501/i.test(String(error?.message || ""))
+     ? "Недостаточно прав для восстановления этого объекта."
+     : error?.message || "Не удалось восстановить объект.";
+    feedback.dataset.state = "error";
+   }
+  }
+ });
+}
+
 function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }
@@ -392,6 +422,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installProjectDeleteActions(container);
  installPublicProfileActions(container);
  installTeamActions(container);
+ installTrashActions(container);
  if (container.dataset.notificationActionsBound !== "true") {
   container.dataset.notificationActionsBound = "true";
   container.addEventListener("click", async (event) => {
@@ -444,6 +475,19 @@ export function mountWorkspace(container, user, section = "projects", profileDat
   }).catch((error) => {
    if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
    renderWorkspaceView(container, user, section, profileData, { status: "error", message: error?.message || "Не удалось загрузить команды." });
+  });
+  return;
+ }
+
+ if (section === "trash") {
+  Promise.all([authClient.getArchivedProjects(), authClient.getArchivedTeams()]).then(([projectPayload, teamPayload]) => {
+   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
+   const projects = Array.isArray(projectPayload?.projects) ? projectPayload.projects : [];
+   const teams = Array.isArray(teamPayload) ? teamPayload : Array.isArray(teamPayload?.teams) ? teamPayload.teams : [];
+   renderWorkspaceView(container, user, section, profileData, { status: "ready", projects, teams });
+  }).catch((error) => {
+   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
+   renderWorkspaceView(container, user, section, profileData, { status: "error", message: error?.message || "Не удалось загрузить корзину." });
   });
   return;
  }

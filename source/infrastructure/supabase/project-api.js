@@ -1,4 +1,4 @@
-/* Version: 1.1.0 */
+/* Version: 1.2.0 */
 /* Updated: 2026-11-16 */
 
 /**
@@ -32,6 +32,14 @@ export function createProjectApi({ getSession, request }) {
 
     async getProjects() {
       return authenticatedRequest("/rest/v1/rpc/project_list", {});
+    },
+
+    async getArchivedProjects() {
+      return authenticatedRequest("/rest/v1/rpc/project_archived_list", {});
+    },
+
+    async restoreProject(projectId) {
+      return authenticatedRequest("/rest/v1/rpc/project_restore", { p_project_id: projectId });
     },
 
     async getProjectMembers(projectId) {
