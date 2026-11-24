@@ -1,4 +1,4 @@
-/* Version: 2.2.0 */
+/* Version: 2.3.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -197,7 +197,7 @@ function installTeamActions(container) {
   }
   const dialog = event.target.closest("[data-team-create-dialog]");
   if (dialog && event.target === dialog) dialog.close();
-  if (event.target.closest("[data-team-retry]") && lastWorkspaceMount) {
+  if ((event.target.closest("[data-team-retry]") || event.target.closest("[data-team-members-retry]")) && lastWorkspaceMount) {
    mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData);
   }
  });
@@ -283,7 +283,16 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  const needsTeams = section === "team" || /^team\/[0-9a-f-]{36}$/i.test(section);
  if (needsTeams) {
   const teamId = section.startsWith("team/") ? decodeURIComponent(section.split("/")[1]) : null;
-  const load = teamId ? authClient.getTeam(teamId).then((team) => ({ status: "ready", team })) : authClient.getTeams().then((payload) => ({ status: "ready", teams: Array.isArray(payload) ? payload : Array.isArray(payload?.teams) ? payload.teams : [] }));
+  const load = teamId ? authClient.getTeam(teamId).then(async (team) => {
+   let membersState = { status: "loading", members: [] };
+   try {
+    const payload = await authClient.getTeamMembers(teamId);
+    membersState = { status: "ready", members: Array.isArray(payload) ? payload : Array.isArray(payload?.members) ? payload.members : [] };
+   } catch (error) {
+    membersState = { status: "error", message: error?.message || "Не удалось загрузить участников." };
+   }
+   return { status: "ready", team, membersState };
+  }) : authClient.getTeams().then((payload) => ({ status: "ready", teams: Array.isArray(payload) ? payload : Array.isArray(payload?.teams) ? payload.teams : [] }));
   load.then((state) => {
    if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
    renderWorkspaceView(container, user, section, profileData, state);

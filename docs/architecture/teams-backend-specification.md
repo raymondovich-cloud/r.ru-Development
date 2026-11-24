@@ -1,7 +1,7 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.4.0  
-**Status:** Core database and initial Team workspace integration implemented in development  
+**Version:** 1.5.0  
+**Status:** Core database and initial Team workspace integration implemented in development; B1 member-list frontend prepared, awaiting reviewed database migration  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Target repository:** raymondovich-cloud/r.ru-Development  
@@ -24,7 +24,7 @@ This document records the approved Team architecture and implementation state. D
 - Append-only audit for core mutations.
 
 ### Deferred
-Billing implementation, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract. Member management and invitations are specified separately; no implementation or database migration has been applied.
+Billing implementation, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract. Invitations and membership administration are specified separately. B1 member-list frontend and SQL draft are prepared; database migration has not been applied.
 
 ## 2. Existing identity and integration facts
 

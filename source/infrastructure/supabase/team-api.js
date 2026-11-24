@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-24 */
 
 /**
@@ -30,6 +30,9 @@ export function createTeamApi({ getSession, request }) {
     },
     async getTeam(teamId) {
       return authenticatedRequest("team_get", { p_team_id: teamId });
+    },
+    async getTeamMembers(teamId) {
+      return authenticatedRequest("team_members_list", { p_team_id: teamId });
     },
   };
 }

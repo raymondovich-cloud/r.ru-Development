@@ -1,7 +1,7 @@
 import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
 
-/* Version: 1.9.0 */
+/* Version: 1.10.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -259,6 +259,13 @@ export const authClient = {
       getSession: () => this.getSession(),
       request,
     }).getTeam(teamId);
+  },
+
+  async getTeamMembers(teamId) {
+    return createTeamApi({
+      getSession: () => this.getSession(),
+      request,
+    }).getTeamMembers(teamId);
   },
 
   async createProject(input) {
