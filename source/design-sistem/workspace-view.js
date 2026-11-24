@@ -1,4 +1,4 @@
-/* Version: 3.40.0 */
+/* Version: 3.41.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -293,7 +293,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<dialog class="notification-center-dialog" data-notification-center aria-labelledby="notification-center-title"><div class="notification-center-panel"><header class="notification-center-heading"><div><h2 id="notification-center-title">Уведомления</h2><p>События и приглашения экосистемы.</p></div><button class="public-profile-dialog-close" type="button" data-notification-center-close aria-label="Закрыть">×</button></header><div class="notification-center-list" data-notification-list><p class="notification-center-muted">Загружаем уведомления…</p></div></div></dialog><div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title">' +
-  ((isProjectDetail || isTeamRoute || isProjects) ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
+  ((isTrash || isProjectDetail || isTeamRoute || isProjects) ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
   ((active === "profile" && !isControlCenter && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
    (isTrash ? "Архивированные проекты и команды, которые можно восстановить." : active === "profile" ? (isControlCenter ? "Управление экосистемой Raymondovich." : isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "" : "Рабочее пространство Raymondovich.") +
    '</p>') +
