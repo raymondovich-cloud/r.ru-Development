@@ -1,7 +1,8 @@
 import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
+import { createNotificationApi } from "./notification-api.js";
 
-/* Version: 1.10.0 */
+/* Version: 1.11.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -261,12 +262,14 @@ export const authClient = {
     }).getTeam(teamId);
   },
 
-  async getTeamMembers(teamId) {
-    return createTeamApi({
-      getSession: () => this.getSession(),
-      request,
-    }).getTeamMembers(teamId);
-  },
+  async getTeamMembers(teamId) { return createTeamApi({ getSession: () => this.getSession(), request }).getTeamMembers(teamId); },
+  async inviteToTeam(input) { return createTeamApi({ getSession: () => this.getSession(), request }).inviteToTeam(input); },
+  async getTeamInvitations(id) { return createTeamApi({ getSession: () => this.getSession(), request }).getTeamInvitations(id); },
+  async cancelTeamInvitation(id) { return createTeamApi({ getSession: () => this.getSession(), request }).cancelTeamInvitation(id); },
+  async acceptTeamInvitation(id) { return createTeamApi({ getSession: () => this.getSession(), request }).acceptTeamInvitation(id); },
+  async declineTeamInvitation(id) { return createTeamApi({ getSession: () => this.getSession(), request }).declineTeamInvitation(id); },
+  async getNotifications() { return createNotificationApi({ getSession: () => this.getSession(), request }).list(); },
+  async markNotificationRead(id) { return createNotificationApi({ getSession: () => this.getSession(), request }).markRead(id); },
 
   async createProject(input) {
     return createProjectApi({

@@ -1,7 +1,7 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.5.0  
-**Status:** Core database and initial Team workspace integration implemented in development; B1 member-list frontend prepared, awaiting reviewed database migration  
+**Version:** 1.6.0  
+**Status:** Core database and Team workspace integration implemented in development; B1 member-list migration applied and frontend confirmed; B2 invitations/notification-center migration applied as 20261124083432  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Target repository:** raymondovich-cloud/r.ru-Development  
@@ -24,7 +24,7 @@ This document records the approved Team architecture and implementation state. D
 - Append-only audit for core mutations.
 
 ### Deferred
-Billing implementation, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract. Invitations and membership administration are specified separately. B1 member-list frontend and SQL draft are prepared; database migration has not been applied.
+Billing implementation, custom roles, Team chat/tasks/files, ownership transfer, deletion, and Project-link operations pending an approved Projects-domain validation contract. Invitations and membership administration are specified separately. B1 member-list migration is applied; B2 invitation/notification-center SQL is drafted but not applied.
 
 ## 2. Existing identity and integration facts
 
@@ -70,9 +70,9 @@ MVP allows duplicate Team names. No slug or global name uniqueness. Reject white
 
 Unique team_id + user_id. Allow-list constraints on role/status. Owner membership must be active. Exactly one owner in MVP. Owner role cannot be changed by ordinary membership RPCs. Actor comes from auth.uid(). Suspended memberships have no Team permissions.
 
-### 3.3 invitations — later phase
+### 3.3 invitations — B2 draft
 
-Not included in initial migration. When implemented: invitations target registered user UUIDs; recipient alone may accept/decline; statuses pending/accepted/declined/cancelled/expired; one pending invitation per Team/user; server-managed expiry. Do not create a public user directory as a side effect.
+Invitations target registered user UUIDs resolved from the verified canonical `private.user_profiles.username`. Recipient alone may accept/decline; statuses are pending/accepted/declined/cancelled/expired; one pending invitation per Team/user; expiry is seven days. Exact username resolution is private and permission-gated. No public user directory is created. See the Membership and Invitations specification and the B2 SQL draft.
 
 ### 3.4 team_projects — separate implementation phase
 
@@ -178,9 +178,9 @@ The migrations create the non-exposed teams schema, core tables, RLS, internal S
 
 Post-migration checks confirmed all four tables exist with RLS enabled, internal functions have fixed empty search_path, public RPC wrappers are SECURITY INVOKER, authenticated can execute approved RPCs but cannot read/write base tables directly, and anon cannot execute the Team creation RPC. Smoke testing of create/list/get was performed in a rolled-back transaction using the trusted owner identity. No test Team was retained.
 
-Frontend integration now includes the Team domain input validator, Supabase RPC adapter, authenticated client methods, Team list, Team details, and create dialog. Invitations and member-management RPCs remain deferred.
+Frontend integration now includes the Team domain input validator, Supabase RPC adapter, authenticated client methods, Team list, Team details, create dialog and read-only member list. The B2 invitation/notification-center migration is applied to development Supabase as `20261124083432`; invitation UI is not yet implemented.
 
-Do not include invitation tables, editable role permissions, billing tables, or Team-project linking in initial migration unless scope is separately approved.
+The invitation and shared notification inbox tables were added by the separately approved B2 migration `20261124083432` to the development database only. Editable role permissions, billing tables, and Team-project linking remain separate phases.
 
 ## 10. Indexes
 
@@ -252,8 +252,8 @@ Recommended MVP: duplicate names allowed, no slug, description optional, no bill
 
 ## 14. Next phase specification
 
-The membership and invitation design is documented in [Teams Membership and Invitations Specification](./teams-membership-invitations-specification.md). It defines role hierarchy, invitation lifecycle, RPC contracts, privacy boundaries, audit events, frontend behavior, and acceptance tests. It is design-only; implementation requires separate approval and live schema verification.
+The membership and invitation design is documented in [Teams Membership and Invitations Specification](./teams-membership-invitations-specification.md). It defines role hierarchy, invitation lifecycle, RPC contracts, privacy boundaries, audit events, frontend behavior, and acceptance tests. It documents the B2 invitation and notification-center design. The B2 SQL draft is prepared after live schema verification, but has not been applied; application requires separate explicit approval.
 
 ## 15. Implementation boundary
 
-Phase A database migrations and the initial Team workspace frontend are implemented in the development environment. The work does not modify authentication internals, existing Projects tables/RLS, or production website code. Team invitations, member management, project association, and billing are not implemented. Any further database changes require a separate reviewed migration.
+Phase A database migrations and the initial Team workspace frontend are implemented in the development environment. The work does not modify authentication internals, existing Projects tables/RLS, or production website code. Team invitations, notification center, member management, project association, and billing are not implemented. The B2 database migration exists only as a reviewed draft. Any further database changes require a separate reviewed migration.

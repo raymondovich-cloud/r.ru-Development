@@ -1,8 +1,8 @@
--- PROPOSED MIGRATION — NOT APPLIED
+-- APPLIED MIGRATION SOURCE — DO NOT REAPPLY
 -- Raymondovich Teams B1: privacy-minimized active member list
 -- Version: 1.0.0
 -- Target: Supabase PostgreSQL 17.11
--- Requires explicit review and approval before application.
+-- Applied to development Supabase project yajybgdorhxebbigwjgi as migration 20261124081519. Historical source; do not reapply.
 
 begin;
 
