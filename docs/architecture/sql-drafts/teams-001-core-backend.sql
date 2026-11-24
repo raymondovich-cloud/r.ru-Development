@@ -217,6 +217,7 @@ end;
 $function$;
 
 revoke all on function teams.team_create_internal(text, text) from public, anon, authenticated;
+grant execute on function teams.team_create_internal(text, text) to authenticated;
 
 create or replace function teams.team_list_internal()
 returns jsonb
@@ -247,6 +248,7 @@ as $function$
 $function$;
 
 revoke all on function teams.team_list_internal() from public, anon, authenticated;
+grant execute on function teams.team_list_internal() to authenticated;
 
 create or replace function teams.team_get_internal(p_team_id uuid)
 returns jsonb
@@ -293,6 +295,7 @@ end;
 $function$;
 
 revoke all on function teams.team_get_internal(uuid) from public, anon, authenticated;
+grant execute on function teams.team_get_internal(uuid) to authenticated;
 
 -- Public API wrappers are invoker functions. Privileged work stays in the
 -- non-exposed teams schema, following the existing Projects RPC pattern.
