@@ -37,7 +37,7 @@ begin
     raise exception using errcode = '22023', message = 'Notification text must contain between 1 and 1000 characters';
   end if;
 
-  if p_audience not in ('all', 'without_telegram') then
+  if p_audience is null or p_audience not in ('all', 'without_telegram') then
     raise exception using errcode = '22023', message = 'Unsupported notification audience';
   end if;
 

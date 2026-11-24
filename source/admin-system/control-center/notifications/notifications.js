@@ -40,7 +40,7 @@ export function installControlCenterNotifications(container) {
       if (feedback) { feedback.textContent = error?.message || "Не удалось отправить уведомление. Проверьте подключение и повторите попытку."; feedback.dataset.state = "error"; }
     } finally {
       form.dataset.submitting = "false";
-      if (button) { button.disabled = false; button.textContent = audience === "without_telegram" ? "Отправить выбранной группе" : "Отправить всем пользователям"; }
+      if (button) { button.disabled = false; button.textContent = "Отправить уведомление"; }
     }
   });
 }
