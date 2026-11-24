@@ -1,3 +1,5 @@
+/* Version: 32.0.0 */
+/* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -397,7 +399,8 @@ async function handleCallback(q: any, role: string | null) {
 }
 async function handleMessage(msg: any, role: string|null) {
   const chat=msg.chat.id, uid=msg.from.id, text=msg.text||"";
-  const command = text.trim().split(/\\s+/)[0].split("@")[0];
+  const [commandToken = "", startPayload = ""] = text.trim().split(/\s+/, 2);
+  const command = commandToken.split("@")[0];
   await rememberUser(msg);
   if (chat === 1969734974 && msg.chat.type === "private") {
     try { await recordOwnerMessage(chat, msg.message_id, msg.date, "incoming"); }
@@ -408,7 +411,6 @@ async function handleMessage(msg: any, role: string|null) {
     return say(chat, "Очистить историю личной переписки с ботом? Будут удалены только доступные для удаления сообщения в твоём чате.", keyboard([[{text:"✅ Подтвердить очистку",callback_data:"admin:clear:confirm"}],[{text:"Отмена",callback_data:"admin:home"}]]));
   }
   if (command === "/start") {
-    const startPayload = text.trim().split(/\\s+/)[1] || "";
     if (startPayload.startsWith("link_")) {
       const token = startPayload.slice(5);
       try {
