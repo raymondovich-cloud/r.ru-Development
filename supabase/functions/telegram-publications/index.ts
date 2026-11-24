@@ -1,4 +1,4 @@
-/* Version: 32.0.0 */
+/* Version: 33.0.0 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -160,7 +160,7 @@ async function buttonsMenu(chat: number, d: any) {
 }
 async function rememberUser(msg: any) {
   const u = msg.from; if (!u?.id || !msg.chat?.id || msg.chat.type !== "private") return;
-  await db("telegram_bot_users?on_conflict=telegram_user_id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ telegram_user_id: u.id, chat_id: msg.chat.id, username: u.username ?? null, first_name: u.first_name ?? null, last_name: u.last_name ?? null, last_interaction_at: new Date().toISOString(), updated_at: new Date().toISOString() }) });
+  await db("telegram_bot_users?on_conflict=chat_id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ telegram_user_id: u.id, chat_id: msg.chat.id, username: u.username ?? null, first_name: u.first_name ?? null, last_name: u.last_name ?? null, last_interaction_at: new Date().toISOString(), updated_at: new Date().toISOString() }) });
 }
 async function startPublication(chat: number, uid: number) {
   await saveSession(uid, "draft", { body: "", media: [], targets: [] });
@@ -401,7 +401,8 @@ async function handleMessage(msg: any, role: string|null) {
   const chat=msg.chat.id, uid=msg.from.id, text=msg.text||"";
   const [commandToken = "", startPayload = ""] = text.trim().split(/\s+/, 2);
   const command = commandToken.split("@")[0];
-  await rememberUser(msg);
+  try { await rememberUser(msg); }
+  catch (error) { console.warn("Could not refresh Telegram user record; continuing update processing", error); }
   if (chat === 1969734974 && msg.chat.type === "private") {
     try { await recordOwnerMessage(chat, msg.message_id, msg.date, "incoming"); }
     catch (e) { console.error("Could not record owner incoming message", e); }
