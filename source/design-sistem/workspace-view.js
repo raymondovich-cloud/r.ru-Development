@@ -1,4 +1,4 @@
-/* Version: 3.43.0 */
+/* Version: 3.44.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -264,7 +264,7 @@ function teamWorkspaceMarkup(state, activeSection) {
  return '<div class="team-workspace"><div class="team-workspace-intro"><div class="projects-toolbar-heading"><span class="projects-eyebrow">КОМАНДНОЕ ПРОСТРАНСТВО</span><h2>Команды в экосистеме</h2><p>Отдельные рабочие пространства для людей и совместной деятельности.</p></div><button class="project-primary-button projects-create-button" type="button" data-team-create-open aria-label="Создать команду" title="Создать команду"><span aria-hidden="true">+</span></button></div><div class="team-list">' + rows + '</div><dialog class="team-create-dialog" data-team-create-dialog><div class="team-create-dialog-panel"><div class="settings-card-heading"><div><h2>Новая команда</h2><p>Владелец экосистемы создаёт команды бесплатно. Для остальных пользователей потребуется активный доступ по подписке.</p></div><button class="public-profile-dialog-close" type="button" data-team-create-close aria-label="Закрыть">×</button></div><form class="settings-form" data-team-create-form><label class="settings-field"><span>Название команды</span><input name="name" type="text" minlength="2" maxlength="80" autocomplete="off" required></label><label class="settings-field"><span>Описание <small>Необязательно</small></span><textarea name="description" rows="3" maxlength="500"></textarea></label><p class="settings-form-feedback" data-team-create-feedback role="status" aria-live="polite"></p><div class="team-create-actions"><button class="project-secondary-button" type="button" data-team-create-close>Отмена</button><button class="settings-primary-button" type="submit">Создать команду</button></div></form></div></dialog></div>';
 }
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
- const profileSubroutes = new Set(["trash", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
+ const profileSubroutes = new Set(["trash", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography", "profile/settings/telegram"]);
  const isProjectCreate = activeSection === "projects/create";
  const isTrash = activeSection === "trash";
  const isTeamDetail = /^team\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(activeSection);
@@ -277,7 +277,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
  const isSettings = activeSection.startsWith("profile/settings");
- const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/public-info": "Публичная информация", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
+ const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/public-info": "Публичная информация", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография", "profile/settings/telegram": "Telegram" };
  const title = isTrash ? "Корзина" : isControlCenter ? "Центр управления" : isTeamDetail ? (projectState?.team?.name || "Команда") : isProjectSettings ? "Настройки проекта" : isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
