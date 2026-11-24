@@ -1,4 +1,4 @@
-/* Version: 3.37.0 */
+/* Version: 3.38.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },

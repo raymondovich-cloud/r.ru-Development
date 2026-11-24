@@ -853,6 +853,9 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 
 .team-panel-topline { align-items: center; }
 
+/* Version: 3.16.0 */
+/* Updated: 2026-11-24 */
+
 /* Unified workspace trash */
 .trash-page { display: grid; gap: 24px; }
 .trash-category { display: grid; gap: 12px; }
@@ -884,3 +887,18 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
  .trash-item-actions > button { width: 100%; }
  .trash-delete-dialog .project-delete-dialog-panel { padding: 18px; }
 }
+
+
+/* Trash category tabs */
+.trash-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; padding: 5px; border: 1px solid var(--color-surface-border); border-radius: 16px; background: var(--color-surface-muted, var(--color-surface)); }
+.trash-tab { display: flex; min-width: 0; min-height: 42px; align-items: center; justify-content: center; gap: 7px; padding: 8px 10px; border: 1px solid transparent; border-radius: 11px; color: var(--color-text-muted); font-size: 13px; font-weight: 620; text-decoration: none; transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.trash-tab.is-active { border-color: var(--color-surface-border); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-surface); }
+.trash-tab-count { display: inline-grid; min-width: 20px; height: 20px; place-items: center; padding: 0 5px; border-radius: 999px; background: var(--color-surface-border); color: var(--color-text-muted); font-size: 10px; }
+.trash-tab.is-active .trash-tab-count { background: var(--color-accent-soft, var(--color-surface-border)); color: var(--color-text); }
+.trash-tab-panel { min-width: 0; }
+.trash-category-empty { min-height: 210px; align-content: center; }
+.trash-tab-placeholder { display: grid; min-height: 230px; justify-items: center; align-content: center; padding: 24px; border: 1px dashed var(--color-surface-border); border-radius: 20px; text-align: center; }
+.trash-tab-placeholder .projects-empty-symbol { margin-bottom: 12px; }
+.trash-tab-placeholder h3 { margin: 0; font-size: 16px; }
+.trash-tab-placeholder p { max-width: 420px; margin: 8px 0 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
+@media (max-width: 420px) { .trash-tab { gap: 5px; padding-inline: 5px; font-size: 12px; } }
