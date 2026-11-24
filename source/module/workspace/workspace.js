@@ -1,4 +1,4 @@
-/* Version: 2.3.0 */
+/* Version: 2.4.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -185,6 +185,13 @@ function installTeamActions(container) {
  if (container.dataset.teamActionsBound === "true") return;
  container.dataset.teamActionsBound = "true";
  container.addEventListener("click", (event) => {
+  const cancelInvite = event.target.closest("[data-team-invitation-cancel]");
+  if (cancelInvite) {
+   cancelInvite.disabled = true;
+   try { await authClient.cancelTeamInvitation(cancelInvite.dataset.teamInvitationCancel); if (lastWorkspaceMount) mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData); }
+   catch (error) { cancelInvite.disabled = false; const feedback = container.querySelector("[data-team-invite-feedback]"); if (feedback) { feedback.textContent = error?.message || "Не удалось отменить приглашение."; feedback.dataset.state = "error"; } }
+   return;
+  }
   if (event.target.closest("[data-team-create-open]")) {
    const dialog = container.querySelector("[data-team-create-dialog]");
    if (dialog && !dialog.open) dialog.showModal();
@@ -197,11 +204,32 @@ function installTeamActions(container) {
   }
   const dialog = event.target.closest("[data-team-create-dialog]");
   if (dialog && event.target === dialog) dialog.close();
-  if ((event.target.closest("[data-team-retry]") || event.target.closest("[data-team-members-retry]")) && lastWorkspaceMount) {
+  if ((event.target.closest("[data-team-retry]") || event.target.closest("[data-team-members-retry]") || event.target.closest("[data-team-invitations-retry]")) && lastWorkspaceMount) {
    mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData);
   }
  });
  container.addEventListener("submit", async (event) => {
+  const inviteForm = event.target.closest("[data-team-invite-form]");
+  if (inviteForm && inviteForm.dataset.submitting !== "true") {
+   event.preventDefault();
+   if (!inviteForm.reportValidity()) return;
+   const values = Object.fromEntries(new FormData(inviteForm).entries());
+   const feedback = inviteForm.querySelector("[data-team-invite-feedback]");
+   const button = inviteForm.querySelector('button[type="submit"]');
+   inviteForm.dataset.submitting = "true";
+   if (button) { button.disabled = true; button.textContent = "Отправляем…"; }
+   if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+   try {
+    await authClient.inviteToTeam({ teamId: decodeURIComponent(currentRoute().split("/")[1]), username: String(values.username || "").trim().toLowerCase(), role: values.role, message: String(values.message || "").trim() });
+    mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData);
+   } catch (error) {
+    const msg = String(error?.message || "");
+    if (feedback) { feedback.textContent = /not found|cannot be invited/i.test(msg) ? "Пользователь с таким логином не найден или не может быть приглашён." : /already a Team member/i.test(msg) ? "Этот пользователь уже состоит в команде." : /permission|42501/i.test(msg) ? "Недостаточно прав для выбранной роли." : /limit reached|Wait before resending/i.test(msg) ? "Лимит приглашений достигнут. Попробуйте позже." : msg || "Не удалось отправить приглашение."; feedback.dataset.state = "error"; }
+    inviteForm.dataset.submitting = "false";
+    if (button) { button.disabled = false; button.textContent = "Отправить приглашение"; }
+   }
+   return;
+  }
   const form = event.target.closest("[data-team-create-form]");
   if (!form || form.dataset.submitting === "true") return;
   event.preventDefault();
@@ -262,6 +290,29 @@ function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }
 
+function loadNotifications(container) {
+ const list = container.querySelector("[data-notification-list]");
+ if (!list) return Promise.resolve();
+ list.innerHTML = '<p class="notification-center-muted">Загружаем уведомления…</p>';
+ return authClient.getNotifications().then((result) => {
+  const items = Array.isArray(result?.items) ? result.items : [];
+  const unread = Number(result?.unread_count || 0);
+  const bell = document.querySelector("[data-workspace-notifications]");
+  if (bell) {
+   bell.dataset.unreadCount = String(unread);
+   bell.setAttribute("aria-label", unread ? "Уведомления, непрочитанных: " + unread : "Уведомления");
+   bell.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></svg>' + (unread ? '<span class="notification-unread-badge">' + (unread > 99 ? "99+" : unread) + '</span>' : '');
+  }
+  if (!items.length) { list.innerHTML = '<div class="notification-center-empty"><strong>Пока нет уведомлений</strong><p>Здесь появятся приглашения и другие события экосистемы.</p></div>'; return; }
+  list.innerHTML = items.map((item) => {
+   const p = item.payload || {}, activeInvite = item.type === "team.invitation" && !item.resolved_at;
+   const expiry = p.expires_at ? new Intl.DateTimeFormat("ru-RU", {day:"numeric",month:"long",year:"numeric"}).format(new Date(p.expires_at)) : "";
+   const role = ({admin:"Администратор",manager:"Менеджер",member:"Участник"})[p.requested_role] || "Участник";
+   return '<article class="notification-card' + (!item.read_at ? ' is-unread' : '') + '"><div class="notification-card-copy"><div class="notification-card-topline"><strong>' + escapeHtml(item.title || "Уведомление") + '</strong><time>' + escapeHtml(new Intl.DateTimeFormat("ru-RU", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(item.created_at))) + '</time></div><p>' + escapeHtml(item.body || "") + '</p>' + (p.message ? '<blockquote>' + escapeHtml(p.message) + '</blockquote>' : '') + (activeInvite ? '<small>Роль: ' + escapeHtml(role) + (expiry ? ' · действует до ' + escapeHtml(expiry) : '') + '</small>' : '') + (item.resolved_at ? '<small>Приглашение обработано</small>' : '') + '</div><div class="notification-card-actions">' + (activeInvite ? '<button class="settings-primary-button" type="button" data-notification-action="accept" data-notification-id="' + escapeHtml(p.invitation_id) + '">Принять</button><button class="settings-secondary-button" type="button" data-notification-action="decline" data-notification-id="' + escapeHtml(p.invitation_id) + '">Отклонить</button>' : (!item.read_at ? '<button class="team-invitation-cancel" type="button" data-notification-mark-read="' + escapeHtml(item.id) + '">Отметить прочитанным</button>' : '')) + '</div></article>';
+  }).join("") + '<p class="settings-form-feedback" data-notification-feedback role="status" aria-live="polite"></p>';
+ }).catch((error) => { list.innerHTML = '<div class="notification-center-empty"><strong>Не удалось загрузить уведомления</strong><p>' + escapeHtml(error?.message || "Проверьте подключение и попробуйте ещё раз.") + '</p><button class="project-secondary-button" type="button" data-notification-retry>Повторить</button></div>'; });
+}
+
 export function mountWorkspace(container, user, section = "projects", profileData = null) {
  const sequence = ++workspaceMountSequence;
  lastWorkspaceMount = { user, profileData };
@@ -278,6 +329,31 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installProjectDeleteActions(container);
  installPublicProfileActions(container);
  installTeamActions(container);
+ if (container.dataset.notificationActionsBound !== "true") {
+  container.dataset.notificationActionsBound = "true";
+  container.addEventListener("click", async (event) => {
+   if (event.target.closest("[data-notification-retry]")) { loadNotifications(container); return; }
+   const dialog = event.target.closest("[data-notification-center]");
+   if (dialog && event.target === dialog) { dialog.close(); return; }
+   if (event.target.closest("[data-notification-center-close]")) { if (dialog?.open) dialog.close(); return; }
+   const action = event.target.closest("[data-notification-action]");
+   if (action) {
+    action.disabled = true;
+    try {
+     if (action.dataset.notificationAction === "accept") await authClient.acceptTeamInvitation(action.dataset.notificationId);
+     else await authClient.declineTeamInvitation(action.dataset.notificationId);
+     await loadNotifications(container);
+     if (lastWorkspaceMount && /^team(?:\/|$)/.test(currentRoute())) mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData);
+    } catch (error) { action.disabled = false; const feedback = container.querySelector("[data-notification-feedback]"); if (feedback) { feedback.textContent = error?.message || "Не удалось обработать приглашение."; feedback.dataset.state = "error"; } }
+    return;
+   }
+   const mark = event.target.closest("[data-notification-mark-read]");
+   if (mark) { try { await authClient.markNotificationRead(mark.dataset.notificationMarkRead); await loadNotifications(container); } catch (error) { const feedback = container.querySelector("[data-notification-feedback]"); if (feedback) feedback.textContent = error?.message || "Не удалось отметить уведомление."; } }
+  });
+ }
+ const bell = document.querySelector("[data-workspace-notifications]");
+ if (bell && bell.dataset.notificationBound !== "true") { bell.dataset.notificationBound = "true"; bell.addEventListener("click", () => { const panel = container.querySelector("[data-notification-center]"); if (panel && !panel.open) panel.showModal(); loadNotifications(container); }); }
+ loadNotifications(container);
  syncProfileIdentityCard();
 
  const needsTeams = section === "team" || /^team\/[0-9a-f-]{36}$/i.test(section);
@@ -285,13 +361,15 @@ export function mountWorkspace(container, user, section = "projects", profileDat
   const teamId = section.startsWith("team/") ? decodeURIComponent(section.split("/")[1]) : null;
   const load = teamId ? authClient.getTeam(teamId).then(async (team) => {
    let membersState = { status: "loading", members: [] };
-   try {
-    const payload = await authClient.getTeamMembers(teamId);
-    membersState = { status: "ready", members: Array.isArray(payload) ? payload : Array.isArray(payload?.members) ? payload.members : [] };
-   } catch (error) {
-    membersState = { status: "error", message: error?.message || "Не удалось загрузить участников." };
+   let invitationsState = { status: "hidden", invitations: [] };
+   try { const payload = await authClient.getTeamMembers(teamId); membersState = { status: "ready", members: Array.isArray(payload) ? payload : Array.isArray(payload?.members) ? payload.members : [] }; }
+   catch (error) { membersState = { status: "error", message: error?.message || "Не удалось загрузить участников." }; }
+   if (["owner", "admin", "manager"].includes(team.role)) {
+    invitationsState = { status: "loading", invitations: [] };
+    try { const payload = await authClient.getTeamInvitations(teamId); invitationsState = { status: "ready", invitations: Array.isArray(payload) ? payload : Array.isArray(payload?.invitations) ? payload.invitations : [] }; }
+    catch (error) { invitationsState = { status: "error", message: error?.message || "Не удалось загрузить приглашения." }; }
    }
-   return { status: "ready", team, membersState };
+   return { status: "ready", team, membersState, invitationsState };
   }) : authClient.getTeams().then((payload) => ({ status: "ready", teams: Array.isArray(payload) ? payload : Array.isArray(payload?.teams) ? payload.teams : [] }));
   load.then((state) => {
    if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
