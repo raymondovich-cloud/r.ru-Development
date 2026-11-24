@@ -1,4 +1,4 @@
-/* Version: 2.7.0 */
+/* Version: 2.8.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -191,6 +191,20 @@ function installTeamActions(container) {
  if (container.dataset.teamActionsBound === "true") return;
  container.dataset.teamActionsBound = "true";
  container.addEventListener("click", async (event) => {
+  const archiveOpen = event.target.closest("[data-team-archive-open]");
+  if (archiveOpen) {
+   const dialog = container.querySelector("[data-team-archive-dialog]");
+   if (dialog && !dialog.open) dialog.showModal();
+   return;
+  }
+  const archiveClose = event.target.closest("[data-team-archive-close]");
+  if (archiveClose) {
+   const dialog = archiveClose.closest("[data-team-archive-dialog]");
+   if (dialog?.open) dialog.close();
+   return;
+  }
+  const archiveDialog = event.target.closest("[data-team-archive-dialog]");
+  if (archiveDialog && event.target === archiveDialog) { archiveDialog.close(); return; }
   const cancelInvite = event.target.closest("[data-team-invitation-cancel]");
   if (cancelInvite) {
    cancelInvite.disabled = true;
@@ -227,6 +241,35 @@ function installTeamActions(container) {
   }
  });
  container.addEventListener("submit", async (event) => {
+  const archiveForm = event.target.closest("[data-team-archive-form]");
+  if (archiveForm && archiveForm.dataset.submitting !== "true") {
+   event.preventDefault();
+   const routeParts = currentRoute().split("/");
+   const teamId = routeParts[1] ? decodeURIComponent(routeParts[1]) : "";
+   if (!teamId) return;
+   const feedback = archiveForm.querySelector("[data-team-archive-feedback]");
+   const button = archiveForm.querySelector('button[type="submit"]');
+   archiveForm.dataset.submitting = "true";
+   if (button) { button.disabled = true; button.textContent = "Архивируем…"; }
+   if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+   try {
+    await authClient.archiveTeam(teamId);
+    const dialog = archiveForm.closest("[data-team-archive-dialog]");
+    if (dialog?.open) dialog.close();
+    window.location.hash = "#team";
+   } catch (error) {
+    const message = String(error?.message || "");
+    if (feedback) {
+     feedback.textContent = /Only the Team owner|42501/i.test(message)
+      ? "Архивировать команду может только её владелец."
+      : message || "Не удалось архивировать команду. Попробуйте ещё раз.";
+     feedback.dataset.state = "error";
+    }
+    archiveForm.dataset.submitting = "false";
+    if (button) { button.disabled = false; button.textContent = "Подтвердить архивирование"; }
+   }
+   return;
+  }
   const inviteForm = event.target.closest("[data-team-invite-form]");
   if (inviteForm && inviteForm.dataset.submitting !== "true") {
    event.preventDefault();
@@ -376,18 +419,21 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  loadNotifications(container);
  syncProfileIdentityCard();
 
- const needsTeams = section === "team" || /^team\/[0-9a-f-]{36}$/i.test(section);
+ const needsTeams = section === "team" || /^team\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(section);
  if (needsTeams) {
   const teamId = section.startsWith("team/") ? decodeURIComponent(section.split("/")[1]) : null;
   const load = teamId ? authClient.getTeam(teamId).then(async (team) => {
-   let membersState = { status: "loading", members: [] };
+   let membersState = { status: "hidden", members: [] };
    let invitationsState = { status: "hidden", invitations: [] };
-   try { const payload = await authClient.getTeamMembers(teamId); membersState = { status: "ready", members: Array.isArray(payload) ? payload : Array.isArray(payload?.members) ? payload.members : [] }; }
-   catch (error) { membersState = { status: "error", message: error?.message || "Не удалось загрузить участников." }; }
-   if (["owner", "admin", "manager"].includes(team.role)) {
-    invitationsState = { status: "loading", invitations: [] };
-    try { const payload = await authClient.getTeamInvitations(teamId); invitationsState = { status: "ready", invitations: Array.isArray(payload) ? payload : Array.isArray(payload?.invitations) ? payload.invitations : [] }; }
-    catch (error) { invitationsState = { status: "error", message: error?.message || "Не удалось загрузить приглашения." }; }
+   if (section === "team/" + teamId) {
+    membersState = { status: "loading", members: [] };
+    try { const payload = await authClient.getTeamMembers(teamId); membersState = { status: "ready", members: Array.isArray(payload) ? payload : Array.isArray(payload?.members) ? payload.members : [] }; }
+    catch (error) { membersState = { status: "error", message: error?.message || "Не удалось загрузить участников." }; }
+    if (["owner", "admin", "manager"].includes(team.role)) {
+     invitationsState = { status: "loading", invitations: [] };
+     try { const payload = await authClient.getTeamInvitations(teamId); invitationsState = { status: "ready", invitations: Array.isArray(payload) ? payload : Array.isArray(payload?.invitations) ? payload.invitations : [] }; }
+     catch (error) { invitationsState = { status: "error", message: error?.message || "Не удалось загрузить приглашения." }; }
+    }
    }
    return { status: "ready", team, membersState, invitationsState };
   }) : authClient.getTeams().then((payload) => ({ status: "ready", teams: Array.isArray(payload) ? payload : Array.isArray(payload?.teams) ? payload.teams : [] }));
