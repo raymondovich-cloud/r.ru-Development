@@ -172,7 +172,7 @@ Audit fields: event UUID, Team UUID, actor UUID (nullable only for trusted syste
 Applied to Supabase project yajybgdorhxebbigwjgi:
 
 - Migration 20261124075310 — teams_001_core_backend.
-- Migration 20261124075311 — teams_002_entitlement_created_by_index.
+- Migration 20261124075324 — teams_002_entitlement_created_by_index.
 
 The migrations create the non-exposed teams schema, core tables, RLS, internal SECURITY DEFINER functions, public SECURITY INVOKER RPC wrappers, least-privilege grants, and the supporting indexes. Invitations, Project links, billing, and member-management RPCs remain deferred.
 
