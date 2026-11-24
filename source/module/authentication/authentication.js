@@ -19,7 +19,7 @@ const workspaceActions = document.querySelector("[data-workspace-actions]");
 
 if (root && pageMain) {
   const validModes = new Set(["login", "register", "forgot-password", "reset-password"]);
-  const workspaceRoutes = new Set(["projects/create", "projects", "control-center", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography", "profile/settings/telegram", "trash"]);
+  const workspaceRoutes = new Set(["projects/create", "projects", "control-center", "control-center/notifications", "ideas", "team", "tools", "profile", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography", "profile/settings/telegram", "trash"]);
   const isProjectDetailRoute = (route) => /^projects\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(route);
   const isTeamDetailRoute = (route) => /^team\/[0-9a-f-]{36}(?:\/(?:information|settings))?$/i.test(route);
   let currentMode = "login";

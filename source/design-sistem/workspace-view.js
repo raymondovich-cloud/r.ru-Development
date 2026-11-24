@@ -1,4 +1,4 @@
-/* Version: 3.45.0 */
+/* Version: 3.46.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -262,6 +262,15 @@ function teamWorkspaceMarkup(state, activeSection) {
  const rows = teams.length ? teams.map((team) => '<a class="team-list-card" href="#team/' + encodeURIComponent(team.id) + '"><span class="team-list-avatar" aria-hidden="true">' + escapeHtml(initials(team.name, "TM")) + '</span><span class="team-list-copy"><strong>' + escapeHtml(team.name) + '</strong><small>' + escapeHtml(({owner:"Владелец",admin:"Администратор",manager:"Менеджер",member:"Участник"})[team.role] || "Участник") + (team.description ? " · " + escapeHtml(team.description) : "") + '</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>').join("") : '<div class="team-state-card"><h2>Пока нет команд</h2><p>Создайте первую команду для совместной работы. Команды существуют независимо от проектов.</p></div>';
  return '<div class="team-workspace"><div class="team-workspace-intro"><div class="projects-toolbar-heading"><span class="projects-eyebrow">КОМАНДНОЕ ПРОСТРАНСТВО</span><h2>Команды в экосистеме</h2><p>Отдельные рабочие пространства для людей и совместной деятельности.</p></div><button class="project-primary-button projects-create-button" type="button" data-team-create-open aria-label="Создать команду" title="Создать команду"><span aria-hidden="true">+</span></button></div><div class="team-list">' + rows + '</div><dialog class="team-create-dialog" data-team-create-dialog><div class="team-create-dialog-panel"><div class="settings-card-heading"><div><h2>Новая команда</h2><p>Владелец экосистемы создаёт команды бесплатно. Для остальных пользователей потребуется активный доступ по подписке.</p></div><button class="public-profile-dialog-close" type="button" data-team-create-close aria-label="Закрыть">×</button></div><form class="settings-form" data-team-create-form><label class="settings-field"><span>Название команды</span><input name="name" type="text" minlength="2" maxlength="80" autocomplete="off" required></label><label class="settings-field"><span>Описание <small>Необязательно</small></span><textarea name="description" rows="3" maxlength="500"></textarea></label><p class="settings-form-feedback" data-team-create-feedback role="status" aria-live="polite"></p><div class="team-create-actions"><button class="project-secondary-button" type="button" data-team-create-close>Отмена</button><button class="settings-primary-button" type="submit">Создать команду</button></div></form></div></dialog></div>';
 }
+function controlCenterMarkup(user, activeSection) {
+ const isOwner = user?.app_metadata?.raymondovich_role === "owner";
+ if (!isOwner) return '<section class="workspace-empty-state"><div class="workspace-empty-inner"><h2>Доступ ограничен</h2><p>Центр управления доступен только владельцу экосистемы.</p></div></section>';
+ if (activeSection === "control-center/notifications") {
+  return '<section class="control-center-section"><a class="control-center-back" href="#control-center">← Центр управления</a><article class="control-center-card control-center-notification-card"><div class="control-center-card-heading"><span class="control-center-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></svg></span><div><h2>Для всех пользователей</h2><p>Сообщение получат все зарегистрированные аккаунты экосистемы.</p></div></div><form class="admin-broadcast-form" data-admin-broadcast-form><label class="settings-field"><span>Текст уведомления</span><textarea name="body" rows="7" maxlength="1000" minlength="1" placeholder="Введите сообщение для пользователей…" required></textarea><small>До 1 000 символов. Сообщение появится в центре уведомлений.</small></label><p class="settings-form-feedback" data-admin-broadcast-feedback role="status" aria-live="polite"></p><button class="settings-primary-button" type="submit">Отправить всем пользователям</button></form><p class="control-center-delivery-note">Если Telegram подключён и пользователь не отключил сообщения бота, уведомление также придёт в Telegram.</p></article></section>';
+ }
+ return '<section class="control-center-grid"><a class="control-center-card control-center-link-card" href="#control-center/notifications"><span class="control-center-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></svg></span><span class="control-center-card-copy"><strong>Уведомления</strong><small>Сообщения всем зарегистрированным пользователям.</small></span><span class="profile-chevron" aria-hidden="true">›</span></a></section>';
+}
+
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["trash", "profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography", "profile/settings/telegram"]);
  const isProjectCreate = activeSection === "projects/create";
@@ -271,13 +280,14 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
  const isProjectInformation = /^projects\/[0-9a-f-]{36}\/information$/i.test(activeSection);
  const isProjectSettings = /^projects\/[0-9a-f-]{36}\/settings$/i.test(activeSection);
  const isProjectDetail = activeSection.startsWith("projects/") && !isProjectCreate;
- const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate || isTeamDetail ? (isProjectCreate ? "projects" : isTeamDetail ? "team" : activeSection) : "projects";
- const isControlCenter = activeSection === "control-center";
+ const active = profileSubroutes.has(activeSection) || activeSection.startsWith("control-center") ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate || isTeamDetail ? (isProjectCreate ? "projects" : isTeamDetail ? "team" : activeSection) : "projects";
+ const isControlCenter = activeSection === "control-center" || activeSection.startsWith("control-center/");
+  const isControlCenterNotifications = activeSection === "control-center/notifications";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
  const isSettings = activeSection.startsWith("profile/settings");
  const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/public-info": "Публичная информация", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография", "profile/settings/telegram": "Telegram" };
- const title = isTrash ? "Корзина" : isControlCenter ? "Центр управления" : isTeamDetail ? (projectState?.team?.name || "Команда") : isProjectSettings ? "Настройки проекта" : isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
+ const title = isTrash ? "Корзина" : isControlCenterNotifications ? "Уведомления" : isControlCenter ? "Центр управления" : isTeamDetail ? (projectState?.team?.name || "Команда") : isProjectSettings ? "Настройки проекта" : isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
   ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 15h3l2-4 2 3h3"></path></svg></div><h2>Действующие проекты появятся здесь</h2><p>В этом разделе будут только запущенные проекты, которые уже приносят доход. Проекты в разработке будут доступны через общий раздел «Проекты».</p></div></div>'
@@ -288,7 +298,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
  const content = isTrash
   ? trashWorkspaceMarkup(projectState)
   : isControlCenter
-  ? (user?.app_metadata?.raymondovich_role === "owner" ? '<section class="workspace-empty-state"><div class="workspace-empty-inner"><h2>Центр управления</h2><p>Рабочие инструменты управления экосистемой будут размещены здесь.</p></div></section>' : '<section class="workspace-empty-state"><div class="workspace-empty-inner"><h2>Доступ ограничен</h2><p>Центр управления доступен только владельцу экосистемы.</p></div></section>')
+  ? controlCenterMarkup(user, activeSection)
   : isTeamRoute
   ? teamWorkspaceMarkup(projectState, activeSection)
   : isProjectDetail
@@ -308,7 +318,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
   '<section class="workspace-content" aria-labelledby="workspace-title">' +
   ((isTrash || isProjectDetail || isTeamRoute || isProjects) ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
   ((active === "profile" && !isControlCenter && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
-   (isTrash ? "Архивированные проекты и команды, которые можно восстановить." : active === "profile" ? (isControlCenter ? "Управление экосистемой Raymondovich." : isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "" : "Рабочее пространство Raymondovich.") +
+   (isTrash ? "Архивированные проекты и команды, которые можно восстановить." : active === "profile" ? (isControlCenterNotifications ? "Подготовка и отправка системных сообщений." : isControlCenter ? "Управление экосистемой Raymondovich." : isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "" : "Рабочее пространство Raymondovich.") +
    '</p>') +
   '</div></header>') + content + '</section></div>' + workspaceNavigationMarkup(active);
 }

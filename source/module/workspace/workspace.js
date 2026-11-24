@@ -1,8 +1,9 @@
-/* Version: 2.18.1 */
+/* Version: 2.19.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
 import { normalizeTeamInput } from "../../domain/team/team.js";
+import { installControlCenterNotifications } from "../../admin-system/control-center/notifications/notifications.js";
 
 let profileScrollFrame = 0;
 let workspaceMountSequence = 0;
@@ -579,6 +580,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installPublicProfileActions(container);
  installTeamActions(container);
  installTrashActions(container);
+  installControlCenterNotifications(container);
  if (container.dataset.notificationActionsBound !== "true") {
   container.dataset.notificationActionsBound = "true";
   container.addEventListener("click", async (event) => {
