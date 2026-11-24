@@ -1,4 +1,4 @@
-/* Version: 2.17.0 */
+/* Version: 2.18.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -504,15 +504,29 @@ function installTrashCountdown(container) {
 
 async function loadTelegramLinkStatus(container) {
  const target = container.querySelector("[data-telegram-link-status]");
- if (!target) return;
- target.innerHTML = "<p>Проверяем подключение…</p>";
+ const button = container.querySelector(".profile-telegram-icon-button");
+ if (!target || !button) return;
+ target.textContent = "Проверяем подключение Telegram…";
+ button.disabled = true;
  try {
   const status = await authClient.getTelegramLinkStatus();
-  target.innerHTML = status?.linked
-   ? '<p>Telegram подключён' + (status.username ? ' · @' + escapeHtml(status.username) : '') + '.</p><button class="settings-secondary-button" type="button" data-telegram-link-unlink>Отключить Telegram</button>'
-   : '<p>Telegram не подключён. После подключения бот сможет отправлять личные уведомления.</p><button class="settings-primary-button" type="button" data-telegram-link-start>Подключить Telegram</button>';
+  if (status?.linked) {
+   button.removeAttribute("data-telegram-link-start");
+   button.setAttribute("data-telegram-link-unlink", "");
+   button.setAttribute("aria-label", "Отключить Telegram");
+   button.title = "Telegram подключён" + (status.username ? " · @" + status.username : "") + ". Нажмите, чтобы отключить.";
+   target.textContent = "Telegram подключён" + (status.username ? " · @" + status.username : "") + ".";
+  } else {
+   button.removeAttribute("data-telegram-link-unlink");
+   button.setAttribute("data-telegram-link-start", "");
+   button.setAttribute("aria-label", "Подключить Telegram");
+   button.title = "Подключить Telegram";
+   target.textContent = "Telegram не подключён. После подключения бот сможет отправлять личные уведомления.";
+  }
+  button.disabled = false;
  } catch (error) {
-  target.innerHTML = '<p>Не удалось проверить подключение: ' + escapeHtml(error?.message || "ошибка запроса") + '</p><button class="settings-secondary-button" type="button" data-telegram-link-retry>Повторить</button>';
+  target.innerHTML = 'Не удалось проверить подключение: ' + escapeHtml(error?.message || "ошибка запроса") + ' <button class="profile-telegram-retry" type="button" data-telegram-link-retry>Повторить</button>';
+  button.disabled = false;
  }
 }
 
@@ -595,6 +609,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
    }
    if (event.target.closest("[data-telegram-link-unlink]")) {
     const button = event.target.closest("[data-telegram-link-unlink]");
+    if (!window.confirm("Отключить Telegram от аккаунта Raymondovich?")) return;
     button.disabled = true;
     try {
      await authClient.unlinkTelegram();
@@ -606,7 +621,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
     }
     return;
    }
-   if (event.target.closest("[data-notification-retry]")) { if (section === "profile/settings/telegram") loadTelegramLinkStatus(container);
+   if (event.target.closest("[data-notification-retry]")) { if (currentRoute() === "profile") loadTelegramLinkStatus(container);
  loadNotifications(container); return; }
    const dialog = event.target.closest("[data-notification-center]");
    if (dialog && event.target === dialog) { dialog.close(); return; }
@@ -631,11 +646,11 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  loadNotifications(container);
  syncProfileIdentityCard();
 
- if (section === "profile/settings/telegram") {
+ if (section === "profile") {
   if (container.dataset.telegramRefreshBound !== "true") {
    container.dataset.telegramRefreshBound = "true";
    const refreshTelegramStatus = () => {
-    if (document.visibilityState === "visible" && currentRoute() === "profile/settings/telegram" && container.isConnected) {
+    if (document.visibilityState === "visible" && currentRoute() === "profile" && container.isConnected) {
      loadTelegramLinkStatus(container);
     }
    };

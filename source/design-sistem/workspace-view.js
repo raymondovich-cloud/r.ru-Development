@@ -1,4 +1,4 @@
-/* Version: 3.44.0 */
+/* Version: 3.45.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -44,7 +44,7 @@ function profileMarkup(user, profileData) {
   '<section class="profile-identity-card" aria-label="Карточка пользователя"><div class="profile-avatar" aria-hidden="true">' + escapeHtml(avatar) + '</div><div class="profile-identity-copy"><h2>' + escapeHtml(fullName) + '</h2>' +
   (username ? '<p class="profile-username">@' + escapeHtml(username) + '</p>' : '<p class="profile-username">Логин не указан</p>') +
   '<span class="profile-status"><span class="profile-status-dot"></span>' + escapeHtml(accountStatus) + '</span></div>' +
-  (profile.public_profile_enabled === true ? '<button class="profile-share-icon-button" type="button" data-public-profile-open aria-label="Поделиться публичным профилем" title="Поделиться профилем"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19V12a7 7 0 0 1 7-7h6m-6-4 6 4-6 4"></path></svg></button>' : '') + (appMetadata.raymondovich_role === "owner" ? '<a class="profile-control-icon-button" href="#control-center" aria-label="Центр управления" title="Центр управления"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-3.8 8-10V5l-8-3-8 3v7c0 6.2 8 10 8 10Z"></path><path d="m8.5 12 2.3 2.3 4.8-5"></path></svg></a>' : '') +
+  '<button class="profile-telegram-icon-button" type="button" data-telegram-link-start aria-label="Подключить Telegram" title="Подключить Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.9-7.1L3 10.1 21 3Z"></path><path d="m9.9 13.9 5.2-5.2"></path></svg></button><span class="profile-telegram-status" data-telegram-link-status role="status" aria-live="polite"></span><span class="profile-telegram-feedback" data-telegram-link-feedback role="status" aria-live="polite"></span>' + (profile.public_profile_enabled === true ? '<button class="profile-share-icon-button" type="button" data-public-profile-open aria-label="Поделиться публичным профилем" title="Поделиться профилем"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19V12a7 7 0 0 1 7-7h6m-6-4 6 4-6 4"></path></svg></button>' : '') + (appMetadata.raymondovich_role === "owner" ? '<a class="profile-control-icon-button" href="#control-center" aria-label="Центр управления" title="Центр управления"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-3.8 8-10V5l-8-3-8 3v7c0 6.2 8 10 8 10Z"></path><path d="m8.5 12 2.3 2.3 4.8-5"></path></svg></a>' : '') +
   '</section>' +
   (profile.public_profile_enabled === true ? '<dialog class="public-profile-dialog" data-public-profile-dialog aria-labelledby="public-profile-dialog-title"><div class="public-profile-dialog-panel"><div class="settings-card-heading"><div><h2 id="public-profile-dialog-title">Публичная карточка</h2><p>Так профиль увидят другие пользователи.</p></div><button class="public-profile-dialog-close" type="button" data-public-profile-close aria-label="Закрыть">×</button></div><div class="public-profile-preview"><div class="profile-avatar">' + escapeHtml(avatar) + '</div><div><strong>' + escapeHtml(fullName) + '</strong><span>@' + escapeHtml(username) + '</span></div></div><div class="public-profile-preview-socials">' + [["Instagram", profile.instagram_url], ["YouTube", profile.youtube_url], ["Telegram", profile.telegram_url]].filter(([,url]) => typeof url === "string" && url.startsWith("https://")).map(([label,url]) => '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>').join("") + '</div><div class="public-profile-preview-projects">' + (Array.isArray(profile.showcase_projects) && profile.showcase_projects.length ? profile.showcase_projects.map((project) => '<article><strong>' + escapeHtml(project.name) + '</strong><p>' + escapeHtml(project.description || "Описание не добавлено") + '</p></article>').join("") : '<p>Пока нет проектов в публичной карточке.</p>') + '</div><p class="public-profile-share-url">' + escapeHtml(window.location.origin + '/#profile/' + encodeURIComponent(username)) + '</p><p class="settings-form-feedback" data-public-profile-share-feedback role="status" aria-live="polite"></p><div class="public-profile-dialog-actions"><button class="settings-secondary-button" type="button" data-public-profile-close>Закрыть</button><button class="settings-primary-button" type="button" data-public-profile-share data-username="' + escapeHtml(username) + '">Поделиться</button></div></div></dialog>' : '') +
   '<div class="profile-sections">' +
@@ -70,13 +70,12 @@ function settingsMarkup(user, profileData, route, projectState = null) {
   ["public-info","Публичная информация","Данные для публичной карточки и портфолио"],
   ["privacy","Конфиденциальность","Электронная почта и пароль"],
   ["appearance","Оформление","Тема интерфейса и иконки"],
-  ["cryptography","Криптография","Управление криптографическими ключами"],
-  ["telegram","Telegram","Личные уведомления о проектах и командах"]
+  ["cryptography","Криптография","Управление криптографическими ключами"]
  ];
  const groupRoute = route.split("/")[2] || "";
  if (!groupRoute) return '<div class="settings-group-list">' + groups.map(([id,name,description]) =>
   '<a class="settings-group-link" href="#profile/settings/' + id + '"><span class="settings-group-symbol" aria-hidden="true">' +
-  ({ "personal-data":"◉", "public-info":"↗", privacy:"◇", appearance:"◐", cryptography:"⌘", telegram:"✈" }[id]) +
+  ({ "personal-data":"◉", "public-info":"↗", privacy:"◇", appearance:"◐", cryptography:"⌘" }[id]) +
   '</span><span class="settings-group-copy"><strong>' + name + '</strong><small>' + description + '</small></span><span class="settings-group-chevron" aria-hidden="true">›</span></a>'
  ).join("") + '</div><button class="profile-signout settings-signout" type="button" data-auth-signout>Выйти из аккаунта</button>';
  if (groupRoute === "personal-data") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
@@ -109,7 +108,7 @@ function settingsMarkup(user, profileData, route, projectState = null) {
  if (groupRoute === "appearance") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Настройте внешний вид интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
   ["system","light","dark"].map((theme) => '<button type="button" class="settings-theme-option" data-theme-option="' + theme + '" aria-pressed="' + (preference === theme) + '">' + labels[theme] + '</button>').join("") +
   '</div><p class="settings-section-note">Дополнительные варианты оформления и наборы иконок появятся позднее.</p></section>';
- if (groupRoute === "telegram") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Уведомления в Telegram</h2><p>Подключите личный Telegram, чтобы получать предупреждения об автоматическом удалении ваших проектов и команд.</p></div></div><div class="settings-placeholder" data-telegram-link-status role="status" aria-live="polite"><p>Проверяем подключение…</p></div><div class="settings-form-feedback" data-telegram-link-feedback role="status" aria-live="polite"></div></section>';
+
  if (groupRoute === "cryptography") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Криптография</h2><p>Управление криптографическими ключами.</p></div></div>' +
   '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section>';
  return '<div class="workspace-empty-state"><h2>Раздел не найден</h2><p>Выберите группу настроек.</p></div>';
