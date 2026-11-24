@@ -1,5 +1,5 @@
-/* Version: 3.18.3 */
-/* Updated: 2026-11-16 */
+/* Version: 3.19.0 */
+/* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
  { id: "ideas", label: "Идеи" },
@@ -179,19 +179,37 @@ function projectMembersMarkup(state) {
  return '<section class="project-detail-card project-members-card"><div class="project-members-heading"><div><h3>Участники проекта</h3><p>' + members.length + ' ' + (members.length === 1 ? 'участник' : members.length > 1 && members.length < 5 ? 'участника' : 'участников') + '</p></div>' + inviteDialog + '</div><div class="project-members-list">' + memberRows + '</div></section>';
 }
 
+
+function teamWorkspaceMarkup(state, activeSection) {
+ const isDetail = /^team\/[0-9a-f-]{36}$/i.test(activeSection);
+ const data = state || { status: "loading", teams: [] };
+ if (data.status === "loading") return '<section class="team-state-card"><p>Загружаем команды…</p></section>';
+ if (data.status === "error") return '<section class="team-state-card"><h2>Не удалось загрузить команды</h2><p>' + escapeHtml(data.message || "Попробуйте ещё раз.") + '</p><button class="project-secondary-button" type="button" data-team-retry>Повторить</button></section>';
+ if (isDetail) {
+  const team = data.team;
+  if (!team) return '<section class="team-state-card"><h2>Команда недоступна</h2><p>Команда не найдена или у вас нет активного доступа.</p><a class="project-secondary-button" href="#team">К списку команд</a></section>';
+  return '<section class="team-detail-panel"><div class="team-panel-topline"><span>КОМАНДА</span><span class="team-role-badge">' + escapeHtml(({owner:"Владелец",admin:"Администратор",manager:"Менеджер",member:"Участник"})[team.role] || "Участник") + '</span></div><h2>' + escapeHtml(team.name) + '</h2><p>' + escapeHtml(team.description || "Описание не добавлено.") + '</p><dl><div><dt>Статус</dt><dd>' + (team.status === "active" ? "Активна" : "Архив") + '</dd></div><div><dt>Создана</dt><dd>' + escapeHtml(team.created_at ? new Intl.DateTimeFormat("ru-RU", {day:"numeric",month:"long",year:"numeric"}).format(new Date(team.created_at)) : "—") + '</dd></div></dl><p class="team-feature-note">Управление участниками и приглашения будут добавлены следующим этапом. Членство в команде не предоставляет доступ к проектам автоматически.</p><a class="project-secondary-button" href="#team">Все команды</a></section>';
+ }
+ const teams = Array.isArray(data.teams) ? data.teams : [];
+ const rows = teams.length ? teams.map((team) => '<a class="team-list-card" href="#team/' + encodeURIComponent(team.id) + '"><span class="team-list-avatar" aria-hidden="true">' + escapeHtml(initials(team.name, "TM")) + '</span><span class="team-list-copy"><strong>' + escapeHtml(team.name) + '</strong><small>' + escapeHtml(({owner:"Владелец",admin:"Администратор",manager:"Менеджер",member:"Участник"})[team.role] || "Участник") + (team.description ? " · " + escapeHtml(team.description) : "") + '</small></span><span class="profile-chevron" aria-hidden="true">›</span></a>').join("") : '<div class="team-state-card"><h2>Пока нет команд</h2><p>Создайте первую команду для совместной работы. Команды существуют независимо от проектов.</p></div>';
+ return '<div class="team-workspace"><div class="team-workspace-intro"><div><h2>Команды экосистемы</h2><p>Отдельные рабочие пространства для людей и совместной деятельности.</p></div><button class="project-primary-button" type="button" data-team-create-open>Создать команду</button></div><div class="team-list">' + rows + '</div><dialog class="team-create-dialog" data-team-create-dialog><div class="team-create-dialog-panel"><div class="settings-card-heading"><div><h2>Новая команда</h2><p>Вы станете владельцем команды.</p></div><button class="public-profile-dialog-close" type="button" data-team-create-close aria-label="Закрыть">×</button></div><form class="settings-form" data-team-create-form><label class="settings-field"><span>Название команды</span><input name="name" type="text" minlength="2" maxlength="80" autocomplete="off" required></label><label class="settings-field"><span>Описание <small>Необязательно</small></span><textarea name="description" rows="3" maxlength="500"></textarea></label><p class="settings-form-feedback" data-team-create-feedback role="status" aria-live="polite"></p><div class="team-create-actions"><button class="project-secondary-button" type="button" data-team-create-close>Отмена</button><button class="settings-primary-button" type="submit">Создать команду</button></div></form></div></dialog></div>';
+}
+
 export function renderWorkspaceView(container, user, activeSection, profileData, projectState = null) {
  const profileSubroutes = new Set(["profile/active-projects", "profile/ecosystem-tools", "profile/settings", "profile/settings/personal-data", "profile/settings/public-info", "profile/settings/privacy", "profile/settings/appearance", "profile/settings/cryptography"]);
  const isProjectCreate = activeSection === "projects/create";
+ const isTeamDetail = /^team\/[0-9a-f-]{36}$/i.test(activeSection);
+ const isTeamRoute = activeSection === "team" || isTeamDetail;
  const isProjectInformation = /^projects\/[0-9a-f-]{36}\/information$/i.test(activeSection);
  const isProjectSettings = /^projects\/[0-9a-f-]{36}\/settings$/i.test(activeSection);
  const isProjectDetail = activeSection.startsWith("projects/") && !isProjectCreate;
- const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate ? (isProjectCreate ? "projects" : activeSection) : "projects";
+ const active = profileSubroutes.has(activeSection) ? "profile" : sections.some((section) => section.id === activeSection) || isProjectCreate || isTeamDetail ? (isProjectCreate ? "projects" : isTeamDetail ? "team" : activeSection) : "projects";
  const isControlCenter = activeSection === "control-center";
  const isActiveProjects = activeSection === "profile/active-projects";
  const isEcosystemTools = activeSection === "profile/ecosystem-tools";
  const isSettings = activeSection.startsWith("profile/settings");
  const settingsTitles = { "profile/settings/personal-data": "Личные данные", "profile/settings/public-info": "Публичная информация", "profile/settings/privacy": "Конфиденциальность", "profile/settings/appearance": "Оформление", "profile/settings/cryptography": "Криптография" };
- const title = isControlCenter ? "Центр управления" : isProjectSettings ? "Настройки проекта" : isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
+ const title = isControlCenter ? "Центр управления" : isTeamDetail ? (projectState?.team?.name || "Команда") : isProjectSettings ? "Настройки проекта" : isProjectDetail ? (projectState?.project?.name || "Проект") : isProjectCreate ? "Создание проекта" : isActiveProjects ? "Действующие проекты" : isEcosystemTools ? "Инструменты экосистемы" : isSettings ? (settingsTitles[activeSection] || "Настройки") : sections.find((section) => section.id === active).label;
  const isProjects = active === "projects";
  const subrouteContent = isActiveProjects
   ? '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 15h3l2-4 2 3h3"></path></svg></div><h2>Действующие проекты появятся здесь</h2><p>В этом разделе будут только запущенные проекты, которые уже приносят доход. Проекты в разработке будут доступны через общий раздел «Проекты».</p></div></div>'
@@ -201,6 +219,8 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
  const projectCreateContent = '<section class="project-create-panel"><div class="project-create-intro"><span class="project-create-kicker">НОВЫЙ ПРОЕКТ</span><h2>Начните с идеи</h2><p>Создайте пространство проекта. Позже вы сможете подключить участников и доступные вам инструменты экосистемы.</p></div><form class="project-create-form" data-project-create-form><label class="project-form-field"><span>Название проекта</span><input name="project_name" type="text" minlength="1" maxlength="120" placeholder="Например, мой новый проект" autocomplete="off" required></label><label class="project-form-field"><span>Тип проекта</span><select name="project_type" required><option value="online">Онлайн-проект</option><option value="offline">Офлайн-проект</option></select></label><fieldset class="project-component-options" data-project-components><legend>Компоненты онлайн-проекта <small>Можно выбрать несколько</small></legend><label><input type="checkbox" name="component_codes" value="website"><span>Сайт</span></label><label><input type="checkbox" name="component_codes" value="telegram_bot"><span>Telegram-бот</span></label><label><input type="checkbox" name="component_codes" value="telegram_mini_app"><span>Telegram Mini App</span></label><label><input type="checkbox" name="component_codes" value="ios_app"><span>iOS-приложение</span></label></fieldset><label class="project-form-field"><span>Краткое описание <small>Необязательно</small></span><textarea name="project_description" rows="4" maxlength="500" placeholder="Расскажите, над чем вы планируете работать"></textarea><small class="project-field-hint">До 500 символов</small></label><div class="project-create-note"><span aria-hidden="true">ⓘ</span><p>Вы станете владельцем созданного проекта. Компоненты можно указать для онлайн-проектов.</p></div><div class="project-create-actions"><a class="project-secondary-button" href="#projects">Отмена</a><button class="project-primary-button" type="submit">Создать проект</button></div><p class="project-form-feedback" data-project-feedback role="status" aria-live="polite"></p></form></section>';
  const content = isControlCenter
   ? (user?.app_metadata?.raymondovich_role === "owner" ? '<section class="workspace-empty-state"><div class="workspace-empty-inner"><h2>Центр управления</h2><p>Рабочие инструменты управления экосистемой будут размещены здесь.</p></div></section>' : '<section class="workspace-empty-state"><div class="workspace-empty-inner"><h2>Доступ ограничен</h2><p>Центр управления доступен только владельцу экосистемы.</p></div></section>')
+  : isTeamRoute
+  ? teamWorkspaceMarkup(projectState, activeSection)
   : isProjectDetail
   ? projectDetailMarkup(projectState, isProjectInformation, isProjectSettings)
   : isProjectCreate
@@ -216,7 +236,7 @@ export function renderWorkspaceView(container, user, activeSection, profileData,
     : '<div class="workspace-empty-state"><div class="workspace-empty-inner"><div class="workspace-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5m0-8h.01"></path></svg></div><h2>Раздел подключим следующим этапом</h2><p>Навигация уже общая для рабочего пространства. Функциональность раздела будет добавлена отдельно.</p></div></div>';
  container.innerHTML = '<div class="workspace-layout">' +
   '<section class="workspace-content" aria-labelledby="workspace-title">' +
-  (isProjectDetail ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
+  ((isProjectDetail || isTeamDetail) ? "" : '<header class="workspace-page-heading"><div><h1 id="workspace-title">' + title + '</h1>' +
   ((active === "profile" && !isControlCenter && !isActiveProjects && !isEcosystemTools && !isSettings) ? "" : '<p>' +
    (active === "profile" ? (isControlCenter ? "Управление экосистемой Raymondovich." : isActiveProjects ? "Запущенные проекты, которые уже запущены и приносят доход." : isEcosystemTools ? "Полный каталог инструментов экосистемы Raymondovich." : isSettings ? (activeSection === "profile/settings" ? "Выберите группу настроек." : "Настройка параметров выбранной группы.") : "") : isProjectCreate ? "Укажите основную информацию о будущем проекте." : isProjects ? "" : "Рабочее пространство Raymondovich.") +
    '</p>') +
