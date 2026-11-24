@@ -390,7 +390,10 @@ function installTrashActions(container) {
    const title = dialog.querySelector("[data-trash-delete-title]");
    const description = dialog.querySelector("[data-trash-delete-description]");
    if (title) title.textContent = "Удалить навсегда?";
-   if (description) description.textContent = "«" + (openButton.dataset.trashName || "объект") + "» будет удалён без возможности восстановления. Для подтверждения введите пароль от аккаунта.";
+   const detail = openButton.dataset.trashKind === "project"
+    ? "Проект, все его подпроекты и связанные рабочие данные будут удалены."
+    : "Команда, её состав и приглашения будут удалены.";
+   if (description) description.textContent = "«" + (openButton.dataset.trashName || "объект") + "». " + detail + " Неизменяемые записи аудита сохраняются в системном журнале. Для подтверждения введите пароль от аккаунта.";
    const feedback = form.querySelector("[data-trash-delete-feedback]");
    if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
    dialog.showModal();
