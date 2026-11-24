@@ -2,7 +2,7 @@ import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
 import { createNotificationApi } from "./notification-api.js";
 
-/* Version: 1.11.0 */
+/* Version: 1.12.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -247,6 +247,8 @@ export const authClient = {
       request,
     }).createTeam(input);
   },
+
+  async archiveTeam(teamId) { return createTeamApi({ getSession: () => this.getSession(), request }).archiveTeam(teamId); },
 
   async getTeams() {
     return createTeamApi({
