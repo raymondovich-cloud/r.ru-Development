@@ -198,7 +198,7 @@ function installTeamActions(container) {
   const dialog = event.target.closest("[data-team-create-dialog]");
   if (dialog && event.target === dialog) dialog.close();
   if (event.target.closest("[data-team-retry]") && lastWorkspaceMount) {
-   mountWorkspace(container, lastWorkspaceMount.user, "team", lastWorkspaceMount.profileData);
+   mountWorkspace(container, lastWorkspaceMount.user, currentRoute(), lastWorkspaceMount.profileData);
   }
  });
  container.addEventListener("submit", async (event) => {
