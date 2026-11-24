@@ -1,4 +1,4 @@
-/* Version: 2.18.0 */
+/* Version: 2.18.1 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -525,7 +525,9 @@ async function loadTelegramLinkStatus(container) {
   }
   button.disabled = false;
  } catch (error) {
-  target.innerHTML = 'Не удалось проверить подключение: ' + escapeHtml(error?.message || "ошибка запроса") + ' <button class="profile-telegram-retry" type="button" data-telegram-link-retry>Повторить</button>';
+  const message = error?.message || "ошибка запроса";
+  target.textContent = "Не удалось проверить подключение Telegram: " + message;
+  button.title = "Не удалось проверить Telegram: " + message + ". Нажмите, чтобы повторить попытку.";
   button.disabled = false;
  }
 }
