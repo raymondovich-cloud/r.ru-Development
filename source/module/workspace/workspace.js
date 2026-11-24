@@ -8,6 +8,12 @@ let profileScrollFrame = 0;
 let workspaceMountSequence = 0;
 let lastWorkspaceMount = null;
 
+function escapeHtml(value) {
+ return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+ }[character]));
+}
+
 function syncProfileIdentityCard() {
  const card = document.querySelector(".profile-identity-card");
  if (!card) return;
@@ -184,7 +190,7 @@ function installProjectDeleteActions(container) {
 function installTeamActions(container) {
  if (container.dataset.teamActionsBound === "true") return;
  container.dataset.teamActionsBound = "true";
- container.addEventListener("click", (event) => {
+ container.addEventListener("click", async (event) => {
   const cancelInvite = event.target.closest("[data-team-invitation-cancel]");
   if (cancelInvite) {
    cancelInvite.disabled = true;
