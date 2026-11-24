@@ -1,6 +1,6 @@
 -- APPLIED MIGRATION SOURCE
 -- Raymondovich Teams core backend, phase 1.1
--- Applied to Supabase project yajybgdorhxebbigwjgi as migration 20261124075311.
+-- Applied to Supabase project yajybgdorhxebbigwjgi as migration 20261124075324.
 -- Adds the index required to cover the create_entitlements.created_by foreign key.
 -- Historical source. Do not reapply manually.
 
