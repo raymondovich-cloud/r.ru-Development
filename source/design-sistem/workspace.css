@@ -1,4 +1,4 @@
-/* Version: 3.7.0 */
+/* Version: 3.8.0 */
 /* Updated: 2026-11-24 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -812,8 +812,8 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .team-create-actions { display: flex; justify-content: flex-end; gap: 9px; }
 .team-create-actions > * { flex: 1; }
 @media (max-width: 560px) {
- .team-workspace-intro { align-items: stretch; flex-direction: column; }
- .team-workspace-intro > button { width: 100%; }
+ .team-workspace-intro { align-items: center; flex-direction: row; }
+ .team-workspace-intro > .projects-create-button { width: 42px; min-width: 42px; }
  .team-list-card { padding: 13px; }
  .team-detail-panel { padding: 19px; }
  .team-detail-panel dl { grid-template-columns: 1fr; }
