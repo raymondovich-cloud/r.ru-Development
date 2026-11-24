@@ -1,4 +1,4 @@
-/* Version: 2.16.0 */
+/* Version: 2.17.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -572,6 +572,14 @@ export function mountWorkspace(container, user, section = "projects", profileDat
     button.disabled = true;
     let telegramWindow = null;
     try {
+     const telegramWebApp = window.Telegram?.WebApp;
+     const initData = typeof telegramWebApp?.initData === "string" ? telegramWebApp.initData.trim() : "";
+     if (initData) {
+      telegramWebApp.ready?.();
+      await authClient.connectTelegramMiniApp(initData);
+      await loadTelegramLinkStatus(container);
+      return;
+     }
      telegramWindow = window.open("about:blank", "_blank");
      if (!telegramWindow) throw new Error("Браузер заблокировал новое окно. Разрешите открытие ссылок и повторите.");
      const result = await authClient.startTelegramLink();
