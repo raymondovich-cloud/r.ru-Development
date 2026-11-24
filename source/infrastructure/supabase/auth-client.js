@@ -2,7 +2,7 @@ import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
 import { createNotificationApi } from "./notification-api.js";
 
-/* Version: 1.14.0 */
+/* Version: 1.15.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -275,6 +275,9 @@ export const authClient = {
   async declineTeamInvitation(id) { return createTeamApi({ getSession: () => this.getSession(), request }).declineTeamInvitation(id); },
   async getNotifications() { return createNotificationApi({ getSession: () => this.getSession(), request }).list(); },
   async markNotificationRead(id) { return createNotificationApi({ getSession: () => this.getSession(), request }).markRead(id); },
+  async getTelegramLinkStatus() { return createNotificationApi({ getSession: () => this.getSession(), request }).telegramLinkStatus(); },
+  async startTelegramLink() { return createNotificationApi({ getSession: () => this.getSession(), request }).telegramLinkStart(); },
+  async unlinkTelegram() { return createNotificationApi({ getSession: () => this.getSession(), request }).telegramLinkUnlink(); },
 
   async createProject(input) {
     return createProjectApi({
