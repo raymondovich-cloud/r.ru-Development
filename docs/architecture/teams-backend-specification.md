@@ -1,7 +1,7 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.1.0  
-**Status:** Architecture specification — review required before migration  
+**Version:** 1.2.0  
+**Status:** Phase A core database migration applied; runtime integration pending  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Target repository:** raymondovich-cloud/r.ru-Development  
@@ -167,17 +167,18 @@ Future events: team.updated, member invited/accepted/declined/role_changed/suspe
 
 Audit fields: event UUID, Team UUID, actor UUID (nullable only for trusted system actions), event key, timestamp, minimal metadata. Never store passwords, tokens, payment data, invitation secrets, or full profile snapshots.
 
-## 9. Migration sequence — review draft prepared, not applied
+## 9. Migration status
 
-1. Re-audit live schema, API exposure, grants, and function conventions immediately before applying.
-2. Create non-exposed teams schema with least privilege.
-3. Create Team, membership, create-entitlement, and audit tables.
-4. Add constraints and justified indexes.
-5. Implement internal owner/entitlement resolver.
-6. Implement approved API RPC wrappers for create/list/get.
-7. Grant only necessary RPC execution rights, following the existing Projects internal-function pattern.
-8. Test authorization, transaction rollback, and privilege boundaries in a safe database environment.
-9. Implement frontend/domain integration separately.
+Applied to Supabase project yajybgdorhxebbigwjgi:
+
+- Migration 20261124075310 — teams_001_core_backend.
+- Migration 20261124075311 — teams_002_entitlement_created_by_index.
+
+The migrations create the non-exposed teams schema, core tables, RLS, internal SECURITY DEFINER functions, public SECURITY INVOKER RPC wrappers, least-privilege grants, and the supporting indexes. Invitations, Project links, billing, and member-management RPCs remain deferred.
+
+Post-migration checks confirmed all four tables exist with RLS enabled, internal functions have fixed empty search_path, public RPC wrappers are SECURITY INVOKER, authenticated can execute approved RPCs but cannot read/write base tables directly, and anon cannot execute the Team creation RPC. Smoke testing of create/list/get was performed in a rolled-back transaction using the trusted owner identity. No test Team was retained.
+
+Next: integrate the frontend/domain module and later add invitation/member-management workflows.
 
 Do not include invitation tables, editable role permissions, billing tables, or Team-project linking in initial migration unless scope is separately approved.
 
@@ -249,6 +250,6 @@ Recommended MVP: duplicate names allowed, no slug, description optional, no bill
 
 **Phase D — Monetization:** shared entitlements, billing, renewals/cancellations, grace periods, admin grants.
 
-## 14. Approval boundary
+## 14. Implementation boundary
 
-This specification and the companion SQL draft do not change Supabase, apply SQL, alter RLS, change authentication, deploy, or implement UI. The live database was rechecked on 2026-11-24: PostgreSQL 17.11; the Projects schema exists; there is no Teams schema; one Auth user carries the trusted app_metadata owner marker. Before applying, review the draft, re-audit live DB, and verify function grants and SECURITY DEFINER patterns. Applying the SQL remains a separate action.
+Phase A database migrations are applied. They do not modify authentication, existing Projects tables/RLS, or production website code. The Teams database layer is ready for domain/frontend integration, but no Team UI or invitations/member-management workflow has been implemented yet. Any further database changes require a separate reviewed migration.
