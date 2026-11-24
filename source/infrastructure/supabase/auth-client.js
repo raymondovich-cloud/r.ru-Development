@@ -2,7 +2,7 @@ import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
 import { createNotificationApi } from "./notification-api.js";
 
-/* Version: 1.13.0 */
+/* Version: 1.14.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -250,6 +250,7 @@ export const authClient = {
 
   async archiveTeam(teamId) { return createTeamApi({ getSession: () => this.getSession(), request }).archiveTeam(teamId); },
   async restoreTeam(teamId) { return createTeamApi({ getSession: () => this.getSession(), request }).restoreTeam(teamId); },
+  async permanentlyDeleteTeam(input) { return createTeamApi({ getSession: () => this.getSession(), request }).permanentlyDeleteTeam(input); },
   async getArchivedTeams() { return createTeamApi({ getSession: () => this.getSession(), request }).getArchivedTeams(); },
 
   async getTeams() {
@@ -304,6 +305,10 @@ export const authClient = {
       getSession: () => this.getSession(),
       request,
     }).addProjectMember(input);
+  },
+
+  async permanentlyDeleteProject(input) {
+    return createProjectApi({ getSession: () => this.getSession(), request }).permanentlyDeleteProject(input);
   },
 
   async deleteProject(input) {

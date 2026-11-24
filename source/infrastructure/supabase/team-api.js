@@ -1,4 +1,4 @@
-/* Version: 1.4.0 */
+/* Version: 1.5.0 */
 /* Updated: 2026-11-24 */
 
 /**
@@ -27,6 +27,20 @@ export function createTeamApi({ getSession, request }) {
     },
     async archiveTeam(teamId) { return authenticatedRequest("team_archive", { p_team_id: teamId }); },
     async restoreTeam(teamId) { return authenticatedRequest("team_restore", { p_team_id: teamId }); },
+    async permanentlyDeleteTeam({ teamId, password }) {
+      const session = await getSession();
+      if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
+      const user = await request("/auth/v1/user", { accessToken: session.access_token });
+      if (!user?.email) throw new Error("Не удалось определить электронную почту аккаунта.");
+      const verifiedSession = await request("/auth/v1/token?grant_type=password", {
+        method: "POST", body: { email: user.email, password: String(password || "") },
+      });
+      if (!verifiedSession?.access_token) throw new Error("Не удалось подтвердить пароль аккаунта.");
+      return request("/rest/v1/rpc/team_permanent_delete", {
+        method: "POST", accessToken: verifiedSession.access_token, body: { p_team_id: teamId },
+      });
+    },
+
     async getArchivedTeams() { return authenticatedRequest("team_archived_list"); },
     async getTeams() {
       return authenticatedRequest("team_list");
