@@ -1,6 +1,6 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Architecture specification — review required before migration  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
@@ -167,16 +167,16 @@ Future events: team.updated, member invited/accepted/declined/role_changed/suspe
 
 Audit fields: event UUID, Team UUID, actor UUID (nullable only for trusted system actions), event key, timestamp, minimal metadata. Never store passwords, tokens, payment data, invitation secrets, or full profile snapshots.
 
-## 9. Migration sequence — not executable yet
+## 9. Migration sequence — review draft prepared, not applied
 
-1. Re-audit live schema, API exposure, grants, and function conventions.
+1. Re-audit live schema, API exposure, grants, and function conventions immediately before applying.
 2. Create non-exposed teams schema with least privilege.
-3. Create Team, membership, and audit tables.
+3. Create Team, membership, create-entitlement, and audit tables.
 4. Add constraints and justified indexes.
-5. Implement internal permission/entitlement resolver.
+5. Implement internal owner/entitlement resolver.
 6. Implement approved API RPC wrappers for create/list/get.
-7. Grant only necessary RPC execution rights.
-8. Test authorization, transaction rollback, and privilege boundaries.
+7. Grant only necessary RPC execution rights, following the existing Projects internal-function pattern.
+8. Test authorization, transaction rollback, and privilege boundaries in a safe database environment.
 9. Implement frontend/domain integration separately.
 
 Do not include invitation tables, editable role permissions, billing tables, or Team-project linking in initial migration unless scope is separately approved.
@@ -251,4 +251,4 @@ Recommended MVP: duplicate names allowed, no slug, description optional, no bill
 
 ## 14. Approval boundary
 
-This specification does not change Supabase, apply SQL, alter RLS, change authentication, deploy, or implement UI. Before migration, re-audit live DB and align exact schemas, RPC naming, grants, and SECURITY DEFINER patterns. SQL migration requires separate review and explicit approval.
+This specification and the companion SQL draft do not change Supabase, apply SQL, alter RLS, change authentication, deploy, or implement UI. The live database was rechecked on 2026-11-24: PostgreSQL 17.11; the Projects schema exists; there is no Teams schema; one Auth user carries the trusted app_metadata owner marker. Before applying, review the draft, re-audit live DB, and verify function grants and SECURITY DEFINER patterns. Applying the SQL remains a separate action.
