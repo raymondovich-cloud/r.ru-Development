@@ -1,4 +1,4 @@
-/* Version: 3.39.0 */
+/* Version: 3.40.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -195,7 +195,12 @@ function trashWorkspaceMarkup(state) {
  }).join("");
  const projectContent = projects.length ? '<div class="trash-item-list">' + renderCards(projects, "project") + '</div>' : '<div class="projects-empty-state trash-category-empty"><div class="projects-empty-symbol" aria-hidden="true">⌑</div><h3>Архивированных проектов нет</h3><p>Удалённые в корзину проекты будут отображаться здесь.</p></div>';
  const teamContent = teams.length ? '<div class="trash-item-list">' + renderCards(teams, "team") + '</div>' : '<div class="projects-empty-state trash-category-empty"><div class="projects-empty-symbol" aria-hidden="true">⌑</div><h3>Архивированных команд нет</h3><p>Удалённые в корзину команды будут отображаться здесь.</p></div>';
- const tab = (id, label, count) => '<button class="trash-tab' + (activeTab === id ? ' is-active' : '') + '" id="trash-tab-' + id + '" type="button" role="tab" data-trash-tab="' + id + '" aria-controls="trash-panel-' + id + '" aria-selected="' + (activeTab === id ? 'true' : 'false') + '" tabindex="' + (activeTab === id ? '0' : '-1') + '">' + label + (count === null ? '' : '<span class="trash-tab-count">' + count + '</span>') + '</button>';
+ const tabIcons = {
+  projects: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M8 4V2m8 2V2M3 10h18"></path></svg>',
+  ideas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6m-5 3h4m-2-19a7 7 0 0 0-4 12.7c.8.6 1 1.1 1 2.3h6c0-1.2.2-1.7 1-2.3A7 7 0 0 0 12 2Z"></path></svg>',
+  teams: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-15a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5v1h-3"></path></svg>'
+ };
+ const tab = (id, label, count) => '<button class="trash-tab' + (activeTab === id ? ' is-active' : '') + '" id="trash-tab-' + id + '" type="button" role="tab" data-trash-tab="' + id + '" aria-controls="trash-panel-' + id + '" aria-selected="' + (activeTab === id ? 'true' : 'false') + '" tabindex="' + (activeTab === id ? '0' : '-1') + '"><span class="workspace-nav-icon">' + tabIcons[id] + '</span><span class="trash-tab-label">' + label + '</span>' + (count === null ? '' : '<span class="trash-tab-count">' + count + '</span>') + '</button>';
  const panel = (id, content) => '<section class="trash-tab-panel" id="trash-panel-' + id + '" role="tabpanel" aria-labelledby="trash-tab-' + id + '"' + (activeTab === id ? '' : ' hidden') + '>' + content + '</section>';
  const dialog = '<dialog class="project-delete-dialog trash-delete-dialog" data-trash-delete-dialog><div class="project-delete-dialog-panel"><div class="project-member-dialog-heading"><div><h2 data-trash-delete-title>Удалить навсегда?</h2><p data-trash-delete-description>Это действие нельзя отменить.</p></div><button class="project-member-dialog-close" type="button" data-trash-delete-close aria-label="Закрыть">×</button></div><form class="project-delete-form" data-trash-delete-form><input type="hidden" name="kind"><input type="hidden" name="id"><label class="project-form-field"><span>Пароль от аккаунта Raymondovich</span><input name="password" type="password" autocomplete="current-password" required minlength="1"></label><p class="project-form-feedback" data-trash-delete-feedback role="status" aria-live="polite"></p><div class="project-member-dialog-actions"><button class="project-secondary-button" type="button" data-trash-delete-close>Отмена</button><button class="project-danger-button" type="submit">Удалить навсегда</button></div></form></div></dialog>';
  return '<section class="trash-page"><div class="trash-tabs" role="tablist" aria-label="Категории корзины">' + tab("projects", "Проекты", projects.length) + tab("ideas", "Идеи", null) + tab("teams", "Команды", teams.length) + '</div>' +
