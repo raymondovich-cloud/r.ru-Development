@@ -1,7 +1,7 @@
 # Teams — Backend Architecture Specification
 
-**Version:** 1.2.0  
-**Status:** Phase A core database migration applied; runtime integration pending  
+**Version:** 1.3.0  
+**Status:** Core database and initial Team workspace integration implemented in development  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Target repository:** raymondovich-cloud/r.ru-Development  
@@ -12,7 +12,7 @@
 
 Teams is an independent ecosystem domain for user groups. A Team is not a Project and is not a Project-membership container. Teams may exist without Projects; Projects may be linked explicitly. Team membership never grants Project access. Projects remains the sole authority for Project permissions.
 
-This document is a design specification only. It does not authorize database migrations or runtime changes.
+This document records the approved Team architecture and implementation state. Database migrations listed below have already been applied to the development Supabase project. Production deployment and any further database changes require separate approval.
 
 ### MVP scope
 - Create Team.
@@ -178,7 +178,7 @@ The migrations create the non-exposed teams schema, core tables, RLS, internal S
 
 Post-migration checks confirmed all four tables exist with RLS enabled, internal functions have fixed empty search_path, public RPC wrappers are SECURITY INVOKER, authenticated can execute approved RPCs but cannot read/write base tables directly, and anon cannot execute the Team creation RPC. Smoke testing of create/list/get was performed in a rolled-back transaction using the trusted owner identity. No test Team was retained.
 
-Next: integrate the frontend/domain module and later add invitation/member-management workflows.
+Frontend integration now includes the Team domain input validator, Supabase RPC adapter, authenticated client methods, Team list, Team details, and create dialog. Invitations and member-management RPCs remain deferred.
 
 Do not include invitation tables, editable role permissions, billing tables, or Team-project linking in initial migration unless scope is separately approved.
 
@@ -252,4 +252,4 @@ Recommended MVP: duplicate names allowed, no slug, description optional, no bill
 
 ## 14. Implementation boundary
 
-Phase A database migrations are applied. They do not modify authentication, existing Projects tables/RLS, or production website code. The Teams database layer is ready for domain/frontend integration, but no Team UI or invitations/member-management workflow has been implemented yet. Any further database changes require a separate reviewed migration.
+Phase A database migrations and the initial Team workspace frontend are implemented in the development environment. The work does not modify authentication internals, existing Projects tables/RLS, or production website code. Team invitations, member management, project association, and billing are not implemented. Any further database changes require a separate reviewed migration.
