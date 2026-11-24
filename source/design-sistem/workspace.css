@@ -1,4 +1,4 @@
-/* Version: 3.6.0 */
+/* Version: 3.7.0 */
 /* Updated: 2026-11-24 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -47,6 +47,45 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
  .workspace-mobile-nav .workspace-nav-icon svg { width: 19px; height: 19px; }
 }
 @media (prefers-reduced-motion: reduce) { .workspace-nav-link, .workspace-icon-button { transition: none; } }
+
+/* Team invitations and notification center */
+.team-invitations-card { display: grid; gap: 13px; margin-top: 18px; padding: 18px; border: 1px solid var(--color-surface-border); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-surface); }
+.team-invite-form { display: grid; gap: 13px; padding-top: 15px; border-top: 1px solid var(--color-surface-border); }
+.team-invite-form .settings-field textarea { box-sizing: border-box; width: 100%; min-height: 76px; padding: 12px 14px; border: 1px solid var(--color-surface-border); border-radius: 13px; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 14px; resize: vertical; }
+.team-invite-form .settings-field select { min-height: 46px; padding: 0 12px; border: 1px solid var(--color-surface-border); border-radius: 13px; color: var(--color-text); background: var(--color-page); font: inherit; font-size: 14px; }
+.team-invitation-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-surface-border); }
+.team-invitation-row > div { display: grid; min-width: 0; gap: 5px; }
+.team-invitation-row strong { overflow-wrap: anywhere; font-size: 13px; }
+.team-invitation-row small { color: var(--color-text-muted); font-size: 11px; }
+.team-invitation-cancel { min-height: 34px; padding: 0 10px; border: 1px solid var(--color-surface-border); border-radius: 10px; color: var(--color-text-muted); background: transparent; font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; }
+.team-invitation-cancel:disabled { opacity: .5; cursor: wait; }
+.notification-center-dialog { width: min(560px, calc(100vw - 28px)); max-width: 560px; max-height: min(78svh, 760px); padding: 0; overflow: hidden; border: 1px solid var(--color-surface-border); border-radius: 24px; color: var(--color-text); background: var(--color-surface); box-shadow: var(--shadow-floating); }
+.notification-center-dialog::backdrop { background: rgb(0 0 0 / 42%); backdrop-filter: blur(5px); }
+.notification-center-panel { display: grid; max-height: min(78svh, 760px); grid-template-rows: auto minmax(0, 1fr); }
+.notification-center-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 21px 22px 16px; border-bottom: 1px solid var(--color-surface-border); }
+.notification-center-heading h2 { margin: 0; font-size: 19px; font-weight: 680; letter-spacing: -.035em; }
+.notification-center-heading p { margin: 5px 0 0; color: var(--color-text-muted); font-size: 12px; }
+.notification-center-list { display: grid; gap: 10px; padding: 14px; overflow: auto; overscroll-behavior: contain; }
+.notification-center-muted { margin: 10px; color: var(--color-text-muted); font-size: 13px; }
+.notification-center-empty { display: grid; min-height: 180px; align-content: center; justify-items: center; padding: 20px; text-align: center; }
+.notification-center-empty strong { font-size: 14px; }
+.notification-center-empty p { max-width: 330px; margin: 7px 0 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.55; }
+.notification-card { display: grid; gap: 13px; padding: 15px; border: 1px solid var(--color-surface-border); border-radius: 17px; background: var(--color-page); }
+.notification-card.is-unread { border-color: var(--color-accent-border); background: var(--color-accent-wash); }
+.notification-card-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.notification-card-topline strong { font-size: 13px; font-weight: 670; }
+.notification-card-topline time { flex: 0 0 auto; color: var(--color-text-muted); font-size: 10px; }
+.notification-card-copy p { margin: 7px 0 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.55; }
+.notification-card-copy blockquote { margin: 10px 0 0; padding: 9px 11px; border-left: 2px solid var(--color-accent); border-radius: 0 9px 9px 0; color: var(--color-text); background: var(--color-surface); font-size: 12px; line-height: 1.5; }
+.notification-card-copy small { display: block; margin-top: 9px; color: var(--color-text-muted); font-size: 11px; }
+.notification-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.notification-card-actions .settings-primary-button, .notification-card-actions .settings-secondary-button { min-height: 38px; }
+.notification-card-actions .settings-primary-button { padding-inline: 14px; }
+.notification-card-actions .settings-secondary-button { padding-inline: 12px; }
+.notification-unread-badge { position: absolute; top: -5px; right: -5px; display: grid; min-width: 18px; height: 18px; place-items: center; padding: 0 4px; border: 2px solid var(--color-page); border-radius: 999px; color: #fff; background: var(--color-accent); font-size: 9px; font-weight: 700; }
+[data-workspace-notifications] { position: relative; }
+@media (max-width: 560px) { .notification-center-dialog { width: calc(100vw - 20px); max-height: 84svh; border-radius: 20px; } .notification-center-panel { max-height: 84svh; } .notification-center-heading { padding: 18px 17px 14px; } .notification-center-list { padding: 10px; } .team-invitations-card { padding: 14px; } .team-invitation-row { align-items: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .notification-center-dialog { scroll-behavior: auto; } }
 
 /* Profile screen */
 .profile-page { width: min(100%, 760px); margin: 0 auto; }
