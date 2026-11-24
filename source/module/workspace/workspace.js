@@ -1,4 +1,4 @@
-/* Version: 2.9.0 */
+/* Version: 2.10.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -355,32 +355,105 @@ function installTrashActions(container) {
    mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
    return;
   }
-  const button = event.target.closest("[data-trash-restore]");
-  if (!button || button.disabled || !lastWorkspaceMount) return;
-  const kind = button.dataset.trashRestore;
-  const id = button.dataset.trashId;
+  const restoreButton = event.target.closest("[data-trash-restore]");
+  if (restoreButton && !restoreButton.disabled && lastWorkspaceMount) {
+   const kind = restoreButton.dataset.trashRestore;
+   const id = restoreButton.dataset.trashId;
+   if (!id || !["project", "team"].includes(kind)) return;
+   restoreButton.disabled = true;
+   restoreButton.textContent = "Восстанавливаем…";
+   try {
+    if (kind === "project") await authClient.restoreProject(id);
+    else await authClient.restoreTeam(id);
+    mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
+   } catch (error) {
+    restoreButton.disabled = false;
+    restoreButton.textContent = "Восстановить";
+    const feedback = container.querySelector("[data-trash-feedback]");
+    if (feedback) {
+     feedback.textContent = /permission|42501/i.test(String(error?.message || ""))
+      ? "Недостаточно прав для восстановления этого объекта."
+      : error?.message || "Не удалось восстановить объект.";
+     feedback.dataset.state = "error";
+    }
+   }
+   return;
+  }
+  const openButton = event.target.closest("[data-trash-delete-open]");
+  if (openButton) {
+   const dialog = container.querySelector("[data-trash-delete-dialog]");
+   const form = dialog?.querySelector("[data-trash-delete-form]");
+   if (!dialog || !form) return;
+   form.reset();
+   form.elements.kind.value = openButton.dataset.trashKind || "";
+   form.elements.id.value = openButton.dataset.trashId || "";
+   const title = dialog.querySelector("[data-trash-delete-title]");
+   const description = dialog.querySelector("[data-trash-delete-description]");
+   if (title) title.textContent = "Удалить навсегда?";
+   const detail = openButton.dataset.trashKind === "project"
+    ? "Проект, все его подпроекты и связанные рабочие данные будут удалены."
+    : "Команда, её состав и приглашения будут удалены.";
+   if (description) description.textContent = "«" + (openButton.dataset.trashName || "объект") + "». " + detail + " Неизменяемые записи аудита сохраняются в системном журнале. Для подтверждения введите пароль от аккаунта.";
+   const feedback = form.querySelector("[data-trash-delete-feedback]");
+   if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+   dialog.showModal();
+   form.querySelector('input[name="password"]')?.focus();
+   return;
+  }
+  const closeButton = event.target.closest("[data-trash-delete-close]");
+  if (closeButton) {
+   const dialog = closeButton.closest("[data-trash-delete-dialog]");
+   if (dialog?.open) dialog.close();
+   dialog?.querySelector("[data-trash-delete-form]")?.reset();
+   return;
+  }
+  const dialog = event.target.closest("[data-trash-delete-dialog]");
+  if (dialog && event.target === dialog) {
+   dialog.close();
+   dialog.querySelector("[data-trash-delete-form]")?.reset();
+  }
+ });
+ container.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-trash-delete-form]");
+  if (!form || form.dataset.submitting === "true" || !lastWorkspaceMount) return;
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  const kind = form.elements.kind.value;
+  const id = form.elements.id.value;
+  const password = form.elements.password.value;
   if (!id || !["project", "team"].includes(kind)) return;
-  const original = button.textContent;
-  button.disabled = true;
-  button.textContent = "Восстанавливаем…";
+  const button = form.querySelector('button[type="submit"]');
+  const feedback = form.querySelector("[data-trash-delete-feedback]");
+  form.dataset.submitting = "true";
+  if (button) { button.disabled = true; button.textContent = "Удаляем…"; }
+  if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
   try {
-   if (kind === "project") await authClient.restoreProject(id);
-   else await authClient.restoreTeam(id);
+   if (kind === "project") await authClient.permanentlyDeleteProject({ projectId: id, password });
+   else await authClient.permanentlyDeleteTeam({ teamId: id, password });
+   const dialog = form.closest("[data-trash-delete-dialog]");
+   if (dialog?.open) dialog.close();
    mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
   } catch (error) {
-   button.disabled = false;
-   button.textContent = original;
-   const feedback = container.querySelector("[data-trash-feedback]");
+   const message = String(error?.message || "");
    if (feedback) {
-    feedback.textContent = /permission|42501/i.test(String(error?.message || ""))
-     ? "Недостаточно прав для восстановления этого объекта."
-     : error?.message || "Не удалось восстановить объект.";
+    feedback.textContent = /invalid login credentials|invalid_credentials|wrong password/i.test(message)
+     ? "Неверный пароль. Проверьте ввод и попробуйте ещё раз."
+     : /Recent password confirmation required/i.test(message)
+      ? "Не удалось подтвердить пароль. Повторите попытку."
+      : /Only the (project|Team) owner|42501/i.test(message)
+       ? "Полное удаление доступно только владельцу объекта."
+       : /must be archived|not archived/i.test(message)
+        ? "Сначала переместите объект в корзину."
+        : message || "Не удалось удалить объект. Попробуйте ещё раз.";
     feedback.dataset.state = "error";
    }
+   form.querySelector('input[name="password"]')?.focus();
+   form.querySelector('input[name="password"]')?.select();
+   form.dataset.submitting = "false";
+   if (button) { button.disabled = false; button.textContent = "Удалить навсегда"; }
   }
  });
 }
-
 function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }

@@ -1,4 +1,4 @@
-/* Version: 3.14.0 */
+/* Version: 3.15.0 */
 /* Updated: 2026-11-24 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -869,3 +869,18 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .trash-empty-note, .trash-retention-note { margin: 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.6; }
 .trash-retention-note { padding-top: 14px; border-top: 1px solid var(--color-surface-border); }
 @media (max-width: 560px) { .trash-item-card { align-items: flex-start; flex-direction: column; gap: 13px; padding: 14px; } .trash-restore-button { width: 100%; } }
+
+
+/* Permanent deletion actions in the unified trash */
+/* Version: 1.0.0 */
+/* Updated: 2026-11-24 */
+.trash-item-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.trash-delete-button { min-height: 40px; }
+.trash-delete-dialog { width: min(92vw, 480px); max-width: 480px; max-height: min(88svh, 760px); overflow-y: auto; }
+.trash-delete-dialog .project-delete-dialog-panel { padding: 22px; }
+.trash-delete-dialog [data-trash-delete-description] { line-height: 1.55; overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+ .trash-item-actions { width: 100%; flex-direction: column; }
+ .trash-item-actions > button { width: 100%; }
+ .trash-delete-dialog .project-delete-dialog-panel { padding: 18px; }
+}
