@@ -1,4 +1,4 @@
-/* Version: 34.1.0 */
+/* Version: 34.2.0 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -418,7 +418,7 @@ async function handleMessage(msg: any, role: string|null) {
   if (command === "/start") {
     if (startPayload.startsWith("link_")) {
       const token = startPayload.slice(5);
-      if (!/^[a-f0-9]{64}$/i.test(token)) return say(chat, "Ссылка подключения некорректна. Вернитесь в настройки Raymondovich и создайте новую.");
+      if (!/^[a-f0-9]{59}$/i.test(token)) return say(chat, "Ссылка подключения некорректна. Вернитесь в настройки Raymondovich и создайте новую.");
       try {
         await db("telegram_link_pending?on_conflict=telegram_user_id", {
           method: "POST",
