@@ -1,4 +1,4 @@
-/* Version: 2.10.0 */
+/* Version: 2.11.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -351,6 +351,24 @@ function installTrashActions(container) {
  if (container.dataset.trashActionsBound === "true") return;
  container.dataset.trashActionsBound = "true";
  container.addEventListener("click", async (event) => {
+  const tabButton = event.target.closest("[data-trash-tab]");
+  if (tabButton) {
+   const tab = tabButton.dataset.trashTab;
+   if (!["projects", "ideas", "teams"].includes(tab)) return;
+   container.querySelectorAll("[data-trash-tab]").forEach((button) => {
+    const selected = button.dataset.trashTab === tab;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-selected", selected ? "true" : "false");
+    button.setAttribute("tabindex", selected ? "0" : "-1");
+   });
+   container.querySelectorAll(".trash-tab-panel").forEach((panel) => {
+    panel.hidden = panel.id !== "trash-panel-" + tab;
+   });
+   const query = new URLSearchParams(window.location.hash.split("?")[1] || "");
+   query.set("tab", tab);
+   window.history.replaceState(window.history.state, "", "#trash?" + query.toString());
+   return;
+  }
   if (event.target.closest("[data-trash-retry]") && lastWorkspaceMount) {
    mountWorkspace(container, lastWorkspaceMount.user, "trash", lastWorkspaceMount.profileData);
    return;

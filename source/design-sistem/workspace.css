@@ -1,4 +1,4 @@
-/* Version: 3.15.0 */
+/* Version: 3.16.0 */
 /* Updated: 2026-11-24 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -902,3 +902,5 @@ body[data-app-state="workspace"] .workspace-mobile-nav { display: none; }
 .trash-tab-placeholder h3 { margin: 0; font-size: 16px; }
 .trash-tab-placeholder p { max-width: 420px; margin: 8px 0 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
 @media (max-width: 420px) { .trash-tab { gap: 5px; padding-inline: 5px; font-size: 12px; } }
+
+.trash-tab-panel[hidden] { display: none; }
