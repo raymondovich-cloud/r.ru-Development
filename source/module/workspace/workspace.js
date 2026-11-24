@@ -1,4 +1,4 @@
-/* Version: 2.13.0 */
+/* Version: 2.14.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -570,11 +570,15 @@ export function mountWorkspace(container, user, section = "projects", profileDat
    if (event.target.closest("[data-telegram-link-start]")) {
     const button = event.target.closest("[data-telegram-link-start]");
     button.disabled = true;
+    let telegramWindow = null;
     try {
+     telegramWindow = window.open("about:blank", "_blank");
+     if (!telegramWindow) throw new Error("Браузер заблокировал новое окно. Разрешите открытие ссылок и повторите.");
      const result = await authClient.startTelegramLink();
      if (!result?.url) throw new Error("Сервис не вернул ссылку для подключения.");
-     window.location.href = result.url;
+     telegramWindow.location.href = result.url;
     } catch (error) {
+     if (telegramWindow && !telegramWindow.closed) telegramWindow.close();
      const feedback = container.querySelector("[data-telegram-link-feedback]");
      if (feedback) feedback.textContent = error?.message || "Не удалось создать ссылку.";
      button.disabled = false;
