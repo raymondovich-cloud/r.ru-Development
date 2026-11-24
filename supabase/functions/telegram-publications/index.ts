@@ -1,4 +1,4 @@
-/* Version: 33.0.0 */
+/* Version: 34.0.0 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -52,6 +52,7 @@ async function isAdmin(uid: number) {
 }
 const BASIC_COMMANDS = [
   { command: "subscription", description: "Управление подпиской на рассылку" },
+  { command: "integration", description: "Подключить Telegram к Raymondovich" },
   { command: "help", description: "Справка и поддержка" },
 ];
 const HELP_COMMAND = { command: "help", description: "Справка и поддержка" };
@@ -61,6 +62,8 @@ const HELP_TEXT = [
   "<b>КОМАНДЫ БОТА</b>",
   "",
   "/subscription — управление подпиской на рассылку. Вы можете включить или отключить получение публикаций в любое время. Отключение рассылки не удаляет вас из бота.",
+  "",
+  "/integration — завершить подключение Telegram к аккаунту Raymondovich.",
   "",
   "/help — открыть справку и информацию о поддержке.",
   "",
@@ -88,6 +91,7 @@ async function syncCommands(uid: number, role: string | null, isSubscribed = tru
     : { command: "subscription", description: "Включить рассылку" };
   const commands = [
     subscriptionCommand,
+    { command: "integration", description: "Подключить Telegram к Raymondovich" },
     HELP_COMMAND,
     ...(role === "owner" ? [
       { command: "admin", description: "Меню администрирования" },
@@ -415,19 +419,25 @@ async function handleMessage(msg: any, role: string|null) {
     if (startPayload.startsWith("link_")) {
       const token = startPayload.slice(5);
       try {
-        await db("rpc/telegram_link_consume", {
+        await db("telegram_link_pending?on_conflict=telegram_user_id", {
           method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates" },
           body: JSON.stringify({
-            p_token: token,
-            p_telegram_user_id: uid,
-            p_chat_id: chat,
-            p_username: msg.from.username ?? null
+            telegram_user_id: uid,
+            token,
+            expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+            created_at: new Date().toISOString()
           })
         });
-        return say(chat, "Telegram успешно подключён к вашему аккаунту Raymondovich. Теперь сюда будут приходить уведомления о скором автоматическом удалении ваших проектов и команд.\n\nКоманда /stop отключает сообщения бота; /subscription снова включает их.");
+        await syncCommands(uid, role, true);
+        return say(chat, "Первый этап подключения завершён. Теперь подтвердите привязку аккаунта Raymondovich командой /integration.", {
+          keyboard: [[{ text: "/integration" }]],
+          resize_keyboard: true,
+          one_time_keyboard: true
+        });
       } catch (error) {
-        console.error("Telegram account linking failed", error);
-        return say(chat, "Не удалось подключить Telegram. Ссылка могла истечь или уже быть использована. Вернитесь в настройки Raymondovich и создайте новую ссылку.");
+        console.error("Could not prepare Telegram integration", error);
+        return say(chat, "Не удалось подготовить подключение. Вернитесь в настройки Raymondovich и создайте новую ссылку.");
       }
     }
     const subscriptionRows = await db(`telegram_bot_users?telegram_user_id=eq.${uid}&select=is_subscribed`);
@@ -469,6 +479,31 @@ async function handleMessage(msg: any, role: string|null) {
       console.error("Welcome message was sent but could not be pinned", error);
     }
     return welcomeMessage;
+  }
+  if (command === "/integration") {
+    if (msg.chat.type !== "private") return say(chat, "Подключение аккаунта доступно только в личном чате с ботом.");
+    const pendingRows = await db(`telegram_link_pending?telegram_user_id=eq.${uid}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=token`);
+    if (!pendingRows?.length) {
+      try { await db(`telegram_link_pending?telegram_user_id=eq.${uid}`, { method: "DELETE" }); } catch {}
+      return say(chat, "Нет действующего запроса на подключение. Откройте настройки Raymondovich и нажмите «Подключить Telegram» ещё раз.", { remove_keyboard: true });
+    }
+    try {
+      await db("rpc/telegram_link_consume", {
+        method: "POST",
+        body: JSON.stringify({
+          p_token: pendingRows[0].token,
+          p_telegram_user_id: uid,
+          p_chat_id: chat,
+          p_username: msg.from.username ?? null
+        })
+      });
+      await db(`telegram_link_pending?telegram_user_id=eq.${uid}`, { method: "DELETE" });
+      return say(chat, "Telegram успешно подключён к вашему аккаунту Raymondovich. Теперь сюда будут приходить личные уведомления об изменениях ваших проектов и команд.", { remove_keyboard: true });
+    } catch (error) {
+      console.error("Telegram account linking failed during /integration", error);
+      try { await db(`telegram_link_pending?telegram_user_id=eq.${uid}`, { method: "DELETE" }); } catch {}
+      return say(chat, "Не удалось подключить Telegram. Ссылка могла истечь или уже быть использована. Вернитесь в настройки Raymondovich и создайте новую ссылку.", { remove_keyboard: true });
+    }
   }
   if (command === "/subscription") {
     const subscriptionRows = await db(`telegram_bot_users?telegram_user_id=eq.${uid}&select=is_subscribed`);
