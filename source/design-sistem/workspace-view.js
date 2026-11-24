@@ -191,8 +191,9 @@ function trashWorkspaceMarkup(state) {
  const dateLabel = (value) => value ? formatProjectDate(value) : "Дата неизвестна";
  const renderCards = (items, kind) => items.map((item) => {
   const canDelete = kind === "team" || item.role === "owner";
-  const deadline = item.archived_at ? Date.parse(item.archived_at) + 30 * 24 * 60 * 60 * 1000 : NaN;
+  const deadline = item.deletion_at ? Date.parse(item.deletion_at) : item.archived_at ? Date.parse(item.archived_at) + 30 * 24 * 60 * 60 * 1000 : NaN;
   const countdownLabel = () => {
+   if (kind === "project" && item.retention_blocked === true) return "Удаление после архивации всех подпроектов";
    if (!Number.isFinite(deadline)) return "Срок удаления не определён";
    const remaining = Math.max(0, deadline - Date.now());
    if (remaining === 0) return "Срок хранения истёк. Удаление выполняется автоматически.";
