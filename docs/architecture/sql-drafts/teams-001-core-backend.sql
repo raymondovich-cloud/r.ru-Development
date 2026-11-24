@@ -1,11 +1,11 @@
--- REVIEW DRAFT — NOT APPLIED
+-- APPLIED MIGRATION SOURCE
 -- Raymondovich Teams core backend, phase 1
 -- Version: 1.0.0
 -- Created: 2026-11-24
 -- Target: Supabase PostgreSQL 17.11
 -- Scope: Team core tables, create entitlement grants, audit, create/list/get RPC
--- This is a review draft stored in docs/architecture/sql-drafts.
--- Do not execute until separately approved and converted to a numbered Supabase migration.
+-- Applied to Supabase project yajybgdorhxebbigwjgi as migration 20261124075310.
+-- Historical source. Do not reapply manually.
 
 begin;
 
