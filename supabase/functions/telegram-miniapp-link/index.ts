@@ -65,7 +65,7 @@ async function validateInitData(raw: string) {
 
   const checkString = Array.from(params.entries())
     .filter(([key]) => key !== "hash")
-    .sort(([left], [right]) => left.localeCompare(right))
+    .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
 
@@ -85,12 +85,12 @@ async function validateInitData(raw: string) {
   return user;
 }
 
-async function callRpc(path: string, body: unknown, apiKey: string, authorization: string) {
+async function callRpc(path: string, body: unknown, apiKey: string, authorization = "") {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method: "POST",
     headers: {
       apikey: apiKey,
-      Authorization: authorization,
+      ...(authorization ? { Authorization: authorization } : {}),
       "Content-Type": "application/json"
     },
     body: JSON.stringify(body)
@@ -111,7 +111,7 @@ Deno.serve(async (request: Request) => {
 
   try {
     const authorization = request.headers.get("Authorization") || "";
-    if (!/^Bearer\\s+\\S+$/i.test(authorization)) return respond({ error: "Требуется авторизация Raymondovich." }, 401, origin);
+    if (!/^Bearer\s+\S+$/i.test(authorization)) return respond({ error: "Требуется авторизация Raymondovich." }, 401, origin);
 
     const body = await request.json().catch(() => ({}));
     const telegramUser = await validateInitData(String(body?.init_data || ""));
@@ -134,7 +134,7 @@ Deno.serve(async (request: Request) => {
       p_telegram_user_id: telegramUser.id,
       p_chat_id: telegramUser.id,
       p_username: telegramUser.username || null
-    }, SERVICE_KEY, authorization);
+    }, SERVICE_KEY, SERVICE_KEY.startsWith("eyJ") ? `Bearer ${SERVICE_KEY}` : "");
 
     return respond({ ok: true, linked: true, username: telegramUser.username || null }, 200, origin);
   } catch (error) {
