@@ -1,4 +1,4 @@
-/* Version: 2.6.0 */
+/* Version: 2.7.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -198,6 +198,18 @@ function installTeamActions(container) {
    catch (error) { cancelInvite.disabled = false; const feedback = container.querySelector("[data-team-invite-feedback]"); if (feedback) { feedback.textContent = error?.message || "Не удалось отменить приглашение."; feedback.dataset.state = "error"; } }
    return;
   }
+  if (event.target.closest("[data-team-invite-open]")) {
+   const dialog = container.querySelector("[data-team-invite-dialog]");
+   if (dialog && !dialog.open) dialog.showModal();
+   return;
+  }
+  if (event.target.closest("[data-team-invite-close]")) {
+   const dialog = event.target.closest("[data-team-invite-dialog]") || container.querySelector("[data-team-invite-dialog]");
+   if (dialog?.open) dialog.close();
+   return;
+  }
+  const inviteDialog = event.target.closest("[data-team-invite-dialog]");
+  if (inviteDialog && event.target === inviteDialog) inviteDialog.close();
   if (event.target.closest("[data-team-create-open]")) {
    const dialog = container.querySelector("[data-team-create-dialog]");
    if (dialog && !dialog.open) dialog.showModal();
