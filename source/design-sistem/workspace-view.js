@@ -1,4 +1,4 @@
-/* Version: 3.42.0 */
+/* Version: 3.43.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -70,12 +70,13 @@ function settingsMarkup(user, profileData, route, projectState = null) {
   ["public-info","Публичная информация","Данные для публичной карточки и портфолио"],
   ["privacy","Конфиденциальность","Электронная почта и пароль"],
   ["appearance","Оформление","Тема интерфейса и иконки"],
-  ["cryptography","Криптография","Управление криптографическими ключами"]
+  ["cryptography","Криптография","Управление криптографическими ключами"],
+  ["telegram","Telegram","Личные уведомления о проектах и командах"]
  ];
  const groupRoute = route.split("/")[2] || "";
  if (!groupRoute) return '<div class="settings-group-list">' + groups.map(([id,name,description]) =>
   '<a class="settings-group-link" href="#profile/settings/' + id + '"><span class="settings-group-symbol" aria-hidden="true">' +
-  ({ "personal-data":"◉", "public-info":"↗", privacy:"◇", appearance:"◐", cryptography:"⌘" }[id]) +
+  ({ "personal-data":"◉", "public-info":"↗", privacy:"◇", appearance:"◐", cryptography:"⌘", telegram:"✈" }[id]) +
   '</span><span class="settings-group-copy"><strong>' + name + '</strong><small>' + description + '</small></span><span class="settings-group-chevron" aria-hidden="true">›</span></a>'
  ).join("") + '</div><button class="profile-signout settings-signout" type="button" data-auth-signout>Выйти из аккаунта</button>';
  if (groupRoute === "personal-data") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Личные данные</h2><p>Основная информация вашего профиля.</p></div></div>' +
@@ -108,6 +109,7 @@ function settingsMarkup(user, profileData, route, projectState = null) {
  if (groupRoute === "appearance") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Оформление</h2><p>Настройте внешний вид интерфейса.</p></div></div><div class="settings-theme-options" role="group" aria-label="Тема оформления">' +
   ["system","light","dark"].map((theme) => '<button type="button" class="settings-theme-option" data-theme-option="' + theme + '" aria-pressed="' + (preference === theme) + '">' + labels[theme] + '</button>').join("") +
   '</div><p class="settings-section-note">Дополнительные варианты оформления и наборы иконок появятся позднее.</p></section>';
+ if (groupRoute === "telegram") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Уведомления в Telegram</h2><p>Подключите личный Telegram, чтобы получать предупреждения об автоматическом удалении ваших проектов и команд.</p></div></div><div class="settings-placeholder" data-telegram-link-status role="status" aria-live="polite"><p>Проверяем подключение…</p></div><div class="settings-form-feedback" data-telegram-link-feedback role="status" aria-live="polite"></div></section>';
  if (groupRoute === "cryptography") return '<section class="settings-card"><div class="settings-card-heading"><div><h2>Криптография</h2><p>Управление криптографическими ключами.</p></div></div>' +
   '<div class="settings-placeholder"><strong>Добавление ключа</strong><p>Раздел подготовки ключей будет реализован отдельно после определения формата и правил безопасного хранения.</p></div></section>';
  return '<div class="workspace-empty-state"><h2>Раздел не найден</h2><p>Выберите группу настроек.</p></div>';
