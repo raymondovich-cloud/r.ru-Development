@@ -1,7 +1,8 @@
-/* Version: 2.1.0 */
-/* Updated: 2026-11-16 */
+/* Version: 2.2.0 */
+/* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
+import { normalizeTeamInput } from "../../domain/team/team.js";
 
 let profileScrollFrame = 0;
 let workspaceMountSequence = 0;
@@ -180,6 +181,57 @@ function installProjectDeleteActions(container) {
  });
 }
 
+function installTeamActions(container) {
+ if (container.dataset.teamActionsBound === "true") return;
+ container.dataset.teamActionsBound = "true";
+ container.addEventListener("click", (event) => {
+  if (event.target.closest("[data-team-create-open]")) {
+   const dialog = container.querySelector("[data-team-create-dialog]");
+   if (dialog && !dialog.open) dialog.showModal();
+   return;
+  }
+  if (event.target.closest("[data-team-create-close]")) {
+   const dialog = event.target.closest("[data-team-create-dialog]") || container.querySelector("[data-team-create-dialog]");
+   if (dialog?.open) dialog.close();
+   return;
+  }
+  const dialog = event.target.closest("[data-team-create-dialog]");
+  if (dialog && event.target === dialog) dialog.close();
+  if (event.target.closest("[data-team-retry]") && lastWorkspaceMount) {
+   mountWorkspace(container, lastWorkspaceMount.user, "team", lastWorkspaceMount.profileData);
+  }
+ });
+ container.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-team-create-form]");
+  if (!form || form.dataset.submitting === "true") return;
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  const values = Object.fromEntries(new FormData(form).entries());
+  const feedback = form.querySelector("[data-team-create-feedback]");
+  const button = form.querySelector('button[type="submit"]');
+  form.dataset.submitting = "true";
+  if (button) { button.disabled = true; button.textContent = "Создание…"; }
+  if (feedback) { feedback.textContent = ""; feedback.dataset.state = ""; }
+  try {
+   const input = normalizeTeamInput(values);
+   const team = await authClient.createTeam(input);
+   const dialog = form.closest("[data-team-create-dialog]");
+   if (dialog?.open) dialog.close();
+   window.location.hash = "team/" + encodeURIComponent(team.id);
+  } catch (error) {
+   if (feedback) {
+    const message = String(error?.message || "");
+    feedback.textContent = /42501|entitlement|required/i.test(message)
+     ? "Создание команды доступно по подписке. Для владельца экосистемы функция бесплатна."
+     : message || "Не удалось создать команду.";
+    feedback.dataset.state = "error";
+   }
+   form.dataset.submitting = "false";
+   if (button) { button.disabled = false; button.textContent = "Создать команду"; }
+  }
+ });
+}
+
 function installPublicProfileActions(container) {
  if (container.dataset.publicProfileActionsBound === "true") return;
  container.dataset.publicProfileActionsBound = "true";
@@ -225,7 +277,23 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  installProjectMemberActions(container);
  installProjectDeleteActions(container);
  installPublicProfileActions(container);
+ installTeamActions(container);
  syncProfileIdentityCard();
+
+ const needsTeams = section === "team" || /^team\/[0-9a-f-]{36}$/i.test(section);
+ if (needsTeams) {
+  const teamId = section.startsWith("team/") ? decodeURIComponent(section.split("/")[1]) : null;
+  const load = teamId ? authClient.getTeam(teamId).then((team) => ({ status: "ready", team })) : authClient.getTeams().then((payload) => ({ status: "ready", teams: Array.isArray(payload) ? payload : Array.isArray(payload?.teams) ? payload.teams : [] }));
+  load.then((state) => {
+   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
+   renderWorkspaceView(container, user, section, profileData, state);
+   syncProfileIdentityCard();
+  }).catch((error) => {
+   if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
+   renderWorkspaceView(container, user, section, profileData, { status: "error", message: error?.message || "Не удалось загрузить команды." });
+  });
+  return;
+ }
 
  const needsProjects = section === "projects" || section.startsWith("projects/") || section === "profile/settings/public-info";
  if (!needsProjects) return;
