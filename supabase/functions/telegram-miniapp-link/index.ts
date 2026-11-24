@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.0.1 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -127,7 +127,9 @@ Deno.serve(async (request: Request) => {
     const startUrl = typeof startResult?.url === "string" ? new URL(startResult.url) : null;
     const startPayload = startUrl?.searchParams.get("start") || "";
     const token = startPayload.startsWith("link_") ? startPayload.slice(5) : "";
-    if (!token) throw new Error("Не удалось создать одноразовый токен подключения Telegram.");
+    if (startPayload.length !== 64 || !/^[a-f0-9]{59}$/i.test(token)) {
+      throw new Error("Не удалось создать корректный одноразовый токен подключения Telegram.");
+    }
 
     await callRpc("rpc/telegram_link_consume", {
       p_token: token,
