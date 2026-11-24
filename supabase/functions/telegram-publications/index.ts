@@ -1,4 +1,4 @@
-/* Version: 34.0.0 */
+/* Version: 34.1.0 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
@@ -418,6 +418,7 @@ async function handleMessage(msg: any, role: string|null) {
   if (command === "/start") {
     if (startPayload.startsWith("link_")) {
       const token = startPayload.slice(5);
+      if (!/^[a-f0-9]{64}$/i.test(token)) return say(chat, "Ссылка подключения некорректна. Вернитесь в настройки Raymondovich и создайте новую.");
       try {
         await db("telegram_link_pending?on_conflict=telegram_user_id", {
           method: "POST",
@@ -429,7 +430,8 @@ async function handleMessage(msg: any, role: string|null) {
             created_at: new Date().toISOString()
           })
         });
-        await syncCommands(uid, role, true);
+        try { await syncCommands(uid, role, true); }
+        catch (error) { console.warn("Could not sync Telegram commands after link start", error); }
         return say(chat, "Первый этап подключения завершён. Теперь подтвердите привязку аккаунта Raymondovich командой /integration.", {
           keyboard: [[{ text: "/integration" }]],
           resize_keyboard: true,
@@ -482,7 +484,13 @@ async function handleMessage(msg: any, role: string|null) {
   }
   if (command === "/integration") {
     if (msg.chat.type !== "private") return say(chat, "Подключение аккаунта доступно только в личном чате с ботом.");
-    const pendingRows = await db(`telegram_link_pending?telegram_user_id=eq.${uid}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=token`);
+    let pendingRows: any[] = [];
+    try {
+      pendingRows = await db(`telegram_link_pending?telegram_user_id=eq.${uid}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=token`);
+    } catch (error) {
+      console.error("Could not read pending Telegram integration", error);
+      return say(chat, "Не удалось проверить запрос на подключение. Попробуйте ещё раз через несколько секунд.");
+    }
     if (!pendingRows?.length) {
       try { await db(`telegram_link_pending?telegram_user_id=eq.${uid}`, { method: "DELETE" }); } catch {}
       return say(chat, "Нет действующего запроса на подключение. Откройте настройки Raymondovich и нажмите «Подключить Telegram» ещё раз.", { remove_keyboard: true });
