@@ -1,4 +1,4 @@
-/* Version: 2.15.0 */
+/* Version: 2.16.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -624,6 +624,17 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  syncProfileIdentityCard();
 
  if (section === "profile/settings/telegram") {
+  if (container.dataset.telegramRefreshBound !== "true") {
+   container.dataset.telegramRefreshBound = "true";
+   const refreshTelegramStatus = () => {
+    if (document.visibilityState === "visible" && currentRoute() === "profile/settings/telegram" && container.isConnected) {
+     loadTelegramLinkStatus(container);
+    }
+   };
+   document.addEventListener("visibilitychange", refreshTelegramStatus);
+   window.addEventListener("pageshow", refreshTelegramStatus);
+   window.addEventListener("focus", refreshTelegramStatus);
+  }
   loadTelegramLinkStatus(container);
   return;
  }
