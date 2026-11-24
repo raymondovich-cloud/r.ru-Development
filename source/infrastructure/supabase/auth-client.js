@@ -2,7 +2,7 @@ import { createProjectApi } from "./project-api.js";
 import { createTeamApi } from "./team-api.js";
 import { createNotificationApi } from "./notification-api.js";
 
-/* Version: 1.17.0 */
+/* Version: 1.18.0 */
 /* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
@@ -295,13 +295,13 @@ export const authClient = {
   },
   async unlinkTelegram() { return createNotificationApi({ getSession: () => this.getSession(), request }).telegramLinkUnlink(); },
 
-  async broadcastNotification(body) {
+  async broadcastNotification(body, audience = "all") {
     const session = await this.getSession();
     if (!session) throw new Error("Сессия пользователя не найдена. Войдите в аккаунт повторно.");
     const response = await fetch(`${EDGE_FUNCTIONS_URL}/admin-broadcast-notifications`, {
       method: "POST",
       headers: { apikey: SUPABASE_PUBLIC_KEY, Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ body }),
+      body: JSON.stringify({ body, audience }),
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "Не удалось отправить уведомление.");

@@ -1,4 +1,4 @@
-/* Version: 1.0.0 */
+/* Version: 1.1.0 */
 /* Updated: 2026-11-24 */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -35,15 +35,17 @@ Deno.serve(async (request: Request) => {
     if (user.app_metadata?.raymondovich_role !== "owner") return json({ error: "Owner access required" }, 403);
     const input = await request.json().catch(() => ({}));
     const body = typeof input.body === "string" ? input.body.trim() : "";
+    const audience = typeof input.audience === "string" ? input.audience : "all";
     if (body.length < 1 || body.length > 1000) return json({ error: "Текст уведомления должен содержать от 1 до 1000 символов." }, 400);
-    const rpcResponse = await fetch(`${SUPABASE_URL}/rest/v1/rpc/notifications_broadcast_to_all`, {
+    if (!["all", "without_telegram"].includes(audience)) return json({ error: "Неизвестная группа получателей." }, 400);
+    const rpcResponse = await fetch(`${SUPABASE_URL}/rest/v1/rpc/notifications_broadcast_to_audience`, {
       method: "POST",
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ p_actor_user_id: user.id, p_body: body }),
+      body: JSON.stringify({ p_actor_user_id: user.id, p_body: body, p_audience: audience }),
     });
     const rpcResult = await rpcResponse.json().catch(() => ({}));
     if (!rpcResponse.ok) return json({ error: rpcResult.message || rpcResult.error || "Не удалось создать уведомления." }, rpcResponse.status >= 500 ? 500 : 400);
-    const chatIds = Array.isArray(rpcResult.telegram_chat_ids)
+    const chatIds = audience === "all" && Array.isArray(rpcResult.telegram_chat_ids)
       ? rpcResult.telegram_chat_ids.map(Number).filter((id: number) => Number.isSafeInteger(id) && id !== 0)
       : [];
     const telegram = { attempted: chatIds.length, sent: 0, failed: 0, skipped: 0 };
