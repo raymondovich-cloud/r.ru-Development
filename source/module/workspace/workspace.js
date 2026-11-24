@@ -1,4 +1,4 @@
-/* Version: 2.4.0 */
+/* Version: 2.5.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
