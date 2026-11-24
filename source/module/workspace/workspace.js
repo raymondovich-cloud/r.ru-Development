@@ -1,4 +1,4 @@
-/* Version: 2.11.0 */
+/* Version: 2.12.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -7,6 +7,7 @@ import { normalizeTeamInput } from "../../domain/team/team.js";
 let profileScrollFrame = 0;
 let workspaceMountSequence = 0;
 let lastWorkspaceMount = null;
+let trashCountdownTimer = 0;
 
 function escapeHtml(value) {
  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -472,6 +473,35 @@ function installTrashActions(container) {
   }
  });
 }
+function stopTrashCountdown() {
+ if (trashCountdownTimer) window.clearInterval(trashCountdownTimer);
+ trashCountdownTimer = 0;
+}
+
+function installTrashCountdown(container) {
+ stopTrashCountdown();
+ const update = () => {
+  if (currentRoute() !== "trash") { stopTrashCountdown(); return; }
+  container.querySelectorAll("[data-trash-countdown][data-deadline]").forEach((element) => {
+   const deadline = Number(element.dataset.deadline);
+   if (!Number.isFinite(deadline)) return;
+   const remaining = Math.max(0, deadline - Date.now());
+   if (remaining === 0) {
+    element.textContent = "Срок хранения истёк. Удаление выполняется автоматически.";
+    return;
+   }
+   const days = Math.floor(remaining / 86400000);
+   const hours = Math.floor((remaining % 86400000) / 3600000);
+   const minutes = Math.floor((remaining % 3600000) / 60000);
+   element.textContent = "Удаление через " + (days ? days + " дн. " : "") + hours + " ч. " + minutes + " мин.";
+  });
+ };
+ update();
+ if (container.querySelector("[data-trash-countdown][data-deadline]")) {
+  trashCountdownTimer = window.setInterval(update, 30000);
+ }
+}
+
 function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }
@@ -502,6 +532,7 @@ function loadNotifications(container) {
 }
 
 export function mountWorkspace(container, user, section = "projects", profileData = null) {
+ stopTrashCountdown();
  const sequence = ++workspaceMountSequence;
  lastWorkspaceMount = { user, profileData };
  renderWorkspaceView(
@@ -580,6 +611,7 @@ export function mountWorkspace(container, user, section = "projects", profileDat
    const projects = Array.isArray(projectPayload?.projects) ? projectPayload.projects : [];
    const teams = Array.isArray(teamPayload) ? teamPayload : Array.isArray(teamPayload?.teams) ? teamPayload.teams : [];
    renderWorkspaceView(container, user, section, profileData, { status: "ready", projects, teams });
+   installTrashCountdown(container);
   }).catch((error) => {
    if (sequence !== workspaceMountSequence || currentRoute() !== section) return;
    renderWorkspaceView(container, user, section, profileData, { status: "error", message: error?.message || "Не удалось загрузить корзину." });
