@@ -1,4 +1,4 @@
-/* Version: 2.12.0 */
+/* Version: 2.13.0 */
 /* Updated: 2026-11-24 */
 import { renderWorkspaceView } from "../../design-sistem/workspace-view.js";
 import { authClient } from "../../infrastructure/supabase/auth-client.js";
@@ -502,6 +502,20 @@ function installTrashCountdown(container) {
  }
 }
 
+async function loadTelegramLinkStatus(container) {
+ const target = container.querySelector("[data-telegram-link-status]");
+ if (!target) return;
+ target.innerHTML = "<p>Проверяем подключение…</p>";
+ try {
+  const status = await authClient.getTelegramLinkStatus();
+  target.innerHTML = status?.linked
+   ? '<p>Telegram подключён' + (status.username ? ' · @' + escapeHtml(status.username) : '') + '.</p><button class="settings-secondary-button" type="button" data-telegram-link-unlink>Отключить Telegram</button>'
+   : '<p>Telegram не подключён. После подключения бот сможет отправлять личные уведомления.</p><button class="settings-primary-button" type="button" data-telegram-link-start>Подключить Telegram</button>';
+ } catch (error) {
+  target.innerHTML = '<p>Не удалось проверить подключение: ' + escapeHtml(error?.message || "ошибка запроса") + '</p><button class="settings-secondary-button" type="button" data-telegram-link-retry>Повторить</button>';
+ }
+}
+
 function currentRoute() {
  return window.location.hash.replace(/^#/, "").split("?")[0] || "home";
 }
@@ -552,7 +566,36 @@ export function mountWorkspace(container, user, section = "projects", profileDat
  if (container.dataset.notificationActionsBound !== "true") {
   container.dataset.notificationActionsBound = "true";
   container.addEventListener("click", async (event) => {
-   if (event.target.closest("[data-notification-retry]")) { loadNotifications(container); return; }
+   if (event.target.closest("[data-telegram-link-retry]")) { loadTelegramLinkStatus(container); return; }
+   if (event.target.closest("[data-telegram-link-start]")) {
+    const button = event.target.closest("[data-telegram-link-start]");
+    button.disabled = true;
+    try {
+     const result = await authClient.startTelegramLink();
+     if (!result?.url) throw new Error("Сервис не вернул ссылку для подключения.");
+     window.location.href = result.url;
+    } catch (error) {
+     const feedback = container.querySelector("[data-telegram-link-feedback]");
+     if (feedback) feedback.textContent = error?.message || "Не удалось создать ссылку.";
+     button.disabled = false;
+    }
+    return;
+   }
+   if (event.target.closest("[data-telegram-link-unlink]")) {
+    const button = event.target.closest("[data-telegram-link-unlink]");
+    button.disabled = true;
+    try {
+     await authClient.unlinkTelegram();
+     await loadTelegramLinkStatus(container);
+    } catch (error) {
+     const feedback = container.querySelector("[data-telegram-link-feedback]");
+     if (feedback) feedback.textContent = error?.message || "Не удалось отключить Telegram.";
+     button.disabled = false;
+    }
+    return;
+   }
+   if (event.target.closest("[data-notification-retry]")) { if (section === "profile/settings/telegram") loadTelegramLinkStatus(container);
+ loadNotifications(container); return; }
    const dialog = event.target.closest("[data-notification-center]");
    if (dialog && event.target === dialog) { dialog.close(); return; }
    if (event.target.closest("[data-notification-center-close]")) { if (dialog?.open) dialog.close(); return; }
