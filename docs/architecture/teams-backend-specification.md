@@ -1,7 +1,7 @@
 # Teams — Backend Architecture Specification
 
 **Version:** 1.6.0  
-**Status:** Core database and Team workspace integration implemented in development; B1 member-list migration applied and frontend confirmed; B2 invitations/notification-center migration drafted but not applied  
+**Status:** Core database and Team workspace integration implemented in development; B1 member-list migration applied and frontend confirmed; B2 invitations/notification-center migration applied as 20261124083432  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Target repository:** raymondovich-cloud/r.ru-Development  
@@ -178,9 +178,9 @@ The migrations create the non-exposed teams schema, core tables, RLS, internal S
 
 Post-migration checks confirmed all four tables exist with RLS enabled, internal functions have fixed empty search_path, public RPC wrappers are SECURITY INVOKER, authenticated can execute approved RPCs but cannot read/write base tables directly, and anon cannot execute the Team creation RPC. Smoke testing of create/list/get was performed in a rolled-back transaction using the trusted owner identity. No test Team was retained.
 
-Frontend integration now includes the Team domain input validator, Supabase RPC adapter, authenticated client methods, Team list, Team details, create dialog and read-only member list. The B2 invitation/notification-center SQL draft is prepared in the development repository but has not been applied; invitation UI is not yet implemented.
+Frontend integration now includes the Team domain input validator, Supabase RPC adapter, authenticated client methods, Team list, Team details, create dialog and read-only member list. The B2 invitation/notification-center migration is applied to development Supabase as `20261124083432`; invitation UI is not yet implemented.
 
-The invitation and shared notification inbox tables are proposed only in the separate B2 migration draft. Do not apply them without explicit approval. Editable role permissions, billing tables, and Team-project linking remain separate phases.
+The invitation and shared notification inbox tables were added by the separately approved B2 migration `20261124083432` to the development database only. Editable role permissions, billing tables, and Team-project linking remain separate phases.
 
 ## 10. Indexes
 

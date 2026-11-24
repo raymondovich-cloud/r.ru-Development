@@ -1,8 +1,8 @@
--- PROPOSED MIGRATION — NOT APPLIED
+-- APPLIED MIGRATION SOURCE — DO NOT REAPPLY
 -- Raymondovich Teams B2: invitations + shared notification inbox
 -- Version: 1.0.0
 -- Target: Supabase PostgreSQL 17.11
--- Requires explicit review and approval before application.
+-- Applied to development Supabase project yajybgdorhxebbigwjgi as migration 20261124083432.
 -- Scope: account-bound Team invitations and the first event type in the
 -- ecosystem-wide notification center. No Project permissions are modified.
 

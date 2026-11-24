@@ -1,7 +1,7 @@
 # Teams — Membership and Invitations Specification
 
 **Version:** 1.1.0  
-**Status:** B2 database migration drafted in development repository; not applied to Supabase; frontend not implemented  
+**Status:** B2 database migration applied to development Supabase as 20261124083432; frontend not implemented  
 **Created:** 2026-11-24  
 **Updated:** 2026-11-24  
 **Parent:** [Teams Backend Architecture Specification](./teams-backend-specification.md)
