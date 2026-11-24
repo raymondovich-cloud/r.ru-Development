@@ -1,4 +1,4 @@
-/* Version: 3.10.0 */
+/* Version: 3.11.0 */
 /* Updated: 2026-11-24 */
 body[data-app-state="workspace"] { background: var(--color-page); }
 body[data-app-state="workspace"] .page-shell { min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
@@ -79,6 +79,8 @@ body[data-app-state="workspace"] .page-main { display: block; width: min(100%, 1
 .notification-card-copy blockquote { margin: 10px 0 0; padding: 9px 11px; border-left: 2px solid var(--color-accent); border-radius: 0 9px 9px 0; color: var(--color-text); background: var(--color-surface); font-size: 12px; line-height: 1.5; }
 .notification-card-copy small { display: block; margin-top: 9px; color: var(--color-text-muted); font-size: 11px; }
 .notification-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.notification-card-actions:has([data-notification-action]) { flex-wrap: nowrap; align-items: stretch; }
+.notification-card-actions [data-notification-action] { box-sizing: border-box; flex: 1 1 0; width: 0; min-width: 0; padding-inline: 8px; text-align: center; }
 .notification-card-actions .settings-primary-button, .notification-card-actions .settings-secondary-button { min-height: 38px; }
 .notification-card-actions .settings-primary-button { padding-inline: 14px; }
 .notification-card-actions .settings-secondary-button { padding-inline: 12px; }
