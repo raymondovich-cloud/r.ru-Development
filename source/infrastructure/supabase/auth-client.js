@@ -1,7 +1,8 @@
 import { createProjectApi } from "./project-api.js";
+import { createTeamApi } from "./team-api.js";
 
-/* Version: 1.8.0 */
-/* Updated: 2026-11-16 */
+/* Version: 1.9.0 */
+/* Updated: 2026-11-24 */
 
 const SUPABASE_URL = "https://yajybgdorhxebbigwjgi.supabase.co";
 const SUPABASE_PUBLIC_KEY = "sb_publishable_2d3FG3DEk49zKUdJDm3VrA_SAwLL1pp";
@@ -237,6 +238,27 @@ export const authClient = {
       window.localStorage.removeItem(SESSION_KEY);
       return null;
     }
+  },
+
+  async createTeam(input) {
+    return createTeamApi({
+      getSession: () => this.getSession(),
+      request,
+    }).createTeam(input);
+  },
+
+  async getTeams() {
+    return createTeamApi({
+      getSession: () => this.getSession(),
+      request,
+    }).getTeams();
+  },
+
+  async getTeam(teamId) {
+    return createTeamApi({
+      getSession: () => this.getSession(),
+      request,
+    }).getTeam(teamId);
   },
 
   async createProject(input) {
