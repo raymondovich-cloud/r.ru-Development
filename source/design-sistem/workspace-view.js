@@ -1,4 +1,4 @@
-/* Version: 3.41.0 */
+/* Version: 3.42.0 */
 /* Updated: 2026-11-24 */
 const sections = [
  { id: "projects", label: "Проекты" },
@@ -191,7 +191,19 @@ function trashWorkspaceMarkup(state) {
  const dateLabel = (value) => value ? formatProjectDate(value) : "Дата неизвестна";
  const renderCards = (items, kind) => items.map((item) => {
   const canDelete = kind === "team" || item.role === "owner";
-  return '<article class="trash-item-card"><div class="trash-item-copy"><span class="projects-eyebrow">' + (kind === "project" ? "ПРОЕКТ" : "КОМАНДА") + '</span><h3>' + escapeHtml(item.name || "Без названия") + '</h3>' + (item.description ? '<p>' + escapeHtml(item.description) + '</p>' : '') + '<time>' + escapeHtml("В архиве с " + dateLabel(item.archived_at)) + '</time></div><div class="trash-item-actions"><button class="settings-primary-button trash-restore-button" type="button" data-trash-restore="' + kind + '" data-trash-id="' + escapeHtml(item.id) + '">Восстановить</button>' + (canDelete ? '<button class="project-danger-button trash-delete-button" type="button" data-trash-delete-open data-trash-kind="' + kind + '" data-trash-id="' + escapeHtml(item.id) + '" data-trash-name="' + escapeHtml(item.name || "Без названия") + '">Удалить навсегда</button>' : '') + '</div></article>';
+  const deadline = item.deletion_at ? Date.parse(item.deletion_at) : item.archived_at ? Date.parse(item.archived_at) + 30 * 24 * 60 * 60 * 1000 : NaN;
+  const countdownLabel = () => {
+   if (kind === "project" && item.retention_blocked === true) return "Удаление после архивации всех подпроектов";
+   if (!Number.isFinite(deadline)) return "Срок удаления не определён";
+   const remaining = Math.max(0, deadline - Date.now());
+   if (remaining === 0) return "Срок хранения истёк. Удаление выполняется автоматически.";
+   const days = Math.floor(remaining / 86400000);
+   const hours = Math.floor((remaining % 86400000) / 3600000);
+   const minutes = Math.floor((remaining % 3600000) / 60000);
+   return "Удаление через " + (days ? days + " дн. " : "") + hours + " ч. " + minutes + " мин.";
+  };
+  const countdown = '<p class="trash-countdown" data-trash-countdown' + (Number.isFinite(deadline) ? ' data-deadline="' + deadline + '"' : '') + '>' + escapeHtml(countdownLabel()) + '</p>';
+  return '<article class="trash-item-card"><div class="trash-item-copy"><span class="projects-eyebrow">' + (kind === "project" ? "ПРОЕКТ" : "КОМАНДА") + '</span><h3>' + escapeHtml(item.name || "Без названия") + '</h3>' + (item.description ? '<p>' + escapeHtml(item.description) + '</p>' : '') + '<time>' + escapeHtml("В архиве с " + dateLabel(item.archived_at)) + '</time>' + countdown + '</div><div class="trash-item-actions"><button class="settings-primary-button trash-restore-button" type="button" data-trash-restore="' + kind + '" data-trash-id="' + escapeHtml(item.id) + '">Восстановить</button>' + (canDelete ? '<button class="project-danger-button trash-delete-button" type="button" data-trash-delete-open data-trash-kind="' + kind + '" data-trash-id="' + escapeHtml(item.id) + '" data-trash-name="' + escapeHtml(item.name || "Без названия") + '">Удалить навсегда</button>' : '') + '</div></article>';
  }).join("");
  const projectContent = projects.length ? '<div class="trash-item-list">' + renderCards(projects, "project") + '</div>' : '<div class="projects-empty-state trash-category-empty"><div class="projects-empty-symbol" aria-hidden="true">⌑</div><h3>Архивированных проектов нет</h3><p>Удалённые в корзину проекты будут отображаться здесь.</p></div>';
  const teamContent = teams.length ? '<div class="trash-item-list">' + renderCards(teams, "team") + '</div>' : '<div class="projects-empty-state trash-category-empty"><div class="projects-empty-symbol" aria-hidden="true">⌑</div><h3>Архивированных команд нет</h3><p>Удалённые в корзину команды будут отображаться здесь.</p></div>';
